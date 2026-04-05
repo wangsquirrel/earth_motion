@@ -44,7 +44,15 @@ function App() {
           <span className="h-2 w-2 rounded-full bg-amber-300/90" />
           <span>{viewMode === 'space' ? frameLabel : 'Earth View'}</span>
         </div>
-        <h1 className="mt-4 text-3xl font-light tracking-[0.28em] text-white/95">EARTH MOTION</h1>
+        <div className="mt-4 flex items-center gap-3">
+          <img
+            src="/favicon.svg"
+            alt="Earth Motion logo"
+            className="h-8 w-8 opacity-90"
+            draggable={false}
+          />
+          <h1 className="text-3xl font-light tracking-[0.28em] text-white/95">EARTH MOTION</h1>
+        </div>
         <p className="mt-3 max-w-md text-sm leading-6 text-slate-300/88">
           {viewMode === 'space' 
             ? spaceDescription
