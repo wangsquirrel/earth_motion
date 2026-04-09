@@ -105,10 +105,12 @@ function annualInputsChanged(
 }
 
 function observerStarFieldInputsChanged(
-  previous: { latitude: number; skyCulture: 'western' | 'chinese' },
-  next: { latitude: number; skyCulture: 'western' | 'chinese' },
+  previous: { latitude: number; skyCulture: 'western' | 'chinese'; language: string },
+  next: { latitude: number; skyCulture: 'western' | 'chinese'; language: string },
 ) {
-  return previous.latitude !== next.latitude || previous.skyCulture !== next.skyCulture;
+  return previous.latitude !== next.latitude
+    || previous.skyCulture !== next.skyCulture
+    || previous.language !== next.language;
 }
 
 function staticSceneInputsChanged(
@@ -247,6 +249,7 @@ export default function SpaceView() {
   const lastObserverStarFieldInputsRef = useRef({
     latitude: initialLatitudeRef.current,
     skyCulture,
+    language,
   });
   const lastStaticInputsRef = useRef({
     latitude: initialLatitudeRef.current,
@@ -276,7 +279,8 @@ export default function SpaceView() {
       new Date(),
       SPHERE_RADIUS,
       1.04,
-      skyCulture
+      skyCulture,
+      language
     ),
     constellationLines: buildObserverConstellationLines(
       activeConstellations,
@@ -302,10 +306,10 @@ export default function SpaceView() {
 
   const celestialStarField = useMemo(() => {
     return {
-      stars: buildCelestialStarRenderData(CATALOG, SPHERE_RADIUS, 1.04, skyCulture),
+      stars: buildCelestialStarRenderData(CATALOG, SPHERE_RADIUS, 1.04, skyCulture, language),
       constellationLines: buildCelestialConstellationLines(activeConstellations, CATALOG, SPHERE_RADIUS),
     };
-  }, [activeConstellations, skyCulture]);
+  }, [activeConstellations, language, skyCulture]);
 
   // --- useFrame: throttled scene data rebuild ---
   useFrame(() => {
@@ -333,6 +337,7 @@ export default function SpaceView() {
     const nextObserverStarFieldInputs = {
       latitude: lat,
       skyCulture: culture,
+      language: nextLanguage,
     };
     const nextStaticInputs = {
       latitude: lat,
@@ -386,7 +391,8 @@ export default function SpaceView() {
           currentDate,
           SPHERE_RADIUS,
           1.04,
-          culture
+          culture,
+          nextLanguage
         ),
         constellationLines: buildObserverConstellationLines(
           CONSTELLATIONS_BY_CULTURE[culture],

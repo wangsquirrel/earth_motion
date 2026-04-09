@@ -597,14 +597,15 @@ export default function EarthView() {
       CATALOG,
       SKY_OBJECT_RADIUS,
       STAR_LABEL_RADIUS_SCALE,
-      skyCulture
+      skyCulture,
+      language
     ),
     constellationLines: buildCelestialConstellationLines(
       activeConstellations,
       CATALOG,
       SKY_OBJECT_RADIUS
     ),
-  }), [activeConstellations, skyCulture]);
+  }), [activeConstellations, language, skyCulture]);
   const celestialEclipticPoints = useMemo(
     () => annualSunEquatorialSamples.map(({ ra, dec }) => (
       new THREE.Vector3(...equatorialToCartesian(ra, dec, SKY_OBJECT_RADIUS))

@@ -5,6 +5,7 @@ import {
   horizontalToCartesian,
 } from './astronomy';
 import { getStarDisplayName, type Constellation, type SkyCulture, type StarData } from './stars';
+import type { AppLanguage } from './i18n';
 
 export interface RenderableStar {
   renderKey: string;
@@ -115,10 +116,11 @@ export function buildCelestialStarRenderData(
   catalog: StarData[],
   sphereRadius: number,
   labelRadiusScale: number,
-  culture: SkyCulture
+  culture: SkyCulture,
+  language: AppLanguage
 ): RenderableStar[] {
   return catalog.map((star) => {
-    const label = getStarDisplayName(star, culture);
+    const label = getStarDisplayName(star, culture, language);
     const position = new THREE.Vector3(
       ...equatorialToCartesian(starRaToRadians(star), starDecToRadians(star), sphereRadius)
     );
@@ -144,7 +146,8 @@ export function buildObserverStarRenderData(
   date: Date,
   sphereRadius: number,
   labelRadiusScale: number,
-  culture: SkyCulture
+  culture: SkyCulture,
+  language: AppLanguage
 ): RenderableStar[] {
   return catalog.flatMap((star) => {
     const { azimuth, altitude } = equatorialToHorizontal(
@@ -160,7 +163,7 @@ export function buildObserverStarRenderData(
     }
 
     const position = new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, sphereRadius));
-    const label = getStarDisplayName(star, culture);
+    const label = getStarDisplayName(star, culture, language);
     const labelPosition = label
       ? scalePoint(position, sphereRadius, labelRadiusScale)
       : position;

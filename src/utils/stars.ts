@@ -1,6 +1,7 @@
 // Star catalog and constellation data
 // Designed for extensibility - add stars to CATALOG, define constellations separately
 // Data based on Yale Bright Star Catalog and other standard catalogs
+import type { AppLanguage } from './i18n';
 
 export type SkyCulture = 'western' | 'chinese';
 
@@ -94,7 +95,11 @@ const GREEK_NAME_BY_TOKEN: Record<string, string> = {
   omega: 'Omega',
 };
 
-function deriveWesternStarName(star: StarData) {
+function containsCjk(value: string) {
+  return /[\u4e00-\u9fff]/.test(value);
+}
+
+function deriveWesternEnglishStarName(star: StarData) {
   if (star.names.westernProper) {
     return star.names.westernProper;
   }
@@ -103,7 +108,7 @@ function deriveWesternStarName(star: StarData) {
     return star.names.westernDesignation;
   }
 
-  if (star.names.westernSystemName) {
+  if (star.names.westernSystemName && !containsCjk(star.names.westernSystemName)) {
     return star.names.westernSystemName;
   }
 
@@ -126,12 +131,18 @@ function deriveWesternStarName(star: StarData) {
   return '';
 }
 
-export function getStarDisplayName(star: StarData, culture: SkyCulture) {
+function deriveWesternChineseStarName(star: StarData) {
+  return star.names.westernSystemName ?? star.names.chineseAsterism ?? '';
+}
+
+export function getStarDisplayName(star: StarData, culture: SkyCulture, language: AppLanguage) {
   if (culture === 'chinese') {
     return star.names.chineseAsterism ?? '';
   }
 
-  return deriveWesternStarName(star);
+  return language === 'en'
+    ? deriveWesternEnglishStarName(star)
+    : deriveWesternChineseStarName(star);
 }
 
 // Main star catalog - approximately 200 bright stars
