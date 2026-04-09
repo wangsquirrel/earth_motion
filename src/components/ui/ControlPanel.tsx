@@ -1,6 +1,7 @@
 import { useAppStore } from '../../store/useAppStore';
 import { useShallow } from 'zustand/react/shallow';
 import { Globe, Play, Pause, Settings, MapPin } from 'lucide-react';
+import { getLanguageCopy } from '../../utils/i18n';
 
 function formatUtcDate(date: Date) {
   const year = date.getUTCFullYear();
@@ -85,6 +86,7 @@ export default function ControlPanel() {
     setViewMode, 
     setReferenceFrame,
     setSkyCulture,
+    setLanguage,
     setLatitude,
     setIsPlaying,
     setTimeSpeed,
@@ -99,6 +101,7 @@ export default function ControlPanel() {
       setViewMode: state.setViewMode,
       setReferenceFrame: state.setReferenceFrame,
       setSkyCulture: state.setSkyCulture,
+      setLanguage: state.setLanguage,
       setLatitude: state.setLatitude,
       setIsPlaying: state.setIsPlaying,
       setTimeSpeed: state.setTimeSpeed,
@@ -110,7 +113,7 @@ export default function ControlPanel() {
       setShowPlanets: state.setShowPlanets,
     }))
   );
-  const { viewMode, referenceFrame, skyCulture } = useAppStore(useShallow((state) => state.scene));
+  const { viewMode, referenceFrame, skyCulture, language } = useAppStore(useShallow((state) => state.scene));
   const latitude = useAppStore((state) => state.observer.latitude);
   const { isPlaying, timeSpeed, displayTime } = useAppStore(
     useShallow((state) => ({
@@ -139,9 +142,14 @@ export default function ControlPanel() {
 
   const isCelestialFrame = viewMode === 'space' && referenceFrame === 'celestial';
   const lunarDate = formatLunarDate(displayTime);
+  const copy = getLanguageCopy(language);
   const handleLatitudeInput = (value: string) => {
     setLatitude(parseFloat(value));
   };
+  const latitudeLabel = latitude >= 0
+    ? `${Math.abs(latitude).toFixed(1)}°${copy.latitudeDirection.north}`
+    : `${Math.abs(latitude).toFixed(1)}°${copy.latitudeDirection.south}`;
+  const isEnglish = language === 'en';
 
   // NOTE: The rAF-based advanceTime loop has been removed.
   // Time progression is now driven by `useSimulationTime()` inside the Canvas,
@@ -150,49 +158,49 @@ export default function ControlPanel() {
   const displayPanel = (
     <div className="rounded-[24px] border border-white/12 bg-[linear-gradient(180deg,rgba(12,21,34,0.76),rgba(7,13,24,0.9))] p-3.5 text-white shadow-[0_20px_56px_rgba(0,0,0,0.28)] backdrop-blur-xl">
       <div className="mb-2.5 flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">Display</div>
+        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">{copy.panel.display}</div>
         {viewMode === 'space' && (
           <div className="text-[10px] uppercase tracking-[0.26em] text-slate-500">
-            {referenceFrame === 'observer' ? 'Horizon' : 'Celestial'}
+            {referenceFrame === 'observer' ? copy.controls.observer : copy.controls.celestial}
           </div>
         )}
       </div>
 
       <div className="space-y-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur-md">
-          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">View</div>
+          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.view}</div>
           <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-white/[0.04] p-1">
             <button
               onClick={() => setViewMode('earth')}
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-[13px] transition-all ${viewMode === 'earth' ? 'bg-sky-500/30 text-white shadow-[0_8px_20px_rgba(81,141,255,0.24)]' : 'text-slate-300 hover:bg-white/10'}`}
             >
               <Globe size={16} />
-              <span>Earth</span>
+              <span>{copy.controls.earth}</span>
             </button>
             <button
               onClick={() => setViewMode('space')}
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-[13px] transition-all ${viewMode === 'space' ? 'bg-sky-500/30 text-white shadow-[0_8px_20px_rgba(81,141,255,0.24)]' : 'text-slate-300 hover:bg-white/10'}`}
             >
               <Settings size={16} />
-              <span>Space</span>
+              <span>{copy.controls.space}</span>
             </button>
           </div>
 
           {viewMode === 'space' ? (
             <div className="mt-3">
-              <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">Frame</div>
+              <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.frame}</div>
               <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-white/[0.04] p-1">
                 <button
                   onClick={() => setReferenceFrame('observer')}
                   className={`flex-1 rounded-xl px-3 py-2 text-[13px] transition-all ${referenceFrame === 'observer' ? 'bg-amber-400/85 text-slate-950 shadow-[0_6px_16px_rgba(245,180,70,0.34)]' : 'text-slate-300 hover:bg-white/10'}`}
                 >
-                  Horizon
+                  {copy.controls.observer}
                 </button>
                 <button
                   onClick={() => setReferenceFrame('celestial')}
                   className={`flex-1 rounded-xl px-3 py-2 text-[13px] transition-all ${referenceFrame === 'celestial' ? 'bg-sky-400/85 text-slate-950 shadow-[0_6px_16px_rgba(115,197,255,0.34)]' : 'text-slate-300 hover:bg-white/10'}`}
                 >
-                  Celestial
+                  {copy.controls.celestial}
                 </button>
               </div>
             </div>
@@ -200,50 +208,50 @@ export default function ControlPanel() {
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur-md">
-          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">Sky Culture</div>
+          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.skyCulture}</div>
           <div className="grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-white/[0.04] p-1">
             <button
               onClick={() => setSkyCulture('chinese')}
               className={`rounded-xl px-3 py-2 text-[13px] transition-all ${skyCulture === 'chinese' ? 'bg-emerald-400/85 text-slate-950 shadow-[0_6px_16px_rgba(90,214,177,0.28)]' : 'text-slate-300 hover:bg-white/10'}`}
             >
-              Chinese
+              {copy.controls.chinese}
             </button>
             <button
               onClick={() => setSkyCulture('western')}
               className={`rounded-xl px-3 py-2 text-[13px] transition-all ${skyCulture === 'western' ? 'bg-sky-400/85 text-slate-950 shadow-[0_6px_16px_rgba(115,197,255,0.34)]' : 'text-slate-300 hover:bg-white/10'}`}
             >
-              Western
+              {copy.controls.western}
             </button>
           </div>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur-md">
-          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">Layers</div>
+          <div className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.layers}</div>
           <div className="grid grid-cols-3 gap-x-2 gap-y-1">
             {viewMode === 'space' && (
               <ToggleCard
-                label={isCelestialFrame ? 'Horizon Overlay' : 'Diurnal Arc'}
+                label={isCelestialFrame ? copy.controls.horizonOverlay : copy.controls.diurnalArc}
                 checked={isCelestialFrame ? showCelestialObserverOverlay : showDiurnalArc}
                 onChange={isCelestialFrame ? setShowCelestialObserverOverlay : setShowDiurnalArc}
               />
             )}
             <ToggleCard
-              label="Stars"
+              label={copy.controls.stars}
               checked={showStars}
               onChange={setShowStars}
             />
             <ToggleCard
-              label="Moon"
+              label={copy.controls.moon}
               checked={showMoon}
               onChange={setShowMoon}
             />
             <ToggleCard
-              label="Planets"
+              label={copy.controls.planets}
               checked={showPlanets}
               onChange={setShowPlanets}
             />
             <ToggleCard
-              label="Ecliptic"
+              label={copy.controls.ecliptic}
               checked={showAnnualTrail}
               onChange={setShowAnnualTrail}
             />
@@ -256,9 +264,9 @@ export default function ControlPanel() {
   const controlsPanel = (
     <div className="rounded-[24px] border border-white/12 bg-[linear-gradient(180deg,rgba(11,20,33,0.8),rgba(7,13,24,0.94))] p-3 text-white shadow-[0_18px_44px_rgba(0,0,0,0.24)] backdrop-blur-xl">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">Time Controls</div>
+        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">{copy.panel.timeControls}</div>
         <div className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-slate-400">
-          UTC
+          {copy.panel.utcBadge}
         </div>
       </div>
 
@@ -280,7 +288,7 @@ export default function ControlPanel() {
                 onClick={() => setTimeSpeed(speed)}
                 className={`rounded-xl px-2 py-1.5 text-[10px] font-mono transition-all ${timeSpeed === speed ? 'bg-slate-100/18 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]' : 'text-slate-300 hover:bg-white/10'}`}
               >
-                {speed === 1 ? '1x' : speed === 3600 ? '1Hr/s' : speed === 86400 ? '1Day/s' : '1Wk/s'}
+                {copy.speed[speed]}
               </button>
             ))}
           </div>
@@ -289,16 +297,16 @@ export default function ControlPanel() {
         <div className="rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(138,196,255,0.12),_transparent_58%),rgba(255,255,255,0.05)] px-3 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
           <div className="grid gap-2 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-center">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Time (UTC)</div>
+              <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.timeUtc}</div>
               <div className="mt-1 text-[1.2rem] font-light tracking-[0.1em] font-mono text-sky-50">
                 {formatUtcDate(displayTime)}
               </div>
               <div className="text-[12px] font-mono text-sky-200/75">
-                {formatUtcTime(displayTime)} UTC
+                {formatUtcTime(displayTime)} {copy.panel.utcBadge}
               </div>
               {lunarDate ? (
                 <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px]">
-                  <span className="uppercase tracking-[0.22em] text-slate-500">Lunar</span>
+                  <span className="uppercase tracking-[0.22em] text-slate-500">{copy.panel.lunar}</span>
                   <span className="text-slate-100/90">{lunarDate}</span>
                 </div>
               ) : null}
@@ -310,10 +318,10 @@ export default function ControlPanel() {
                   <span className="rounded-full bg-sky-300/10 p-1 text-sky-200">
                     <MapPin size={12} />
                   </span>
-                  Latitude
+                  {copy.panel.latitude}
                 </span>
                 <span className="font-mono text-[11px] normal-case tracking-[0.08em] text-slate-100">
-                  {latitude > 0 ? `${latitude.toFixed(1)}°N` : `${Math.abs(latitude).toFixed(1)}°S`}
+                  {latitudeLabel}
                 </span>
               </div>
               <input
@@ -333,8 +341,41 @@ export default function ControlPanel() {
     </div>
   );
 
+  const languageSwitch = (
+    <div className="absolute bottom-16 left-4 z-30 lg:bottom-4 lg:left-6">
+      <button
+        type="button"
+        onClick={() => setLanguage(isEnglish ? 'zh-CN' : 'en')}
+        aria-label={copy.panel.language}
+        className="group inline-flex items-center rounded-full border border-white/10 bg-black/24 px-1.5 py-1 text-[10px] text-slate-200/92 shadow-[0_10px_24px_rgba(0,0,0,0.18)] backdrop-blur-md transition-colors hover:border-white/16 hover:bg-black/30"
+      >
+        <span className={`relative flex h-5 w-[3rem] items-center rounded-full border transition-colors ${
+          isEnglish
+            ? 'border-sky-300/30 bg-sky-400/14'
+            : 'border-amber-300/24 bg-amber-300/10'
+        }`}>
+          <span className="absolute left-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">
+            中
+          </span>
+          <span className="absolute right-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">
+            EN
+          </span>
+          <span
+            className={`absolute top-[2px] h-3.5 w-[1.35rem] rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition-all ${
+              isEnglish
+                ? 'left-[1.35rem] bg-sky-400/95'
+                : 'left-[2px] bg-amber-400/95'
+            }`}
+          />
+        </span>
+      </button>
+    </div>
+  );
+
   return (
     <>
+      {languageSwitch}
+
       <div className="absolute right-6 top-6 z-20 hidden max-h-[calc(100svh-3rem)] w-[min(26rem,calc(100vw-4rem))] overflow-y-auto pr-1 lg:block">
         <div className="space-y-3 pb-2">
           {displayPanel}

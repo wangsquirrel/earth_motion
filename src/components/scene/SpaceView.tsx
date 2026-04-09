@@ -7,6 +7,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
 import { useShallow } from 'zustand/react/shallow';
 import { CATALOG, CONSTELLATIONS_BY_CULTURE } from '../../utils/stars';
+import { getDirectionLabels, getLanguageCopy, getMonthLabels } from '../../utils/i18n';
 import {
   buildCelestialConstellationLines,
   buildCelestialStarRenderData,
@@ -94,12 +95,13 @@ function bodyInputsChanged(
 }
 
 function annualInputsChanged(
-  previous: { latitude: number; isCelestialFrame: boolean; year: number },
-  next: { latitude: number; isCelestialFrame: boolean; year: number },
+  previous: { latitude: number; isCelestialFrame: boolean; year: number; language: string },
+  next: { latitude: number; isCelestialFrame: boolean; year: number; language: string },
 ) {
   return previous.latitude !== next.latitude
     || previous.isCelestialFrame !== next.isCelestialFrame
-    || previous.year !== next.year;
+    || previous.year !== next.year
+    || previous.language !== next.language;
 }
 
 function observerStarFieldInputsChanged(
@@ -163,14 +165,15 @@ function buildAnnualSceneSnapshot(
   currentTime: Date,
   latitude: number,
   isCelestialFrame: boolean,
+  monthLabels: string[],
 ): AnnualSceneSnapshot {
   const annualSunEquatorialSamples = buildAnnualSunEquatorialSamples(currentTime.getUTCFullYear());
-  const monthLabels = buildMonthlySunEquatorialLabelSamples(currentTime.getUTCFullYear());
+  const localizedMonthLabels = buildMonthlySunEquatorialLabelSamples(currentTime.getUTCFullYear(), monthLabels);
 
   return {
     annualProjection: buildAnnualProjectionLayerData({
       samples: annualSunEquatorialSamples,
-      monthLabels,
+      monthLabels: localizedMonthLabels,
       latitude,
       observerDate: currentTime,
       isCelestialFrame,
@@ -198,7 +201,9 @@ export default function SpaceView() {
       timeSpeed: state.clock.timeSpeed,
     }))
   );
-  const { referenceFrame, skyCulture } = useAppStore(useShallow((state) => state.scene));
+  const { referenceFrame, skyCulture, language } = useAppStore(useShallow((state) => state.scene));
+  const copy = getLanguageCopy(language);
+  const monthLabels = getMonthLabels(language);
   const {
     showDiurnalArc,
     showAnnualTrail,
@@ -237,6 +242,7 @@ export default function SpaceView() {
     latitude: initialLatitudeRef.current,
     isCelestialFrame,
     year: simDateRef.current.getUTCFullYear(),
+    language,
   });
   const lastObserverStarFieldInputsRef = useRef({
     latitude: initialLatitudeRef.current,
@@ -261,7 +267,7 @@ export default function SpaceView() {
   });
   const [annualSnapshot, setAnnualSnapshot] = useState<AnnualSceneSnapshot>(() => {
     const now = new Date();
-    return buildAnnualSceneSnapshot(now, initialLatitudeRef.current, isCelestialFrame);
+    return buildAnnualSceneSnapshot(now, initialLatitudeRef.current, isCelestialFrame, monthLabels);
   });
   const [observerStarField, setObserverStarField] = useState(() => ({
     stars: buildObserverStarRenderData(
@@ -287,7 +293,7 @@ export default function SpaceView() {
     []
   );
 
-  const horizonLabels = useMemo(() => buildHorizonLabels(), []);
+  const horizonLabels = useMemo(() => buildHorizonLabels(getDirectionLabels(language)), [language]);
 
   const celestialObserverOverlayEmphasis = useMemo(
     () => buildCelestialObserverOverlayEmphasis(isPlaying, timeSpeed),
@@ -309,6 +315,7 @@ export default function SpaceView() {
     const lat = state.observer.latitude;
     const frame = state.scene.referenceFrame;
     const culture = state.scene.skyCulture;
+    const nextLanguage = state.scene.language;
     const isCelestial = frame === 'celestial';
     const display = state.display;
     const nextBodyInputs = {
@@ -321,6 +328,7 @@ export default function SpaceView() {
       latitude: lat,
       isCelestialFrame: isCelestial,
       year: currentDate.getUTCFullYear(),
+      language: nextLanguage,
     };
     const nextObserverStarFieldInputs = {
       latitude: lat,
@@ -359,7 +367,8 @@ export default function SpaceView() {
         buildAnnualSceneSnapshot(
           currentDate,
           lat,
-          isCelestial
+          isCelestial,
+          getMonthLabels(nextLanguage)
         )
       );
     }
@@ -556,6 +565,7 @@ export default function SpaceView() {
           hourGrid={observerSceneData.referenceLayer.hourGrid}
           equatorSegments={observerSceneData.referenceLayer.equatorSegments}
           equatorLabelPosition={observerSceneData.referenceLayer.equatorLabelPosition}
+          equatorLabel={copy.scene.celestialEquator}
           horizonLabels={horizonLabels}
           observerAxisPoints={staticSnapshot.observerAxisPoints}
         />
@@ -598,6 +608,7 @@ export default function SpaceView() {
     showObserverDiurnalArc,
     showStars,
     staticSnapshot.observerAxisPoints,
+    copy.scene.celestialEquator,
   ]);
 
   const celestialFrameLayer = useMemo(() => {
@@ -612,6 +623,7 @@ export default function SpaceView() {
           hourGrid={celestialSceneData.referenceLayer.hourGrid}
           equatorSegments={celestialSceneData.referenceLayer.equatorSegments}
           equatorLabelPosition={celestialSceneData.referenceLayer.equatorLabelPosition}
+          equatorLabel={copy.scene.celestialEquator}
         />
 
         {showCelestialObserverOverlay && (
@@ -619,6 +631,7 @@ export default function SpaceView() {
             horizonPoints={celestialSceneData.observerOverlay.horizonPoints}
             zenithPosition={celestialSceneData.observerOverlay.zenithPosition}
             emphasis={celestialSceneData.observerOverlay.emphasis}
+            zenithLabel={copy.scene.zenith}
           />
         )}
 
@@ -649,6 +662,8 @@ export default function SpaceView() {
     showAnnualLayer,
     showCelestialObserverOverlay,
     showStars,
+    copy.scene.celestialEquator,
+    copy.scene.zenith,
   ]);
 
   return (
@@ -686,7 +701,7 @@ export default function SpaceView() {
 
         <SceneBodiesLayer
           bodyRenderData={bodySnapshot.bodyRenderData}
-          skyCulture={skyCulture}
+          language={language}
           moonPhase={bodySnapshot.moonPhase}
         />
       </group>

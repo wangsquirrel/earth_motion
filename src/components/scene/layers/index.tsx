@@ -17,6 +17,7 @@ export function ObserverReferenceLayer({
   hourGrid,
   equatorSegments,
   equatorLabelPosition,
+  equatorLabel,
   horizonLabels,
   observerAxisPoints,
 }: {
@@ -26,6 +27,7 @@ export function ObserverReferenceLayer({
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
   equatorLabelPosition: [number, number, number] | null;
+  equatorLabel: string;
   horizonLabels: Array<{ label: string; position: [number, number, number] }>;
   observerAxisPoints: [number, number, number][];
 }) {
@@ -81,6 +83,7 @@ export function ObserverReferenceLayer({
         hourGrid={hourGrid}
         equatorSegments={equatorSegments}
         equatorLabelPosition={equatorLabelPosition}
+        equatorLabel={equatorLabel}
         declinationOpacity={0.11}
         hourOpacity={0.09}
         equatorOpacity={0.18}
@@ -147,11 +150,13 @@ export function CelestialReferenceLayer({
   hourGrid,
   equatorSegments,
   equatorLabelPosition,
+  equatorLabel,
 }: {
   declinationGrid: GridSegmentGroup[];
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
   equatorLabelPosition: [number, number, number];
+  equatorLabel: string;
 }) {
   return (
     <group>
@@ -187,6 +192,7 @@ export function CelestialReferenceLayer({
         hourGrid={hourGrid}
         equatorSegments={equatorSegments}
         equatorLabelPosition={equatorLabelPosition}
+        equatorLabel={equatorLabel}
         declinationOpacity={0.11}
         hourOpacity={0.09}
         equatorOpacity={0.18}
@@ -213,10 +219,12 @@ export function CelestialObserverOverlay({
   horizonPoints,
   zenithPosition,
   emphasis,
+  zenithLabel,
 }: {
   horizonPoints: [number, number, number][];
   zenithPosition: [number, number, number];
   emphasis: number;
+  zenithLabel: string;
 }) {
   const zenithLabelPosition = scalePoint(new THREE.Vector3(...zenithPosition), 1.06).toArray() as [number, number, number];
   const insetHorizonPoints = horizonPoints.map(([x, y, z]) => (
@@ -284,7 +292,7 @@ export function CelestialObserverOverlay({
           fillOpacity={0.35 + emphasis * 0.55}
           font={SCENE_LABEL_FONT_URL}
         >
-          天顶
+          {zenithLabel}
         </Text>
       </Billboard>
     </group>

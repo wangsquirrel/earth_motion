@@ -9,6 +9,7 @@ interface EquatorialGridLayerProps {
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
   equatorLabelPosition: [number, number, number] | null;
+  equatorLabel: string;
   declinationOpacity: number;
   hourOpacity: number;
   equatorOpacity: number;
@@ -22,6 +23,7 @@ export default function EquatorialGridLayer({
   hourGrid,
   equatorSegments,
   equatorLabelPosition,
+  equatorLabel,
   declinationOpacity,
   hourOpacity,
   equatorOpacity,
@@ -72,7 +74,7 @@ export default function EquatorialGridLayer({
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}
           >
-            天赤道
+            {equatorLabel}
           </Text>
         </Billboard>
       )}

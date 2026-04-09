@@ -1,4 +1,5 @@
-import type { SkyCulture } from '../../utils/stars';
+import { getLocalizedBodyLabel as getBodyLabel } from '../../utils/i18n';
+import type { AppLanguage } from '../../utils/i18n';
 
 export const SCENE_LABEL_FONT_URL = '/fonts/noto-sans-sc-sc-400.woff';
 export const BODY_LABEL_ANCHOR_X = 'left' as const;
@@ -35,23 +36,6 @@ export const BODY_LABEL_SPECS: Record<'sun' | 'moon' | 'planet', BodyLabelSpec> 
 
 export const EARTH_STAR_LABEL_OFFSET: [number, number, number] = [0.22, 0.12, 0];
 
-export function getLocalizedBodyLabel(name: string, culture: SkyCulture) {
-  if (culture === 'western') {
-    return name;
-  }
-
-  const map: Record<string, string> = {
-    Sun: '太阳',
-    Moon: '月亮',
-    Mercury: '水星',
-    Venus: '金星',
-    Mars: '火星',
-    Jupiter: '木星',
-    Saturn: '土星',
-    Uranus: '天王星',
-    Neptune: '海王星',
-    Pluto: '冥王星',
-  };
-
-  return map[name] ?? name;
+export function getLocalizedBodyLabel(name: string, language: AppLanguage) {
+  return getBodyLabel(name, language);
 }

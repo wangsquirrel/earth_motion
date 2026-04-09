@@ -3,14 +3,15 @@ import { useAppStore } from './store/useAppStore';
 import SpaceView from './components/scene/SpaceView';
 import EarthView from './components/scene/EarthView';
 import ControlPanel from './components/ui/ControlPanel';
+import { getLanguageCopy } from './utils/i18n';
 
 function App() {
-  const viewMode = useAppStore((state) => state.scene.viewMode);
-  const referenceFrame = useAppStore((state) => state.scene.referenceFrame);
-  const frameLabel = referenceFrame === 'observer' ? 'Horizon Frame' : 'Celestial Frame';
+  const { viewMode, referenceFrame, language } = useAppStore((state) => state.scene);
+  const copy = getLanguageCopy(language);
+  const frameLabel = referenceFrame === 'observer' ? copy.app.frameObserver : copy.app.frameCelestial;
   const spaceDescription = referenceFrame === 'observer'
-    ? 'Observing the Sun in the local horizon frame.'
-    : 'Observing the Sun against the celestial sphere in the celestial frame.';
+    ? copy.app.spaceDescriptionObserver
+    : copy.app.spaceDescriptionCelestial;
   const sceneBackground = viewMode === 'space'
     ? (referenceFrame === 'observer' ? '#0a1a2a' : '#09162a')
     : '#050510';
@@ -40,29 +41,29 @@ function App() {
       
       {/* Title/Info Overlay */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none max-w-lg">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[11px] uppercase tracking-[0.32em] text-sky-100/90 shadow-[0_10px_35px_rgba(0,0,0,0.18)] backdrop-blur-md">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-sky-100/90 shadow-[0_10px_35px_rgba(0,0,0,0.18)] backdrop-blur-md">
           <span className="h-2 w-2 rounded-full bg-amber-300/90" />
-          <span>{viewMode === 'space' ? frameLabel : 'Earth View'}</span>
+          <span>{viewMode === 'space' ? frameLabel : copy.app.earthView}</span>
         </div>
         <div className="mt-4 flex items-center gap-3">
           <img
             src="/favicon.svg"
-            alt="Earth Motion logo"
+            alt={copy.app.logoAlt}
             className="h-8 w-8 opacity-90"
             draggable={false}
           />
-          <h1 className="text-3xl font-light tracking-[0.28em] text-white/95">EARTH MOTION</h1>
+          <h1 className="text-3xl font-light tracking-[0.02em] text-white/95">{copy.app.title}</h1>
         </div>
         <p className="mt-3 max-w-md text-sm leading-6 text-slate-300/88">
           {viewMode === 'space' 
             ? spaceDescription
-            : 'Observing the apparent motion of the Sun from a specific latitude on Earth.'}
+            : copy.app.earthDescription}
         </p>
       </div>
 
       <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-3">
         <div className="pointer-events-auto inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/28 px-4 py-2 text-xs text-slate-200/90 backdrop-blur-md">
-          <span>© {year} Earth Motion</span>
+          <span>© {year} {copy.app.footerBrand}</span>
           <span className="text-slate-400/90">•</span>
           <a
             href={githubUrl}

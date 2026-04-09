@@ -1,9 +1,11 @@
 import { create } from 'zustand';
+import type { AppLanguage } from '../utils/i18n';
 
 interface SceneState {
   viewMode: 'earth' | 'space';
   referenceFrame: 'observer' | 'celestial';
   skyCulture: 'western' | 'chinese';
+  language: AppLanguage;
 }
 
 interface ObserverState {
@@ -42,6 +44,7 @@ interface AppState {
   setViewMode: (mode: 'earth' | 'space') => void;
   setReferenceFrame: (frame: 'observer' | 'celestial') => void;
   setSkyCulture: (culture: 'western' | 'chinese') => void;
+  setLanguage: (language: AppLanguage) => void;
   setLatitude: (lat: number) => void;
   setCurrentTime: (date: Date) => void;
   setIsPlaying: (playing: boolean) => void;
@@ -89,6 +92,7 @@ export const useAppStore = create<AppState>((set) => {
       viewMode: 'space',
       referenceFrame: 'observer',
       skyCulture: 'chinese',
+      language: 'zh-CN',
     },
     observer: {
       latitude: 40,
@@ -114,6 +118,7 @@ export const useAppStore = create<AppState>((set) => {
     setViewMode: (mode) => set((state) => ({ scene: { ...state.scene, viewMode: mode } })),
     setReferenceFrame: (frame) => set((state) => ({ scene: { ...state.scene, referenceFrame: frame } })),
     setSkyCulture: (culture) => set((state) => ({ scene: { ...state.scene, skyCulture: culture } })),
+    setLanguage: (language) => set((state) => ({ scene: { ...state.scene, language } })),
     setLatitude: (lat) => set((state) => ({ observer: { ...state.observer, latitude: lat } })),
     setCurrentTime: (date) =>
       set((state) => {

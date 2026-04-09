@@ -42,7 +42,7 @@ src/
 
 ## 状态
 
-- `scene`: `viewMode`, `referenceFrame`, `skyCulture`
+- `scene`: `viewMode`, `referenceFrame`, `skyCulture`, `language`
 - `observer`: `latitude`（默认 `40`）
 - `clock`: `currentTime`, `isPlaying`, `timeSpeed`, `playbackStartWallTime`, `playbackStartSimTimeMs`, `displayTime`
 - `display`: `showDiurnalArc`, `showAnnualTrail`, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
@@ -55,6 +55,8 @@ src/
 - 场景内 `Text` 统一使用 `sceneLabel.constants.ts`，字体来自 `public/fonts/noto-sans-sc-sc-400.woff`
 - `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
 - `EarthView` 使用鼠标拖拽控制视角
+- `language` 只控制界面文案和通用场景辅助标签；`skyCulture` 只控制中国传统星官 / 西方星座及恒星命名，不要混用
+- 英文界面下，农历内容和中国传统星官名称保持中文，不做英文翻译
 
 ## 开发约束
 
@@ -63,11 +65,13 @@ src/
 3. 用户输入不能被低频时间节流吞掉；时间推进和用户输入分开设计。
 4. 改坐标/投影逻辑时，同时检查 `observer` 和 `celestial` 两种 frame。
 5. 视觉修复做局部修正，不随意改相机、交互、默认展示语义。
+6. 做双语相关修改时，优先集中到文案层；避免把 `language` 判断散落到星表和文化数据里。
 
 ## 验证
 
 - 至少检查 `slider/toggle -> store -> scene`
 - 检查拖动中、切换瞬间、播放中三个时序
+- 检查 `language=zh-CN/en` 与 `skyCulture=chinese/western` 的交叉组合，确认界面语言与星空文化各自独立
 - 改动完成后用 Chrome DevTools MCP 打开页面，做验证！
 - 验证不能只生成截图；要明确确认修改已经生效，且未影响无关逻辑
 - 提交前运行：

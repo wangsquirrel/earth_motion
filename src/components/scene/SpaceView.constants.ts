@@ -5,7 +5,6 @@ export const DIURNAL_MARKER_INTERVAL = 18;
 export const HORIZON_SAMPLE_COUNT = 145;
 export const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 export const MONTH_LABEL_RADIUS_SCALE = 1.08;
-export const MONTH_LABELS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 export const HORIZON_LABEL_RADIUS = SPHERE_RADIUS + 0.9;
 export const STAR_LABEL_RADIUS_SCALE = 1.04;
 export const CONSTELLATION_LINE_COLOR = '#6eb5ff';

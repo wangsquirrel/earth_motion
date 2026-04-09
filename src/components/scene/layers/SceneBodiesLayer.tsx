@@ -8,17 +8,17 @@ import {
   getLocalizedBodyLabel,
 } from '../sceneLabel.constants';
 import type { MoonPhaseData } from '../../../utils/ephemeris';
-import type { SkyCulture } from '../../../utils/stars';
+import type { AppLanguage } from '../../../utils/i18n';
 import MoonPhaseDisc from '../MoonPhaseDisc';
 import type { BodyRenderData } from '../spaceView.types';
 
 export default function SceneBodiesLayer({
   bodyRenderData,
-  skyCulture,
+  language,
   moonPhase,
 }: {
   bodyRenderData: BodyRenderData;
-  skyCulture: SkyCulture;
+  language: AppLanguage;
   moonPhase: MoonPhaseData;
 }) {
   return (
@@ -54,7 +54,7 @@ export default function SceneBodiesLayer({
               outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
               outlineColor={BODY_LABEL_OUTLINE_COLOR}
             >
-              {getLocalizedBodyLabel('Sun', skyCulture)}
+              {getLocalizedBodyLabel('Sun', language)}
             </Text>
           </Billboard>
         </group>
@@ -80,7 +80,7 @@ export default function SceneBodiesLayer({
               outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
               outlineColor={BODY_LABEL_OUTLINE_COLOR}
             >
-              {getLocalizedBodyLabel('Moon', skyCulture)}
+              {getLocalizedBodyLabel('Moon', language)}
             </Text>
           </Billboard>
         </group>
@@ -104,7 +104,7 @@ export default function SceneBodiesLayer({
               outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
               outlineColor={BODY_LABEL_OUTLINE_COLOR}
             >
-              {getLocalizedBodyLabel(planet.name, skyCulture)}
+              {getLocalizedBodyLabel(planet.name, language)}
             </Text>
           </Billboard>
         </group>

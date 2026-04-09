@@ -30,7 +30,6 @@ import {
   HORIZON_SAMPLE_COUNT,
   LOW_SPEED_TIME_THRESHOLD,
   MONTH_LABEL_RADIUS_SCALE,
-  MONTH_LABELS,
   SPHERE_RADIUS,
   STAR_LABEL_RADIUS_SCALE,
   YEAR_MS,
@@ -77,8 +76,8 @@ function projectEquatorialSamplesToObserverFrame(
   });
 }
 
-export function buildMonthlySunEquatorialLabelSamples(year: number): MonthlyEquatorialLabelSample[] {
-  return MONTH_LABELS.map((label, monthIndex) => {
+export function buildMonthlySunEquatorialLabelSamples(year: number, monthLabels: string[]): MonthlyEquatorialLabelSample[] {
+  return monthLabels.map((label, monthIndex) => {
     const sampleDate = new Date(Date.UTC(year, monthIndex, 15, 12, 0, 0));
     const { ra, dec } = getSunPosition(sampleDate);
     return { label, ra, dec };
@@ -244,12 +243,12 @@ export function buildObserverAxisPoints(latitude: number): [number, number, numb
   return [southPole, northPole] as [number, number, number][];
 }
 
-export function buildHorizonLabels() {
+export function buildHorizonLabels(labels: [string, string, string, string]) {
   return [
-    { label: '北', position: [0, 0.2, -HORIZON_LABEL_RADIUS] as [number, number, number] },
-    { label: '东', position: [HORIZON_LABEL_RADIUS, 0.2, 0] as [number, number, number] },
-    { label: '南', position: [0, 0.2, HORIZON_LABEL_RADIUS] as [number, number, number] },
-    { label: '西', position: [-HORIZON_LABEL_RADIUS, 0.2, 0] as [number, number, number] },
+    { label: labels[0], position: [0, 0.2, -HORIZON_LABEL_RADIUS] as [number, number, number] },
+    { label: labels[1], position: [HORIZON_LABEL_RADIUS, 0.2, 0] as [number, number, number] },
+    { label: labels[2], position: [0, 0.2, HORIZON_LABEL_RADIUS] as [number, number, number] },
+    { label: labels[3], position: [-HORIZON_LABEL_RADIUS, 0.2, 0] as [number, number, number] },
   ];
 }
 

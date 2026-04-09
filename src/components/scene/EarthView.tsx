@@ -13,6 +13,7 @@ import {
 import { equatorialToCartesian, horizontalToCartesian } from '../../utils/astronomy';
 import { projectEquatorialCoordinate } from '../../utils/skyProjection';
 import { CATALOG, CONSTELLATIONS_BY_CULTURE, type SkyCulture } from '../../utils/stars';
+import { getDirectionLabels, getLanguageCopy, type AppLanguage } from '../../utils/i18n';
 import {
   BODY_LABEL_ANCHOR_X,
   BODY_LABEL_ANCHOR_Y,
@@ -247,28 +248,18 @@ function EarthHorizonGlow() {
 }
 
 
-function EarthCompassLabels({ skyCulture }: { skyCulture: SkyCulture }) {
+function EarthCompassLabels({ language }: { language: AppLanguage }) {
   const labels = useMemo(() => (
-    (skyCulture === 'western'
-      ? [
-        { label: 'N', azimuth: 0 },
-        { label: 'E', azimuth: Math.PI / 2 },
-        { label: 'S', azimuth: Math.PI },
-        { label: 'W', azimuth: (3 * Math.PI) / 2 },
-      ]
-      : [
-        { label: '\u5317', azimuth: 0 },
-        { label: '\u4e1c', azimuth: Math.PI / 2 },
-        { label: '\u5357', azimuth: Math.PI },
-        { label: '\u897f', azimuth: (3 * Math.PI) / 2 },
-      ]).map((item) => {
-      const [x, , z] = horizontalToCartesian(item.azimuth, 0, SKY_RADIUS + 2.2);
+    getDirectionLabels(language).map((label, index) => {
+      const azimuth = index * (Math.PI / 2);
+      const [x, , z] = horizontalToCartesian(azimuth, 0, SKY_RADIUS + 2.2);
       return {
-        ...item,
+        label,
+        azimuth,
         position: [x, 0.8, z] as [number, number, number],
       };
     })
-  ), [skyCulture]);
+  ), [language]);
 
   return (
     <>
@@ -355,12 +346,14 @@ function EarthSkyDome() {
 function EarthDynamicBodiesLayer({
   simDateRef,
   skyCulture,
+  language,
   showMoon,
   showPlanets,
   spriteTexture,
 }: {
   simDateRef: { current: Date };
   skyCulture: SkyCulture;
+  language: AppLanguage;
   showMoon: boolean;
   showPlanets: boolean;
   spriteTexture: THREE.Texture | null;
@@ -469,7 +462,7 @@ function EarthDynamicBodiesLayer({
             outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
             outlineColor={BODY_LABEL_OUTLINE_COLOR}
           >
-            {getLocalizedBodyLabel('Sun', skyCulture)}
+            {getLocalizedBodyLabel('Sun', language)}
           </Text>
         </Billboard>
       </group>
@@ -501,7 +494,7 @@ function EarthDynamicBodiesLayer({
             outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
             outlineColor={BODY_LABEL_OUTLINE_COLOR}
           >
-            {getLocalizedBodyLabel('Moon', skyCulture)}
+            {getLocalizedBodyLabel('Moon', language)}
           </Text>
         </Billboard>
       </group>
@@ -540,7 +533,7 @@ function EarthDynamicBodiesLayer({
               outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
               outlineColor={BODY_LABEL_OUTLINE_COLOR}
             >
-              {getLocalizedBodyLabel(planet.name, skyCulture)}
+              {getLocalizedBodyLabel(planet.name, language)}
             </Text>
           </Billboard>
         </group>
@@ -576,7 +569,8 @@ export default function EarthView() {
   const { simDateRef } = useSimulationTime();
   const rotatingSkyRef = useRef<THREE.Group>(null);
 
-  const { skyCulture } = useAppStore((state) => state.scene);
+  const { skyCulture, language } = useAppStore((state) => state.scene);
+  const copy = getLanguageCopy(language);
   const displayYear = useAppStore((state) => state.clock.displayTime.getUTCFullYear());
   const {
     showAnnualTrail,
@@ -659,10 +653,10 @@ export default function EarthView() {
     <>
       <EarthSkyDome />
       <EarthHorizonGlow />
-      <EarthCompassLabels skyCulture={skyCulture} />
+      <EarthCompassLabels language={language} />
       <Billboard position={[0, SKY_RADIUS + 2, 0]}>
         <Text color="#cfd8e6" fontSize={1.1} anchorX="center" anchorY="middle" font={SCENE_LABEL_FONT_URL}>
-          {skyCulture === 'western' ? 'Zenith' : '\u5929\u9876'}
+          {copy.scene.zenith}
         </Text>
       </Billboard>
     </>
@@ -676,6 +670,7 @@ export default function EarthView() {
           hourGrid={celestialReferenceData.hourGrid}
           equatorSegments={celestialReferenceData.equatorSegments}
           equatorLabelPosition={celestialReferenceData.equatorLabelPosition}
+          equatorLabel={copy.scene.celestialEquator}
           declinationOpacity={0.11}
           hourOpacity={0.09}
           equatorOpacity={0.18}
@@ -716,6 +711,7 @@ export default function EarthView() {
     showAnnualTrail,
     showStars,
     spriteTexture,
+    copy.scene.celestialEquator,
   ]);
 
   useEffect(() => {
@@ -886,6 +882,7 @@ export default function EarthView() {
       <EarthDynamicBodiesLayer
         simDateRef={simDateRef}
         skyCulture={skyCulture}
+        language={language}
         showMoon={showMoon}
         showPlanets={showPlanets}
         spriteTexture={spriteTexture}
