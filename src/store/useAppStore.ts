@@ -16,6 +16,11 @@ interface ClockState {
   timeSpeed: number;
   playbackStartWallTime: number | null;
   playbackStartSimTimeMs: number | null;
+  /**
+   * Low-frequency timestamp for UI display (updated ~10 times/sec by useSimulationTime).
+   * 3D scene code should use `useSimulationTime()` instead of subscribing to this.
+   */
+  displayTime: Date;
 }
 
 interface DisplayState {
@@ -47,6 +52,15 @@ interface AppState {
   setShowCelestialObserverOverlay: (show: boolean) => void;
   setShowMoon: (show: boolean) => void;
   setShowPlanets: (show: boolean) => void;
+  /**
+   * Called by useSimulationTime at ~10fps to update the UI clock display.
+   * DO NOT call this every frame from requestAnimationFrame.
+   */
+  updateDisplayTime: (date: Date) => void;
+  /**
+   * @deprecated Use useSimulationTime() hook inside 3D scene components instead.
+   * Kept only for backward-compatibility with ControlPanel's rAF loop.
+   */
   advanceTime: (wallNow: number) => void;
 }
 
@@ -77,7 +91,7 @@ export const useAppStore = create<AppState>((set) => {
       skyCulture: 'chinese',
     },
     observer: {
-      latitude: 30,
+      latitude: 40,
     },
     clock: {
       currentTime: initialCurrentTime,
@@ -85,13 +99,14 @@ export const useAppStore = create<AppState>((set) => {
       timeSpeed: 3600,
       playbackStartWallTime: initialWallNow,
       playbackStartSimTimeMs: initialCurrentTime.getTime(),
+      displayTime: initialCurrentTime,
     },
     // Display flags stay shared across Earth/Space so both views can honor the same visibility contract.
     display: {
       showDiurnalArc: true,
       showAnnualTrail: true,
       showStars: true,
-      showCelestialObserverOverlay: true,
+      showCelestialObserverOverlay: false,
       showMoon: true,
       showPlanets: true,
     },
@@ -108,6 +123,7 @@ export const useAppStore = create<AppState>((set) => {
           clock: {
             ...state.clock,
             currentTime: date,
+            displayTime: date,
             playbackStartWallTime: state.clock.isPlaying ? wallNow : null,
             playbackStartSimTimeMs: state.clock.isPlaying ? date.getTime() : null,
           },
@@ -117,11 +133,13 @@ export const useAppStore = create<AppState>((set) => {
       set((state) => {
         const wallNow = getWallNow();
         const syncedSimTimeMs = getSyncedSimTimeMs(state.clock, wallNow);
+        const syncedDate = new Date(syncedSimTimeMs);
 
         return {
           clock: {
             ...state.clock,
-            currentTime: new Date(syncedSimTimeMs),
+            currentTime: syncedDate,
+            displayTime: syncedDate,
             isPlaying: playing,
             playbackStartWallTime: playing ? wallNow : null,
             playbackStartSimTimeMs: playing ? syncedSimTimeMs : null,
@@ -132,11 +150,13 @@ export const useAppStore = create<AppState>((set) => {
       set((state) => {
         const wallNow = getWallNow();
         const syncedSimTimeMs = getSyncedSimTimeMs(state.clock, wallNow);
+        const syncedDate = new Date(syncedSimTimeMs);
 
         return {
           clock: {
             ...state.clock,
-            currentTime: new Date(syncedSimTimeMs),
+            currentTime: syncedDate,
+            displayTime: syncedDate,
             timeSpeed: speed,
             playbackStartWallTime: state.clock.isPlaying ? wallNow : null,
             playbackStartSimTimeMs: state.clock.isPlaying ? syncedSimTimeMs : null,
@@ -149,6 +169,13 @@ export const useAppStore = create<AppState>((set) => {
     setShowCelestialObserverOverlay: (show) => set((state) => ({ display: { ...state.display, showCelestialObserverOverlay: show } })),
     setShowMoon: (show) => set((state) => ({ display: { ...state.display, showMoon: show } })),
     setShowPlanets: (show) => set((state) => ({ display: { ...state.display, showPlanets: show } })),
+  updateDisplayTime: (date) =>
+      set((state) => ({
+        clock: {
+          ...state.clock,
+          displayTime: date,
+        },
+      })),
     advanceTime: (wallNow) =>
       set((state) => {
         const syncedSimTimeMs = getSyncedSimTimeMs(state.clock, wallNow);

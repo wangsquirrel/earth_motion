@@ -137,22 +137,22 @@ export function getStarDisplayName(star: StarData, culture: SkyCulture) {
 // Main star catalog - approximately 200 bright stars
 export const CATALOG: StarData[] = [
   // ===== 常用亮星 (Common Bright Stars) =====
-  { id: 'star:bayer:alpha-umi', names: { chineseAsterism: '北极星', westernSystemName: '小熊座α' }, raHours: 2, raMinutes: 31, raSeconds: 49.09456, decDegrees: 89, decMinutes: 15, decSeconds: 50.7923, magnitude: 1.98, color: '#d8e6ff', catalog: 'common' },
-  { id: 'star:bayer:alpha-cma', names: { chineseAsterism: '天狼星', westernSystemName: '大犬座α' }, raHours: 6, raMinutes: 45, raSeconds: 8.91728, decDegrees: -16, decMinutes: 42, decSeconds: 58.0171, magnitude: -1.46, color: '#e9f4ff', catalog: 'common' },
-  { id: 'star:bayer:alpha-ori', names: { chineseAsterism: '参宿四', westernSystemName: '猎户座α' }, raHours: 5, raMinutes: 55, raSeconds: 10.30536, decDegrees: 7, decMinutes: 24, decSeconds: 25.4304, magnitude: 0.42, color: '#ffd1b0', catalog: 'common' },
-  { id: 'star:bayer:alpha-lyr', names: { chineseAsterism: '织女星', westernSystemName: '天琴座α' }, raHours: 18, raMinutes: 36, raSeconds: 56.33635, decDegrees: 38, decMinutes: 47, decSeconds: 1.2802, magnitude: 0.03, color: '#cfe3ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-umi', names: { chineseAsterism: '北极星', westernProper: 'Polaris', westernSystemName: '小熊座α' }, raHours: 2, raMinutes: 31, raSeconds: 49.09456, decDegrees: 89, decMinutes: 15, decSeconds: 50.7923, magnitude: 1.98, color: '#d8e6ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-cma', names: { chineseAsterism: '天狼星', westernProper: 'Sirius', westernSystemName: '大犬座α' }, raHours: 6, raMinutes: 45, raSeconds: 8.91728, decDegrees: -16, decMinutes: 42, decSeconds: 58.0171, magnitude: -1.46, color: '#e9f4ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-ori', names: { chineseAsterism: '参宿四', westernProper: 'Betelgeuse', westernSystemName: '猎户座α' }, raHours: 5, raMinutes: 55, raSeconds: 10.30536, decDegrees: 7, decMinutes: 24, decSeconds: 25.4304, magnitude: 0.42, color: '#ffd1b0', catalog: 'common' },
+  { id: 'star:bayer:alpha-lyr', names: { chineseAsterism: '织女星', westernProper: 'Vega', westernSystemName: '天琴座α' }, raHours: 18, raMinutes: 36, raSeconds: 56.33635, decDegrees: 38, decMinutes: 47, decSeconds: 1.2802, magnitude: 0.03, color: '#cfe3ff', catalog: 'common' },
   { id: 'star:bayer:alpha-aql', names: { chineseAsterism: '河鼓二', westernProper: 'Altair', westernSystemName: '天鹰座α' }, raHours: 19, raMinutes: 50, raSeconds: 46.99855, decDegrees: 8, decMinutes: 52, decSeconds: 5.9563, magnitude: 0.77, color: '#fff0d6', catalog: 'common' },
-  { id: 'star:bayer:alpha-cyg', names: { chineseAsterism: '天津四', westernSystemName: '天鹅座α' }, raHours: 20, raMinutes: 41, raSeconds: 25.91514, decDegrees: 45, decMinutes: 16, decSeconds: 49.2197, magnitude: 1.25, color: '#eef5ff', catalog: 'common' },
-  { id: 'star:bayer:alpha-cmi', names: { chineseAsterism: '南河三', westernSystemName: '小犬座α' }, raHours: 7, raMinutes: 39, raSeconds: 18.1, decDegrees: 5, decMinutes: 13, decSeconds: 30, magnitude: 0.34, color: '#ffe4b5', catalog: 'common' },
-  { id: 'star:bayer:alpha-car', names: { chineseAsterism: '老人星', westernSystemName: '船底座α' }, raHours: 6, raMinutes: 23, raSeconds: 57.1, decDegrees: -52, decMinutes: 41, decSeconds: 44, magnitude: -0.72, color: '#ffe4b5', catalog: 'common' },
-  { id: 'star:bayer:alpha-boo', names: { chineseAsterism: '大角星', westernSystemName: '牧夫座α' }, raHours: 14, raMinutes: 16, raSeconds: 22.3, decDegrees: 19, decMinutes: 10, decSeconds: 57, magnitude: -0.05, color: '#ffe4b5', catalog: 'common' },
-  { id: 'star:bayer:alpha-vir', names: { chineseAsterism: '角宿一', westernSystemName: '室女座α' }, raHours: 13, raMinutes: 25, raSeconds: 11.6, decDegrees: -11, decMinutes: 9, decSeconds: 41, magnitude: 0.97, color: '#b4c8ff', catalog: 'common' },
-  { id: 'star:bayer:alpha-sco', names: { chineseAsterism: '心宿二', westernSystemName: '天蝎座α' }, raHours: 16, raMinutes: 29, raSeconds: 24.4, decDegrees: -26, decMinutes: 25, decSeconds: 55, magnitude: 1.06, color: '#ff7f50', catalog: 'common' },
-  { id: 'star:bayer:alpha-tau', names: { chineseAsterism: '毕宿五', westernSystemName: '金牛座α' }, raHours: 4, raMinutes: 35, raSeconds: 55.2, decDegrees: 16, decMinutes: 30, decSeconds: 33, magnitude: 0.85, color: '#ffd699', catalog: 'common' },
-  { id: 'star:bayer:alpha-psa', names: { chineseAsterism: '北落师门', westernSystemName: '南鱼座α' }, raHours: 22, raMinutes: 57, raSeconds: 39.0, decDegrees: -29, decMinutes: 37, decSeconds: 20, magnitude: 1.16, color: '#b4c8ff', catalog: 'common' },
-  { id: 'star:bayer:alpha-gem', names: { chineseAsterism: '北河二', westernSystemName: '双子座α' }, raHours: 7, raMinutes: 34, raSeconds: 36.0, decDegrees: 31, decMinutes: 53, decSeconds: 18, magnitude: 1.58, color: '#ffffff', catalog: 'common' },
-  { id: 'star:bayer:beta-gem', names: { chineseAsterism: '北河三', westernSystemName: '双子座β' }, raHours: 7, raMinutes: 45, raSeconds: 18.9, decDegrees: 28, decMinutes: 1, decSeconds: 34, magnitude: 1.14, color: '#ffebcd', catalog: 'common' },
-  { id: 'star:bayer:alpha-leo', names: { chineseAsterism: '轩辕十四', westernSystemName: '狮子座α' }, raHours: 10, raMinutes: 8, raSeconds: 22.0, decDegrees: 11, decMinutes: 58, decSeconds: 2, magnitude: 1.35, color: '#d4e5ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-cyg', names: { chineseAsterism: '天津四', westernProper: 'Deneb', westernSystemName: '天鹅座α' }, raHours: 20, raMinutes: 41, raSeconds: 25.91514, decDegrees: 45, decMinutes: 16, decSeconds: 49.2197, magnitude: 1.25, color: '#eef5ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-cmi', names: { chineseAsterism: '南河三', westernProper: 'Procyon', westernSystemName: '小犬座α' }, raHours: 7, raMinutes: 39, raSeconds: 18.1, decDegrees: 5, decMinutes: 13, decSeconds: 30, magnitude: 0.34, color: '#ffe4b5', catalog: 'common' },
+  { id: 'star:bayer:alpha-car', names: { chineseAsterism: '老人星', westernProper: 'Canopus', westernSystemName: '船底座α' }, raHours: 6, raMinutes: 23, raSeconds: 57.1, decDegrees: -52, decMinutes: 41, decSeconds: 44, magnitude: -0.72, color: '#ffe4b5', catalog: 'common' },
+  { id: 'star:bayer:alpha-boo', names: { chineseAsterism: '大角星', westernProper: 'Arcturus', westernSystemName: '牧夫座α' }, raHours: 14, raMinutes: 16, raSeconds: 22.3, decDegrees: 19, decMinutes: 10, decSeconds: 57, magnitude: -0.05, color: '#ffe4b5', catalog: 'common' },
+  { id: 'star:bayer:alpha-vir', names: { chineseAsterism: '角宿一', westernProper: 'Spica', westernSystemName: '室女座α' }, raHours: 13, raMinutes: 25, raSeconds: 11.6, decDegrees: -11, decMinutes: 9, decSeconds: 41, magnitude: 0.97, color: '#b4c8ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-sco', names: { chineseAsterism: '心宿二', westernProper: 'Antares', westernSystemName: '天蝎座α' }, raHours: 16, raMinutes: 29, raSeconds: 24.4, decDegrees: -26, decMinutes: 25, decSeconds: 55, magnitude: 1.06, color: '#ff7f50', catalog: 'common' },
+  { id: 'star:bayer:alpha-tau', names: { chineseAsterism: '毕宿五', westernProper: 'Aldebaran', westernSystemName: '金牛座α' }, raHours: 4, raMinutes: 35, raSeconds: 55.2, decDegrees: 16, decMinutes: 30, decSeconds: 33, magnitude: 0.85, color: '#ffd699', catalog: 'common' },
+  { id: 'star:bayer:alpha-psa', names: { chineseAsterism: '北落师门', westernProper: 'Fomalhaut', westernSystemName: '南鱼座α' }, raHours: 22, raMinutes: 57, raSeconds: 39.0, decDegrees: -29, decMinutes: 37, decSeconds: 20, magnitude: 1.16, color: '#b4c8ff', catalog: 'common' },
+  { id: 'star:bayer:alpha-gem', names: { chineseAsterism: '北河二', westernProper: 'Castor', westernSystemName: '双子座α' }, raHours: 7, raMinutes: 34, raSeconds: 36.0, decDegrees: 31, decMinutes: 53, decSeconds: 18, magnitude: 1.58, color: '#ffffff', catalog: 'common' },
+  { id: 'star:bayer:beta-gem', names: { chineseAsterism: '北河三', westernProper: 'Pollux', westernSystemName: '双子座β' }, raHours: 7, raMinutes: 45, raSeconds: 18.9, decDegrees: 28, decMinutes: 1, decSeconds: 34, magnitude: 1.14, color: '#ffebcd', catalog: 'common' },
+  { id: 'star:bayer:alpha-leo', names: { chineseAsterism: '轩辕十四', westernProper: 'Regulus', westernSystemName: '狮子座α' }, raHours: 10, raMinutes: 8, raSeconds: 22.0, decDegrees: 11, decMinutes: 58, decSeconds: 2, magnitude: 1.35, color: '#d4e5ff', catalog: 'common' },
 
   // ===== 北斗七星 (Big Dipper) =====
   { id: 'star:bayer:alpha-uma', names: { chineseAsterism: '天枢', westernSystemName: '大熊座α' }, raHours: 11, raMinutes: 3, raSeconds: 43.7, decDegrees: 61, decMinutes: 45, decSeconds: 3, magnitude: 1.79, color: '#ffe4b5', catalog: 'big-dipper' },
@@ -166,79 +166,79 @@ export const CATALOG: StarData[] = [
   // ===== 黄道星座 (Zodiac Constellations) =====
 
   // 白羊座 (Aries)
-  { id: 'star:bayer:alpha-ari', names: { westernSystemName: '白羊座α' }, raHours: 2, raMinutes: 7, raSeconds: 10.4, decDegrees: 23, decMinutes: 27, decSeconds: 44, magnitude: 2.00, color: '#ffd4a3', catalog: 'zodiac' },
-  { id: 'star:bayer:beta-ari', names: { westernSystemName: '白羊座β' }, raHours: 1, raMinutes: 54, raSeconds: 38.7, decDegrees: 20, decMinutes: 48, decSeconds: 29, magnitude: 2.64, color: '#ffd4a3', catalog: 'zodiac' },
-  { id: 'star:bayer:gamma-ari', names: { westernSystemName: '白羊座γ' }, raHours: 1, raMinutes: 53, raSeconds: 31.8, decDegrees: 19, decMinutes: 17, decSeconds: 45, magnitude: 4.59, color: '#ffd4a3', catalog: 'zodiac' },
+  { id: 'star:bayer:alpha-ari', names: { chineseAsterism: '娄宿一', westernSystemName: '白羊座α' }, raHours: 2, raMinutes: 7, raSeconds: 10.4, decDegrees: 23, decMinutes: 27, decSeconds: 44, magnitude: 2.00, color: '#ffd4a3', catalog: 'zodiac' },
+  { id: 'star:bayer:beta-ari', names: { chineseAsterism: '娄宿二', westernSystemName: '白羊座β' }, raHours: 1, raMinutes: 54, raSeconds: 38.7, decDegrees: 20, decMinutes: 48, decSeconds: 29, magnitude: 2.64, color: '#ffd4a3', catalog: 'zodiac' },
+  { id: 'star:bayer:gamma-ari', names: { chineseAsterism: '娄宿三', westernSystemName: '白羊座γ' }, raHours: 1, raMinutes: 53, raSeconds: 31.8, decDegrees: 19, decMinutes: 17, decSeconds: 45, magnitude: 4.59, color: '#ffd4a3', catalog: 'zodiac' },
 
   // 金牛座 (Taurus)
-  { id: 'star:custom:昴宿六', names: { chineseAsterism: '昴宿六' }, raHours: 3, raMinutes: 47, raSeconds: 29.1, decDegrees: 24, decMinutes: 6, decSeconds: 18, magnitude: 2.87, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:昴宿一', names: { chineseAsterism: '昴宿一' }, raHours: 3, raMinutes: 44, raSeconds: 52.5, decDegrees: 24, decMinutes: 28, decSeconds: 2, magnitude: 3.64, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:昴宿二', names: { chineseAsterism: '昴宿二' }, raHours: 3, raMinutes: 45, raSeconds: 50.3, decDegrees: 23, decMinutes: 56, decSeconds: 51, magnitude: 4.18, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:昴宿四', names: { chineseAsterism: '昴宿四' }, raHours: 3, raMinutes: 49, raSeconds: 13.7, decDegrees: 24, decMinutes: 22, decSeconds: 36, magnitude: 3.88, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:毕宿一', names: { chineseAsterism: '毕宿一' }, raHours: 4, raMinutes: 21, raSeconds: 57.1, decDegrees: 15, decMinutes: 37, decSeconds: 55, magnitude: 3.53, color: '#ffd699', catalog: 'zodiac' },
-  { id: 'star:custom:毕宿三', names: { chineseAsterism: '毕宿三' }, raHours: 4, raMinutes: 37, raSeconds: 53.4, decDegrees: 12, decMinutes: 52, decSeconds: 24, magnitude: 4.27, color: '#ffd699', catalog: 'zodiac' },
+  { id: 'star:custom:昴宿六', names: { chineseAsterism: '昴宿六', westernSystemName: '金牛座η' }, raHours: 3, raMinutes: 47, raSeconds: 29.1, decDegrees: 24, decMinutes: 6, decSeconds: 18, magnitude: 2.87, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:昴宿一', names: { chineseAsterism: '昴宿一', westernSystemName: '金牛座17' }, raHours: 3, raMinutes: 44, raSeconds: 52.5, decDegrees: 24, decMinutes: 28, decSeconds: 2, magnitude: 3.64, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:昴宿二', names: { chineseAsterism: '昴宿二', westernSystemName: '金牛座19' }, raHours: 3, raMinutes: 45, raSeconds: 50.3, decDegrees: 23, decMinutes: 56, decSeconds: 51, magnitude: 4.18, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:昴宿四', names: { chineseAsterism: '昴宿四', westernSystemName: '金牛座20' }, raHours: 3, raMinutes: 49, raSeconds: 13.7, decDegrees: 24, decMinutes: 22, decSeconds: 36, magnitude: 3.88, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:毕宿一', names: { chineseAsterism: '毕宿一', westernSystemName: '金牛座ε' }, raHours: 4, raMinutes: 21, raSeconds: 57.1, decDegrees: 15, decMinutes: 37, decSeconds: 55, magnitude: 3.53, color: '#ffd699', catalog: 'zodiac' },
+  { id: 'star:custom:毕宿三', names: { chineseAsterism: '毕宿三', westernSystemName: '金牛座δ' }, raHours: 4, raMinutes: 37, raSeconds: 53.4, decDegrees: 12, decMinutes: 52, decSeconds: 24, magnitude: 4.27, color: '#ffd699', catalog: 'zodiac' },
   { id: 'star:bayer:alpha-aur', names: { chineseAsterism: '五车五', westernSystemName: '御夫座α' }, raHours: 5, raMinutes: 26, raSeconds: 17.5, decDegrees: 28, decMinutes: 36, decSeconds: 21, magnitude: 1.65, color: '#cfe3ff', catalog: 'zodiac' },
 
   // 双子座 (Gemini)
-  { id: 'star:bayer:gamma-gem', names: { westernSystemName: '双子座γ' }, raHours: 6, raMinutes: 37, raSeconds: 42.7, decDegrees: 16, decMinutes: 23, decSeconds: 57, magnitude: 1.93, color: '#ffffff', catalog: 'zodiac' },
-  { id: 'star:bayer:epsilon-gem', names: { westernSystemName: '双子座ε' }, raHours: 6, raMinutes: 53, raSeconds: 54.6, decDegrees: 25, decMinutes: 7, decSeconds: 52, magnitude: 2.98, color: '#ffffff', catalog: 'zodiac' },
-  { id: 'star:bayer:mu-gem', names: { westernSystemName: '双子座μ' }, raHours: 6, raMinutes: 22, raSeconds: 57.9, decDegrees: 22, decMinutes: 30, decSeconds: 48, magnitude: 2.87, color: '#ffffff', catalog: 'zodiac' },
-  { id: 'star:bayer:zeta-gem', names: { westernSystemName: '双子座ζ' }, raHours: 7, raMinutes: 10, raSeconds: 55.6, decDegrees: 20, decMinutes: 34, decSeconds: 25, magnitude: 3.28, color: '#ffffff', catalog: 'zodiac' },
+  { id: 'star:bayer:gamma-gem', names: { chineseAsterism: '井宿五', westernSystemName: '双子座γ' }, raHours: 6, raMinutes: 37, raSeconds: 42.7, decDegrees: 16, decMinutes: 23, decSeconds: 57, magnitude: 1.93, color: '#ffffff', catalog: 'zodiac' },
+  { id: 'star:bayer:epsilon-gem', names: { chineseAsterism: '井宿四', westernSystemName: '双子座ε' }, raHours: 6, raMinutes: 53, raSeconds: 54.6, decDegrees: 25, decMinutes: 7, decSeconds: 52, magnitude: 2.98, color: '#ffffff', catalog: 'zodiac' },
+  { id: 'star:bayer:mu-gem', names: { chineseAsterism: '井宿七', westernSystemName: '双子座μ' }, raHours: 6, raMinutes: 22, raSeconds: 57.9, decDegrees: 22, decMinutes: 30, decSeconds: 48, magnitude: 2.87, color: '#ffffff', catalog: 'zodiac' },
+  { id: 'star:bayer:zeta-gem', names: { chineseAsterism: '井宿六', westernSystemName: '双子座ζ' }, raHours: 7, raMinutes: 10, raSeconds: 55.6, decDegrees: 20, decMinutes: 34, decSeconds: 25, magnitude: 3.28, color: '#ffffff', catalog: 'zodiac' },
   { id: 'star:custom:井宿一', names: { chineseAsterism: '井宿一' }, raHours: 6, raMinutes: 31, raSeconds: 42.3, decDegrees: 17, decMinutes: 12, decSeconds: 36, magnitude: 2.69, color: '#ffffff', catalog: 'zodiac' },
-  { id: 'star:custom:井宿二', names: { chineseAsterism: '井宿二' }, raHours: 6, raMinutes: 35, raSeconds: 7.9, decDegrees: 17, decMinutes: 24, decSeconds: 4, magnitude: 3.53, color: '#ffffff', catalog: 'zodiac' },
+  { id: 'star:custom:井宿二', names: { chineseAsterism: '井宿二', westernSystemName: '双子座ν' }, raHours: 6, raMinutes: 35, raSeconds: 7.9, decDegrees: 17, decMinutes: 24, decSeconds: 4, magnitude: 3.53, color: '#ffffff', catalog: 'zodiac' },
   { id: 'star:custom:井宿三', names: { chineseAsterism: '井宿三' }, raHours: 6, raMinutes: 38, raSeconds: 50.4, decDegrees: 17, decMinutes: 46, decSeconds: 59, magnitude: 3.28, color: '#ffffff', catalog: 'zodiac' },
 
   // 巨蟹座 (Cancer)
-  { id: 'star:custom:柳宿增一', names: { chineseAsterism: '柳宿增一' }, raHours: 8, raMinutes: 58, raSeconds: 29.2, decDegrees: 23, decMinutes: 25, decSeconds: 55, magnitude: 4.24, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:bayer:delta-cnc', names: { westernSystemName: '巨蟹座δ' }, raHours: 8, raMinutes: 44, raSeconds: 46.8, decDegrees: 18, decMinutes: 9, decSeconds: 15, magnitude: 3.94, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:custom:鬼宿三', names: { chineseAsterism: '鬼宿三' }, raHours: 8, raMinutes: 51, raSeconds: 57.6, decDegrees: 21, decMinutes: 28, decSeconds: 5, magnitude: 4.73, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:柳宿增一', names: { chineseAsterism: '柳宿增一', westernSystemName: '巨蟹座ζ' }, raHours: 8, raMinutes: 58, raSeconds: 29.2, decDegrees: 23, decMinutes: 25, decSeconds: 55, magnitude: 4.24, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:bayer:delta-cnc', names: { chineseAsterism: '鬼宿四', westernSystemName: '巨蟹座δ' }, raHours: 8, raMinutes: 44, raSeconds: 46.8, decDegrees: 18, decMinutes: 9, decSeconds: 15, magnitude: 3.94, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:鬼宿三', names: { chineseAsterism: '鬼宿三', westernSystemName: '巨蟹座λ' }, raHours: 8, raMinutes: 51, raSeconds: 57.6, decDegrees: 21, decMinutes: 28, decSeconds: 5, magnitude: 4.73, color: '#e8e8e8', catalog: 'zodiac' },
 
   // 狮子座 (Leo)
-  { id: 'star:custom:轩辕十二', names: { chineseAsterism: '轩辕十二' }, raHours: 10, raMinutes: 16, raSeconds: 41.4, decDegrees: 19, decMinutes: 50, decSeconds: 29, magnitude: 2.56, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:轩辕十一', names: { chineseAsterism: '轩辕十一' }, raHours: 10, raMinutes: 7, raSeconds: 55.9, decDegrees: 16, decMinutes: 30, decSeconds: 33, magnitude: 3.44, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:五帝座一', names: { chineseAsterism: '五帝座一' }, raHours: 11, raMinutes: 49, raSeconds: 51.8, decDegrees: 14, decMinutes: 31, decSeconds: 45, magnitude: 2.14, color: '#fff8f0', catalog: 'zodiac' },
-  { id: 'star:custom:轩辕九', names: { chineseAsterism: '轩辕九' }, raHours: 9, raMinutes: 45, raSeconds: 51.2, decDegrees: 6, decMinutes: 25, decSeconds: 58, magnitude: 3.44, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:轩辕八', names: { chineseAsterism: '轩辕八' }, raHours: 9, raMinutes: 27, raSeconds: 40.1, decDegrees: 6, decMinutes: 21, decSeconds: 29, magnitude: 3.0, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:太微右垣一', names: { chineseAsterism: '太微右垣一' }, raHours: 11, raMinutes: 21, raSeconds: 31.8, decDegrees: 10, decMinutes: 47, decSeconds: 38, magnitude: 4.98, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:太微左垣一', names: { chineseAsterism: '太微左垣一' }, raHours: 10, raMinutes: 33, raSeconds: 0.5, decDegrees: 9, decMinutes: 54, decSeconds: 43, magnitude: 4.47, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:轩辕十二', names: { chineseAsterism: '轩辕十二', westernSystemName: '狮子座ζ' }, raHours: 10, raMinutes: 16, raSeconds: 41.4, decDegrees: 19, decMinutes: 50, decSeconds: 29, magnitude: 2.56, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:轩辕十一', names: { chineseAsterism: '轩辕十一', westernSystemName: '狮子座γ' }, raHours: 10, raMinutes: 7, raSeconds: 55.9, decDegrees: 16, decMinutes: 30, decSeconds: 33, magnitude: 3.44, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:五帝座一', names: { chineseAsterism: '五帝座一', westernSystemName: '狮子座β' }, raHours: 11, raMinutes: 49, raSeconds: 51.8, decDegrees: 14, decMinutes: 31, decSeconds: 45, magnitude: 2.14, color: '#fff8f0', catalog: 'zodiac' },
+  { id: 'star:custom:轩辕九', names: { chineseAsterism: '轩辕九', westernSystemName: '狮子座μ' }, raHours: 9, raMinutes: 45, raSeconds: 51.2, decDegrees: 6, decMinutes: 25, decSeconds: 58, magnitude: 3.44, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:轩辕八', names: { chineseAsterism: '轩辕八', westernSystemName: '狮子座λ' }, raHours: 9, raMinutes: 27, raSeconds: 40.1, decDegrees: 6, decMinutes: 21, decSeconds: 29, magnitude: 3.0, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:太微右垣一', names: { chineseAsterism: '太微右垣一', westernSystemName: '室女座β' }, raHours: 11, raMinutes: 21, raSeconds: 31.8, decDegrees: 10, decMinutes: 47, decSeconds: 38, magnitude: 4.98, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:太微左垣一', names: { chineseAsterism: '太微左垣一', westernSystemName: '室女座η' }, raHours: 10, raMinutes: 33, raSeconds: 0.5, decDegrees: 9, decMinutes: 54, decSeconds: 43, magnitude: 4.47, color: '#d4e5ff', catalog: 'zodiac' },
 
   // 处女座 (Virgo)
-  { id: 'star:custom:东上相', names: { chineseAsterism: '东上相' }, raHours: 13, raMinutes: 34, raSeconds: 46.1, decDegrees: -1, decMinutes: 26, decSeconds: 58, magnitude: 2.74, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:东次相', names: { chineseAsterism: '东次相' }, raHours: 13, raMinutes: 42, raSeconds: 28.6, decDegrees: -0, decMinutes: 35, decSeconds: 19, magnitude: 3.79, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:角宿二', names: { chineseAsterism: '角宿二' }, raHours: 13, raMinutes: 2, raSeconds: 17.6, decDegrees: -0, decMinutes: 35, decSeconds: 45, magnitude: 3.65, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:天坏', names: { chineseAsterism: '天坏' }, raHours: 12, raMinutes: 41, raSeconds: 13.2, decDegrees: -1, decMinutes: 50, decSeconds: 16, magnitude: 4.06, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:招摇', names: { chineseAsterism: '招摇' }, raHours: 14, raMinutes: 29, raSeconds: 43.1, decDegrees: 2, decMinutes: 5, decSeconds: 49, magnitude: 3.44, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:东上相', names: { chineseAsterism: '东上相', westernSystemName: '室女座γ' }, raHours: 13, raMinutes: 34, raSeconds: 46.1, decDegrees: -1, decMinutes: 26, decSeconds: 58, magnitude: 2.74, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:东次相', names: { chineseAsterism: '东次相', westernSystemName: '室女座δ' }, raHours: 13, raMinutes: 42, raSeconds: 28.6, decDegrees: -0, decMinutes: 35, decSeconds: 19, magnitude: 3.79, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:角宿二', names: { chineseAsterism: '角宿二', westernSystemName: '室女座ζ' }, raHours: 13, raMinutes: 2, raSeconds: 17.6, decDegrees: -0, decMinutes: 35, decSeconds: 45, magnitude: 3.65, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:天坏', names: { chineseAsterism: '天坏', westernSystemName: '室女座ι' }, raHours: 12, raMinutes: 41, raSeconds: 13.2, decDegrees: -1, decMinutes: 50, decSeconds: 16, magnitude: 4.06, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:招摇', names: { chineseAsterism: '招摇', westernSystemName: '室女座ο' }, raHours: 14, raMinutes: 29, raSeconds: 43.1, decDegrees: 2, decMinutes: 5, decSeconds: 49, magnitude: 3.44, color: '#b4c8ff', catalog: 'zodiac' },
 
   // 天秤座 (Libra)
-  { id: 'star:custom:氐宿四', names: { chineseAsterism: '氐宿四' }, raHours: 14, raMinutes: 50, raSeconds: 52.8, decDegrees: -15, decMinutes: 43, decSeconds: 29, magnitude: 2.61, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:氐宿一', names: { chineseAsterism: '氐宿一' }, raHours: 14, raMinutes: 41, raSeconds: 59.0, decDegrees: -15, decMinutes: 40, decSeconds: 44, magnitude: 3.25, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:bayer:sigma-lib', names: { westernSystemName: '天秤座σ' }, raHours: 15, raMinutes: 28, raSeconds: 5.7, decDegrees: -25, decMinutes: 16, decSeconds: 54, magnitude: 3.25, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:氐宿二', names: { chineseAsterism: '氐宿二' }, raHours: 14, raMinutes: 49, raSeconds: 32.8, decDegrees: -20, decMinutes: 4, decSeconds: 35, magnitude: 2.81, color: '#d4e5ff', catalog: 'zodiac' },
-  { id: 'star:custom:氐宿三', names: { chineseAsterism: '氐宿三' }, raHours: 15, raMinutes: 1, raSeconds: 25.5, decDegrees: -18, decMinutes: 9, decSeconds: 35, magnitude: 4.86, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:氐宿四', names: { chineseAsterism: '氐宿四', westernSystemName: '天秤座β' }, raHours: 14, raMinutes: 50, raSeconds: 52.8, decDegrees: -15, decMinutes: 43, decSeconds: 29, magnitude: 2.61, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:氐宿一', names: { chineseAsterism: '氐宿一', westernSystemName: '天秤座α' }, raHours: 14, raMinutes: 41, raSeconds: 59.0, decDegrees: -15, decMinutes: 40, decSeconds: 44, magnitude: 3.25, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:bayer:sigma-lib', names: { chineseAsterism: '氐宿增七', westernSystemName: '天秤座σ' }, raHours: 15, raMinutes: 28, raSeconds: 5.7, decDegrees: -25, decMinutes: 16, decSeconds: 54, magnitude: 3.25, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:氐宿二', names: { chineseAsterism: '氐宿二', westernSystemName: '天秤座ι' }, raHours: 14, raMinutes: 49, raSeconds: 32.8, decDegrees: -20, decMinutes: 4, decSeconds: 35, magnitude: 2.81, color: '#d4e5ff', catalog: 'zodiac' },
+  { id: 'star:custom:氐宿三', names: { chineseAsterism: '氐宿三', westernSystemName: '天秤座γ' }, raHours: 15, raMinutes: 1, raSeconds: 25.5, decDegrees: -18, decMinutes: 9, decSeconds: 35, magnitude: 4.86, color: '#d4e5ff', catalog: 'zodiac' },
 
   // 天蝎座 (Scorpius)
-  { id: 'star:custom:尾宿二', names: { chineseAsterism: '尾宿二' }, raHours: 16, raMinutes: 21, raSeconds: 11.3, decDegrees: -25, decMinutes: 36, decSeconds: 48, magnitude: 2.32, color: '#ff7f50', catalog: 'zodiac' },
-  { id: 'star:custom:尾宿一', names: { chineseAsterism: '尾宿一' }, raHours: 17, raMinutes: 12, raSeconds: 19.2, decDegrees: -22, decMinutes: 1, decSeconds: 17, magnitude: 2.64, color: '#ff7f50', catalog: 'zodiac' },
-  { id: 'star:custom:尾宿八', names: { chineseAsterism: '尾宿八' }, raHours: 17, raMinutes: 42, raSeconds: 29.3, decDegrees: -34, decMinutes: 17, decSeconds: 47, magnitude: 2.62, color: '#ffb07c', catalog: 'zodiac' },
-  { id: 'star:custom:房宿四', names: { chineseAsterism: '房宿四' }, raHours: 16, raMinutes: 1, raSeconds: 37.9, decDegrees: -25, decMinutes: 20, decSeconds: 12, magnitude: 2.62, color: '#ff7f50', catalog: 'zodiac' },
-  { id: 'star:custom:钩铃一', names: { chineseAsterism: '钩铃一' }, raHours: 16, raMinutes: 8, raSeconds: 22.9, decDegrees: -28, decMinutes: 0, decSeconds: 42, magnitude: 2.87, color: '#ff7f50', catalog: 'zodiac' },
+  { id: 'star:custom:尾宿二', names: { chineseAsterism: '尾宿二', westernSystemName: '天蝎座λ' }, raHours: 16, raMinutes: 21, raSeconds: 11.3, decDegrees: -25, decMinutes: 36, decSeconds: 48, magnitude: 2.32, color: '#ff7f50', catalog: 'zodiac' },
+  { id: 'star:custom:尾宿一', names: { chineseAsterism: '尾宿一', westernSystemName: '天蝎座μ' }, raHours: 17, raMinutes: 12, raSeconds: 19.2, decDegrees: -22, decMinutes: 1, decSeconds: 17, magnitude: 2.64, color: '#ff7f50', catalog: 'zodiac' },
+  { id: 'star:custom:尾宿八', names: { chineseAsterism: '尾宿八', westernSystemName: '天蝎座ζ' }, raHours: 17, raMinutes: 42, raSeconds: 29.3, decDegrees: -34, decMinutes: 17, decSeconds: 47, magnitude: 2.62, color: '#ffb07c', catalog: 'zodiac' },
+  { id: 'star:custom:房宿四', names: { chineseAsterism: '房宿四', westernSystemName: '天蝎座β' }, raHours: 16, raMinutes: 1, raSeconds: 37.9, decDegrees: -25, decMinutes: 20, decSeconds: 12, magnitude: 2.62, color: '#ff7f50', catalog: 'zodiac' },
+  { id: 'star:custom:钩铃一', names: { chineseAsterism: '钩铃一', westernSystemName: '天蝎座π' }, raHours: 16, raMinutes: 8, raSeconds: 22.9, decDegrees: -28, decMinutes: 0, decSeconds: 42, magnitude: 2.87, color: '#ff7f50', catalog: 'zodiac' },
 
   // 射手座 (Sagittarius)
   { id: 'star:bayer:epsilon-sgr', names: { chineseAsterism: '斗宿二', westernSystemName: '人马座ε' }, raHours: 18, raMinutes: 21, raSeconds: 35.0, decDegrees: -25, decMinutes: 25, decSeconds: 28, magnitude: 1.98, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:箕宿一', names: { chineseAsterism: '箕宿一' }, raHours: 18, raMinutes: 55, raSeconds: 15.9, decDegrees: -30, decMinutes: 12, decSeconds: 19, magnitude: 2.82, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:箕宿一', names: { chineseAsterism: '箕宿一', westernSystemName: '人马座γ' }, raHours: 18, raMinutes: 55, raSeconds: 15.9, decDegrees: -30, decMinutes: 12, decSeconds: 19, magnitude: 2.82, color: '#ffe4b5', catalog: 'zodiac' },
   { id: 'star:bayer:lambda-sgr', names: { chineseAsterism: '斗宿一', westernSystemName: '人马座λ' }, raHours: 18, raMinutes: 5, raSeconds: 19.1, decDegrees: -24, decMinutes: 52, decSeconds: 57, magnitude: 3.17, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:斗宿三', names: { chineseAsterism: '斗宿三' }, raHours: 18, raMinutes: 40, raSeconds: 13.6, decDegrees: -23, decMinutes: 55, decSeconds: 2, magnitude: 2.7, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:箕宿三', names: { chineseAsterism: '箕宿三' }, raHours: 19, raMinutes: 2, raSeconds: 58.1, decDegrees: -30, decMinutes: 25, decSeconds: 20, magnitude: 3.12, color: '#ffe4b5', catalog: 'zodiac' },
-  { id: 'star:custom:建宿一', names: { chineseAsterism: '建宿一' }, raHours: 19, raMinutes: 23, raSeconds: 18.7, decDegrees: -29, decMinutes: 42, decSeconds: 17, magnitude: 3.54, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:斗宿三', names: { chineseAsterism: '斗宿三', westernSystemName: '人马座φ' }, raHours: 18, raMinutes: 40, raSeconds: 13.6, decDegrees: -23, decMinutes: 55, decSeconds: 2, magnitude: 2.7, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:箕宿三', names: { chineseAsterism: '箕宿三', westernSystemName: '人马座δ' }, raHours: 19, raMinutes: 2, raSeconds: 58.1, decDegrees: -30, decMinutes: 25, decSeconds: 20, magnitude: 3.12, color: '#ffe4b5', catalog: 'zodiac' },
+  { id: 'star:custom:建宿一', names: { chineseAsterism: '建宿一', westernSystemName: '人马座ξ' }, raHours: 19, raMinutes: 23, raSeconds: 18.7, decDegrees: -29, decMinutes: 42, decSeconds: 17, magnitude: 3.54, color: '#ffe4b5', catalog: 'zodiac' },
   { id: 'star:custom:天渊一', names: { chineseAsterism: '天渊一' }, raHours: 18, raMinutes: 27, raSeconds: 52.8, decDegrees: -29, decMinutes: 52, decSeconds: 45, magnitude: 3.84, color: '#ffe4b5', catalog: 'zodiac' },
 
   // 摩羯座 (Capricornus)
-  { id: 'star:custom:牛宿一', names: { chineseAsterism: '牛宿一' }, raHours: 21, raMinutes: 27, raSeconds: 58.1, decDegrees: -12, decMinutes: 30, decSeconds: 29, magnitude: 3.77, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:custom:垒壁阵四', names: { chineseAsterism: '垒壁阵四' }, raHours: 22, raMinutes: 5, raSeconds: 51.8, decDegrees: -21, decMinutes: 11, decSeconds: 0, magnitude: 2.87, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:custom:垒壁阵一', names: { chineseAsterism: '垒壁阵一' }, raHours: 21, raMinutes: 43, raSeconds: 36.2, decDegrees: -16, decMinutes: 7, decSeconds: 51, magnitude: 3.58, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:custom:垒壁阵二', names: { chineseAsterism: '垒壁阵二' }, raHours: 21, raMinutes: 53, raSeconds: 28.1, decDegrees: -14, decMinutes: 46, decSeconds: 41, magnitude: 4.3, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:bayer:alpha-cap', names: { westernSystemName: '摩羯座α' }, raHours: 20, raMinutes: 17, raSeconds: 59.7, decDegrees: -12, decMinutes: 30, decSeconds: 30, magnitude: 4.52, color: '#e8e8e8', catalog: 'zodiac' },
-  { id: 'star:custom:右旗一', names: { chineseAsterism: '右旗一' }, raHours: 20, raMinutes: 8, raSeconds: 33.7, decDegrees: -16, decMinutes: 8, decSeconds: 47, magnitude: 3.77, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:牛宿一', names: { chineseAsterism: '牛宿一', westernSystemName: '摩羯座β' }, raHours: 21, raMinutes: 27, raSeconds: 58.1, decDegrees: -12, decMinutes: 30, decSeconds: 29, magnitude: 3.77, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:垒壁阵四', names: { chineseAsterism: '垒壁阵四', westernSystemName: '摩羯座κ' }, raHours: 22, raMinutes: 5, raSeconds: 51.8, decDegrees: -21, decMinutes: 11, decSeconds: 0, magnitude: 2.87, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:垒壁阵一', names: { chineseAsterism: '垒壁阵一', westernSystemName: '摩羯座ι' }, raHours: 21, raMinutes: 43, raSeconds: 36.2, decDegrees: -16, decMinutes: 7, decSeconds: 51, magnitude: 3.58, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:垒壁阵二', names: { chineseAsterism: '垒壁阵二', westernSystemName: '摩羯座γ' }, raHours: 21, raMinutes: 53, raSeconds: 28.1, decDegrees: -14, decMinutes: 46, decSeconds: 41, magnitude: 4.3, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:bayer:alpha-cap', names: { chineseAsterism: '牛宿增一', westernSystemName: '摩羯座α' }, raHours: 20, raMinutes: 17, raSeconds: 59.7, decDegrees: -12, decMinutes: 30, decSeconds: 30, magnitude: 4.52, color: '#e8e8e8', catalog: 'zodiac' },
+  { id: 'star:custom:右旗一', names: { chineseAsterism: '右旗一', westernSystemName: '天鹰座ρ' }, raHours: 20, raMinutes: 8, raSeconds: 33.7, decDegrees: -16, decMinutes: 8, decSeconds: 47, magnitude: 3.77, color: '#e8e8e8', catalog: 'zodiac' },
 
   // 水瓶座 (Aquarius)
   { id: 'star:custom:危宿一', names: { chineseAsterism: '危宿一' }, raHours: 22, raMinutes: 28, raSeconds: 52.0, decDegrees: -0, decMinutes: 19, decSeconds: 1, magnitude: 3.27, color: '#b4c8ff', catalog: 'zodiac' },
@@ -246,21 +246,22 @@ export const CATALOG: StarData[] = [
   { id: 'star:bayer:beta-aqr', names: { westernSystemName: '宝瓶座β' }, raHours: 21, raMinutes: 31, raSeconds: 33.5, decDegrees: -5, decMinutes: 34, decSeconds: 16, magnitude: 2.91, color: '#b4c8ff', catalog: 'zodiac' },
   { id: 'star:bayer:alpha-aqr', names: { westernSystemName: '宝瓶座α' }, raHours: 22, raMinutes: 6, raSeconds: 19.6, decDegrees: -0, decMinutes: 19, decSeconds: 12, magnitude: 2.96, color: '#b4c8ff', catalog: 'zodiac' },
   { id: 'star:bayer:delta-aqr', names: { westernSystemName: '宝瓶座δ' }, raHours: 22, raMinutes: 54, raSeconds: 37.2, decDegrees: -16, decMinutes: 13, decSeconds: 33, magnitude: 3.27, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:坟墓一', names: { chineseAsterism: '坟墓一' }, raHours: 22, raMinutes: 23, raSeconds: 23.4, decDegrees: -10, decMinutes: 41, decSeconds: 50, magnitude: 3.97, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:女宿一', names: { chineseAsterism: '女宿一' }, raHours: 23, raMinutes: 6, raSeconds: 44.3, decDegrees: -7, decMinutes: 46, decSeconds: 59, magnitude: 3.77, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:坟墓一', names: { chineseAsterism: '坟墓一', westernSystemName: '宝瓶座ζ' }, raHours: 22, raMinutes: 23, raSeconds: 23.4, decDegrees: -10, decMinutes: 41, decSeconds: 50, magnitude: 3.97, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:女宿一', names: { chineseAsterism: '女宿一', westernSystemName: '宝瓶座ε' }, raHours: 23, raMinutes: 6, raSeconds: 44.3, decDegrees: -7, decMinutes: 46, decSeconds: 59, magnitude: 3.77, color: '#b4c8ff', catalog: 'zodiac' },
 
   // 双鱼座 (Pisces)
   { id: 'star:custom:右更二', names: { chineseAsterism: '右更二' }, raHours: 1, raMinutes: 2, raSeconds: 53.6, decDegrees: 2, decMinutes: 45, decSeconds: 44, magnitude: 4.34, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:外屏七', names: { chineseAsterism: '外屏七' }, raHours: 0, raMinutes: 26, raSeconds: 45.6, decDegrees: 5, decMinutes: 36, decSeconds: 51, magnitude: 4.27, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:外屏七', names: { chineseAsterism: '外屏七', westernSystemName: '双鱼座ν' }, raHours: 0, raMinutes: 26, raSeconds: 45.6, decDegrees: 5, decMinutes: 36, decSeconds: 51, magnitude: 4.27, color: '#b4c8ff', catalog: 'zodiac' },
   { id: 'star:bayer:eta-psc', names: { westernSystemName: '双鱼座η' }, raHours: 1, raMinutes: 31, raSeconds: 29.0, decDegrees: 15, decMinutes: 20, decSeconds: 49, magnitude: 3.62, color: '#b4c8ff', catalog: 'zodiac' },
   { id: 'star:bayer:gamma-psc', names: { westernSystemName: '双鱼座γ' }, raHours: 23, raMinutes: 17, raSeconds: 7.9, decDegrees: 1, decMinutes: 16, decSeconds: 24, magnitude: 3.69, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:右更一', names: { chineseAsterism: '右更一' }, raHours: 1, raMinutes: 14, raSeconds: 8.3, decDegrees: 6, decMinutes: 44, decSeconds: 0, magnitude: 4.94, color: '#b4c8ff', catalog: 'zodiac' },
-  { id: 'star:custom:外屏一', names: { chineseAsterism: '外屏一' }, raHours: 23, raMinutes: 55, raSeconds: 59.6, decDegrees: 2, decMinutes: 55, decSeconds: 22, magnitude: 4.5, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:右更一', names: { chineseAsterism: '右更一', westernSystemName: '双鱼座ο' }, raHours: 1, raMinutes: 14, raSeconds: 8.3, decDegrees: 6, decMinutes: 44, decSeconds: 0, magnitude: 4.94, color: '#b4c8ff', catalog: 'zodiac' },
+  { id: 'star:custom:外屏一', names: { chineseAsterism: '外屏一', westernSystemName: '双鱼座δ' }, raHours: 23, raMinutes: 55, raSeconds: 59.6, decDegrees: 2, decMinutes: 55, decSeconds: 22, magnitude: 4.5, color: '#b4c8ff', catalog: 'zodiac' },
 
   // ===== 其他重要星座 (Other Major Constellations) =====
 
   // 猎户座 (Orion)
-  { id: 'star:bayer:lambda-ori', names: { westernProper: 'Meissa', westernSystemName: '猎户座λ' }, raHours: 5, raMinutes: 35, raSeconds: 8.3, decDegrees: 9, decMinutes: 56, decSeconds: 2.9, magnitude: 3.47, color: '#d8e6ff', catalog: 'constellation' },
+  // Verified: 觜宿一 = λ Orionis (Meissa)
+  { id: 'star:bayer:lambda-ori', names: { chineseAsterism: '觜宿一', westernProper: 'Meissa', westernSystemName: '猎户座λ' }, raHours: 5, raMinutes: 35, raSeconds: 8.3, decDegrees: 9, decMinutes: 56, decSeconds: 2.9, magnitude: 3.47, color: '#d8e6ff', catalog: 'constellation' },
   { id: 'star:bayer:beta-ori', names: { chineseAsterism: '参宿七', westernSystemName: '猎户座β' }, raHours: 5, raMinutes: 14, raSeconds: 32.3, decDegrees: -8, decMinutes: 12, decSeconds: 5.9, magnitude: 0.12, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:bayer:epsilon-ori', names: { chineseAsterism: '参宿三', westernSystemName: '猎户座ε' }, raHours: 5, raMinutes: 31, raSeconds: 38.4, decDegrees: -1, decMinutes: 12, decSeconds: 6.9, magnitude: 1.77, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:bayer:delta-ori', names: { chineseAsterism: '参宿二', westernSystemName: '猎户座δ' }, raHours: 5, raMinutes: 32, raSeconds: 0.4, decDegrees: -0, decMinutes: 17, decSeconds: 46.9, magnitude: 1.69, color: '#b4c8ff', catalog: 'constellation' },
@@ -295,10 +296,10 @@ export const CATALOG: StarData[] = [
   { id: 'star:custom:天廪增二', names: { chineseAsterism: '天廪增二' }, raHours: 4, raMinutes: 31, raSeconds: 33.5, decDegrees: 18, decMinutes: 37, decSeconds: 15, magnitude: 4.94, color: '#ffd699', catalog: 'constellation' },
 
   // 双子座 (Gemini) - already have some
-  { id: 'star:custom:井宿四', names: { chineseAsterism: '井宿四' }, raHours: 6, raMinutes: 44, raSeconds: 40.1, decDegrees: 16, decMinutes: 23, decSeconds: 46, magnitude: 3.53, color: '#ffffff', catalog: 'constellation' },
-  { id: 'star:custom:井宿五', names: { chineseAsterism: '井宿五' }, raHours: 6, raMinutes: 50, raSeconds: 31.1, decDegrees: 12, decMinutes: 41, decSeconds: 55, magnitude: 3.28, color: '#ffffff', catalog: 'constellation' },
-  { id: 'star:custom:井宿六', names: { chineseAsterism: '井宿六' }, raHours: 6, raMinutes: 54, raSeconds: 36.9, decDegrees: 16, decMinutes: 23, decSeconds: 57, magnitude: 3.28, color: '#ffffff', catalog: 'constellation' },
-  { id: 'star:custom:井宿七', names: { chineseAsterism: '井宿七' }, raHours: 7, raMinutes: 0, raSeconds: 18.7, decDegrees: 14, decMinutes: 29, decSeconds: 58, magnitude: 3.82, color: '#ffffff', catalog: 'constellation' },
+  { id: 'star:custom:井宿四', names: { }, raHours: 6, raMinutes: 44, raSeconds: 40.1, decDegrees: 16, decMinutes: 23, decSeconds: 46, magnitude: 3.53, color: '#ffffff', catalog: 'constellation' },
+  { id: 'star:custom:井宿五', names: { }, raHours: 6, raMinutes: 50, raSeconds: 31.1, decDegrees: 12, decMinutes: 41, decSeconds: 55, magnitude: 3.28, color: '#ffffff', catalog: 'constellation' },
+  { id: 'star:custom:井宿六', names: { }, raHours: 6, raMinutes: 54, raSeconds: 36.9, decDegrees: 16, decMinutes: 23, decSeconds: 57, magnitude: 3.28, color: '#ffffff', catalog: 'constellation' },
+  { id: 'star:custom:井宿七', names: { }, raHours: 7, raMinutes: 0, raSeconds: 18.7, decDegrees: 14, decMinutes: 29, decSeconds: 58, magnitude: 3.82, color: '#ffffff', catalog: 'constellation' },
   { id: 'star:custom:井宿八', names: { chineseAsterism: '井宿八' }, raHours: 7, raMinutes: 8, raSeconds: 23.5, decDegrees: 13, decMinutes: 46, decSeconds: 29, magnitude: 3.96, color: '#ffffff', catalog: 'constellation' },
 
   // 室女座 (Virgo) - already have some
@@ -314,30 +315,31 @@ export const CATALOG: StarData[] = [
   // 牧夫座 (Boötes)
   { id: 'star:custom:贯索四', names: { chineseAsterism: '贯索四' }, raHours: 15, raMinutes: 28, raSeconds: 37.3, decDegrees: 33, decMinutes: 18, decSeconds: 17, magnitude: 2.37, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:七公六', names: { chineseAsterism: '七公六' }, raHours: 15, raMinutes: 3, raSeconds: 47.8, decDegrees: 40, decMinutes: 35, decSeconds: 50, magnitude: 4.46, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:招摇-2', names: { chineseAsterism: '招摇' }, raHours: 14, raMinutes: 29, raSeconds: 43.1, decDegrees: 37, decMinutes: 23, decSeconds: 40, magnitude: 3.53, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:招摇-2', names: { }, raHours: 14, raMinutes: 29, raSeconds: 43.1, decDegrees: 37, decMinutes: 23, decSeconds: 40, magnitude: 3.53, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:kappa-boo', names: { westernSystemName: '牧夫座κ' }, raHours: 14, raMinutes: 13, raSeconds: 29.0, decDegrees: 51, decMinutes: 47, decSeconds: 15, magnitude: 4.54, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:候', names: { chineseAsterism: '候' }, raHours: 14, raMinutes: 45, raSeconds: 40.0, decDegrees: 25, decMinutes: 40, decSeconds: 12, magnitude: 2.7, color: '#ffe4b5', catalog: 'constellation' },
 
   // 天琴座 (Lyra)
-  { id: 'star:custom:织女二', names: { chineseAsterism: '织女二' }, raHours: 18, raMinutes: 43, raSeconds: 56.5, decDegrees: 33, decMinutes: 21, decSeconds: 23, magnitude: 4.3, color: '#cfe3ff', catalog: 'constellation' },
-  { id: 'star:custom:织女一', names: { chineseAsterism: '织女一' }, raHours: 18, raMinutes: 44, raSeconds: 20.3, decDegrees: 32, decMinutes: 41, decSeconds: 36, magnitude: 4.34, color: '#cfe3ff', catalog: 'constellation' },
-  { id: 'star:custom:渐台二', names: { chineseAsterism: '渐台二' }, raHours: 18, raMinutes: 45, raSeconds: 42.6, decDegrees: 33, decMinutes: 21, decSeconds: 53, magnitude: 3.47, color: '#cfe3ff', catalog: 'constellation' },
-  { id: 'star:custom:辇道一', names: { chineseAsterism: '辇道一' }, raHours: 18, raMinutes: 53, raSeconds: 24.9, decDegrees: 33, decMinutes: 17, decSeconds: 21, magnitude: 4.23, color: '#cfe3ff', catalog: 'constellation' },
+  { id: 'star:custom:织女二', names: { westernSystemName: '织女二', chineseAsterism: '织女二' }, raHours: 18, raMinutes: 43, raSeconds: 56.5, decDegrees: 33, decMinutes: 21, decSeconds: 23, magnitude: 4.3, color: '#cfe3ff', catalog: 'constellation' },
+  { id: 'star:custom:织女一', names: { westernSystemName: '织女一', chineseAsterism: '织女一' }, raHours: 18, raMinutes: 44, raSeconds: 20.3, decDegrees: 32, decMinutes: 41, decSeconds: 36, magnitude: 4.34, color: '#cfe3ff', catalog: 'constellation' },
+  { id: 'star:custom:渐台二', names: { westernSystemName: '渐台二', chineseAsterism: '渐台二' }, raHours: 18, raMinutes: 45, raSeconds: 42.6, decDegrees: 33, decMinutes: 21, decSeconds: 53, magnitude: 3.47, color: '#cfe3ff', catalog: 'constellation' },
+  { id: 'star:custom:辇道一', names: { westernSystemName: '辇道一', chineseAsterism: '辇道一' }, raHours: 18, raMinutes: 53, raSeconds: 24.9, decDegrees: 33, decMinutes: 17, decSeconds: 21, magnitude: 4.23, color: '#cfe3ff', catalog: 'constellation' },
   { id: 'star:bayer:delta-lyr', names: { westernSystemName: '天琴座δ' }, raHours: 18, raMinutes: 53, raSeconds: 3.7, decDegrees: 36, decMinutes: 58, decSeconds: 43, magnitude: 4.22, color: '#cfe3ff', catalog: 'constellation' },
 
   // 天鹅座 (Cygnus)
-  { id: 'star:custom:天津一', names: { chineseAsterism: '天津一' }, raHours: 20, raMinutes: 22, raSeconds: 13.7, decDegrees: 40, decMinutes: 15, decSeconds: 24, magnitude: 2.23, color: '#eef5ff', catalog: 'constellation' },
-  { id: 'star:custom:天津九', names: { chineseAsterism: '天津九' }, raHours: 19, raMinutes: 44, raSeconds: 22.1, decDegrees: 45, decMinutes: 7, decSeconds: 51, magnitude: 2.48, color: '#eef5ff', catalog: 'constellation' },
-  { id: 'star:custom:天津二', names: { chineseAsterism: '天津二' }, raHours: 19, raMinutes: 50, raSeconds: 46.99855, decDegrees: 45, decMinutes: 7, decSeconds: 52, magnitude: 2.87, color: '#eef5ff', catalog: 'constellation' },
-  { id: 'star:custom:天津八', names: { chineseAsterism: '天津八' }, raHours: 19, raMinutes: 36, raSeconds: 42.5, decDegrees: 46, decMinutes: 32, decSeconds: 16, magnitude: 2.23, color: '#eef5ff', catalog: 'constellation' },
-  { id: 'star:custom:辇道增七', names: { chineseAsterism: '辇道增七' }, raHours: 19, raMinutes: 30, raSeconds: 43.4, decDegrees: 45, decMinutes: 7, decSeconds: 59, magnitude: 3.08, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:天津一', names: { westernSystemName: '天津一', chineseAsterism: '天津一' }, raHours: 20, raMinutes: 22, raSeconds: 13.7, decDegrees: 40, decMinutes: 15, decSeconds: 24, magnitude: 2.23, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:天津九', names: { westernSystemName: '天津九', chineseAsterism: '天津九' }, raHours: 19, raMinutes: 44, raSeconds: 22.1, decDegrees: 45, decMinutes: 7, decSeconds: 51, magnitude: 2.48, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:天津二', names: { westernSystemName: '天津二', chineseAsterism: '天津二' }, raHours: 19, raMinutes: 50, raSeconds: 46.99855, decDegrees: 45, decMinutes: 7, decSeconds: 52, magnitude: 2.87, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:天津八', names: { westernSystemName: '天津八', chineseAsterism: '天津八' }, raHours: 19, raMinutes: 36, raSeconds: 42.5, decDegrees: 46, decMinutes: 32, decSeconds: 16, magnitude: 2.23, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:辇道增七', names: { westernSystemName: '辇道增七', chineseAsterism: '辇道增七' }, raHours: 19, raMinutes: 30, raSeconds: 43.4, decDegrees: 45, decMinutes: 7, decSeconds: 59, magnitude: 3.08, color: '#eef5ff', catalog: 'constellation' },
   { id: 'star:bayer:chi-cyg', names: { westernSystemName: '天鹅座χ' }, raHours: 19, raMinutes: 50, raSeconds: 34.8, decDegrees: 32, decMinutes: 54, decSeconds: 53, magnitude: 3.32, color: '#eef5ff', catalog: 'constellation' },
-  { id: 'star:custom:天津五', names: { chineseAsterism: '天津五' }, raHours: 20, raMinutes: 13, raSeconds: 36.0, decDegrees: 40, decMinutes: 15, decSeconds: 19, magnitude: 2.87, color: '#eef5ff', catalog: 'constellation' },
+  { id: 'star:custom:天津五', names: { westernSystemName: '天津五', chineseAsterism: '天津五' }, raHours: 20, raMinutes: 13, raSeconds: 36.0, decDegrees: 40, decMinutes: 15, decSeconds: 19, magnitude: 2.87, color: '#eef5ff', catalog: 'constellation' },
 
   // 天鹰座 (Aquila)
-  { id: 'star:custom:河鼓一', names: { chineseAsterism: '河鼓一' }, raHours: 19, raMinutes: 55, raSeconds: 16.6, decDegrees: 11, decMinutes: 56, decSeconds: 39, magnitude: 3.71, color: '#fff0d6', catalog: 'constellation' },
-  { id: 'star:custom:河鼓三', names: { chineseAsterism: '河鼓三' }, raHours: 20, raMinutes: 1, raSeconds: 47.0, decDegrees: 14, decMinutes: 2, decSeconds: 2, magnitude: 2.72, color: '#fff0d6', catalog: 'constellation' },
-  { id: 'star:bayer:zeta-aql', names: { westernSystemName: '天鹰座ζ' }, raHours: 19, raMinutes: 5, raSeconds: 24.3, decDegrees: 13, decMinutes: 51, decSeconds: 49, magnitude: 2.99, color: '#fff0d6', catalog: 'constellation' },
+  { id: 'star:custom:河鼓一', names: { westernSystemName: '河鼓一', chineseAsterism: '河鼓一' }, raHours: 19, raMinutes: 55, raSeconds: 16.6, decDegrees: 11, decMinutes: 56, decSeconds: 39, magnitude: 3.71, color: '#fff0d6', catalog: 'constellation' },
+  { id: 'star:custom:河鼓三', names: { westernSystemName: '河鼓三', chineseAsterism: '河鼓三' }, raHours: 20, raMinutes: 1, raSeconds: 47.0, decDegrees: 14, decMinutes: 2, decSeconds: 2, magnitude: 2.72, color: '#fff0d6', catalog: 'constellation' },
+  // Verified: 天市左垣六 = ζ Aquilae
+  { id: 'star:bayer:zeta-aql', names: { chineseAsterism: '天市左垣六', westernProper: 'Deneb el Okab', westernSystemName: '天鹰座ζ' }, raHours: 19, raMinutes: 5, raSeconds: 24.3, decDegrees: 13, decMinutes: 51, decSeconds: 49, magnitude: 2.99, color: '#fff0d6', catalog: 'constellation' },
   { id: 'star:bayer:theta-aql', names: { westernSystemName: '天鹰座θ' }, raHours: 20, raMinutes: 11, raSeconds: 19.2, decDegrees: 0, decMinutes: 49, decSeconds: 17, magnitude: 3.22, color: '#fff0d6', catalog: 'constellation' },
   { id: 'star:bayer:delta-aql', names: { westernSystemName: '天鹰座δ' }, raHours: 19, raMinutes: 25, raSeconds: 29.9, decDegrees: 3, decMinutes: 6, decSeconds: 53, magnitude: 3.35, color: '#fff0d6', catalog: 'constellation' },
   { id: 'star:custom:右旗三', names: { chineseAsterism: '右旗三' }, raHours: 18, raMinutes: 59, raSeconds: 3.6, decDegrees: 4, decMinutes: 52, decSeconds: 6, magnitude: 4.02, color: '#fff0d6', catalog: 'constellation' },
@@ -352,7 +354,7 @@ export const CATALOG: StarData[] = [
   { id: 'star:custom:雷神太子上', names: { chineseAsterism: '雷神太子上' }, raHours: 22, raMinutes: 54, raSeconds: 38.4, decDegrees: 33, decMinutes: 43, decSeconds: 19, magnitude: 4.53, color: '#ff9f7f', catalog: 'constellation' },
 
   // 仙女座 (Andromeda)
-  { id: 'star:custom:壁宿二-2', names: { chineseAsterism: '壁宿二' }, raHours: 23, raMinutes: 4, raSeconds: 31.8, decDegrees: 42, decMinutes: 35, decSeconds: 37, magnitude: 2.06, color: '#b4c8ff', catalog: 'constellation' },
+  { id: 'star:custom:壁宿二-2', names: { }, raHours: 23, raMinutes: 4, raSeconds: 31.8, decDegrees: 42, decMinutes: 35, decSeconds: 37, magnitude: 2.06, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:custom:奎宿九', names: { chineseAsterism: '奎宿九' }, raHours: 1, raMinutes: 9, raSeconds: 43.1, decDegrees: 35, decMinutes: 37, decSeconds: 12, magnitude: 2.17, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:custom:天大将军一', names: { chineseAsterism: '天大将军一' }, raHours: 1, raMinutes: 6, raSeconds: 36.4, decDegrees: 35, decMinutes: 13, decSeconds: 43, magnitude: 2.26, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:bayer:delta-and', names: { westernSystemName: '仙女座δ' }, raHours: 0, raMinutes: 22, raSeconds: 31.6, decDegrees: 30, decMinutes: 52, decSeconds: 5, magnitude: 3.28, color: '#b4c8ff', catalog: 'constellation' },
@@ -360,27 +362,27 @@ export const CATALOG: StarData[] = [
   { id: 'star:custom:天大将军六', names: { chineseAsterism: '天大将军六' }, raHours: 1, raMinutes: 20, raSeconds: 0.6, decDegrees: 35, decMinutes: 37, decSeconds: 39, magnitude: 4.88, color: '#b4c8ff', catalog: 'constellation' },
 
   // 英仙座 (Perseus)
-  { id: 'star:custom:天船三', names: { chineseAsterism: '天船三' }, raHours: 3, raMinutes: 24, raSeconds: 19.4, decDegrees: 49, decMinutes: 51, decSeconds: 40, magnitude: 1.79, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:bayer:alpha-per', names: { westernSystemName: '英仙座α' }, raHours: 3, raMinutes: 8, raSeconds: 13.7, decDegrees: 40, decMinutes: 55, decSeconds: 43, magnitude: 3.79, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:大陵五', names: { chineseAsterism: '大陵五' }, raHours: 3, raMinutes: 8, raSeconds: 10.1, decDegrees: 40, decMinutes: 57, decSeconds: 21, magnitude: 2.12, color: '#ffe4b5', catalog: 'constellation' },
+  // Verified: Mirfak = α Persei = 天船三; Algol = β Persei = 大陵五
+  { id: 'star:bayer:alpha-per', names: { chineseAsterism: '天船三', westernProper: 'Mirfak', westernSystemName: '英仙座α' }, raHours: 3, raMinutes: 24, raSeconds: 19.4, decDegrees: 49, decMinutes: 51, decSeconds: 40, magnitude: 1.79, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:大陵五', names: { chineseAsterism: '大陵五', westernProper: 'Algol', westernSystemName: '英仙座β' }, raHours: 3, raMinutes: 8, raSeconds: 10.1, decDegrees: 40, decMinutes: 57, decSeconds: 21, magnitude: 2.12, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:epsilon-per', names: { westernSystemName: '英仙座ε' }, raHours: 3, raMinutes: 57, raSeconds: 51.4, decDegrees: 40, decMinutes: 0, decSeconds: 36, magnitude: 2.89, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:zeta-per', names: { westernSystemName: '英仙座ζ' }, raHours: 3, raMinutes: 54, raSeconds: 22.6, decDegrees: 31, decMinutes: 53, decSeconds: 16, magnitude: 4.04, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:天船二', names: { chineseAsterism: '天船二' }, raHours: 2, raMinutes: 50, raSeconds: 33.4, decDegrees: 40, decMinutes: 26, decSeconds: 51, magnitude: 4.15, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:卷舌二', names: { chineseAsterism: '卷舌二' }, raHours: 3, raMinutes: 10, raSeconds: 56.6, decDegrees: 38, decMinutes: 40, decSeconds: 6, magnitude: 4.37, color: '#ffe4b5', catalog: 'constellation' },
 
   // 仙王座 (Cepheus)
-  { id: 'star:custom:天枢', names: { chineseAsterism: '天枢' }, raHours: 22, raMinutes: 29, raSeconds: 49.5, decDegrees: 62, decMinutes: 35, decSeconds: 12, magnitude: 3.52, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:天枢', names: {}, raHours: 22, raMinutes: 29, raSeconds: 49.5, decDegrees: 62, decMinutes: 35, decSeconds: 12, magnitude: 3.52, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:beta-cep', names: { westernSystemName: '仙王座β' }, raHours: 21, raMinutes: 28, raSeconds: 43.2, decDegrees: 70, decMinutes: 33, decSeconds: 38, magnitude: 3.23, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:gamma-cep', names: { westernSystemName: '仙王座γ' }, raHours: 23, raMinutes: 3, raSeconds: 53.1, decDegrees: 56, decMinutes: 59, decSeconds: 26, magnitude: 3.22, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:delta-cep', names: { westernSystemName: '仙王座δ' }, raHours: 22, raMinutes: 29, raSeconds: 17.1, decDegrees: 58, decMinutes: 24, decSeconds: 50, magnitude: 4.07, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:zeta-cep', names: { westernSystemName: '仙王座ζ' }, raHours: 22, raMinutes: 10, raSeconds: 36.3, decDegrees: 57, decMinutes: 59, decSeconds: 51, magnitude: 3.35, color: '#ffe4b5', catalog: 'constellation' },
 
   // 仙后座 (Cassiopeia)
-  { id: 'star:custom:王良一', names: { chineseAsterism: '王良一' }, raHours: 0, raMinutes: 41, raSeconds: 6.4, decDegrees: 60, decMinutes: 43, decSeconds: 0, magnitude: 2.47, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:王良四', names: { chineseAsterism: '王良四' }, raHours: 1, raMinutes: 9, raSeconds: 29.0, decDegrees: 59, decMinutes: 8, decSeconds: 59, magnitude: 2.27, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:王良三', names: { chineseAsterism: '王良三' }, raHours: 0, raMinutes: 55, raSeconds: 0.3, decDegrees: 60, decMinutes: 14, decSeconds: 8, magnitude: 2.47, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:王良二', names: { chineseAsterism: '王良二' }, raHours: 0, raMinutes: 47, raSeconds: 12.5, decDegrees: 59, decMinutes: 29, decSeconds: 41, magnitude: 3.37, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:策', names: { chineseAsterism: '策' }, raHours: 1, raMinutes: 3, raSeconds: 54.0, decDegrees: 59, decMinutes: 33, decSeconds: 54, magnitude: 3.37, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:王良一', names: { westernSystemName: '王良一', chineseAsterism: '王良一' }, raHours: 0, raMinutes: 41, raSeconds: 6.4, decDegrees: 60, decMinutes: 43, decSeconds: 0, magnitude: 2.47, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:王良四', names: { westernSystemName: '王良四', chineseAsterism: '王良四' }, raHours: 1, raMinutes: 9, raSeconds: 29.0, decDegrees: 59, decMinutes: 8, decSeconds: 59, magnitude: 2.27, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:王良三', names: { westernSystemName: '王良三', chineseAsterism: '王良三' }, raHours: 0, raMinutes: 55, raSeconds: 0.3, decDegrees: 60, decMinutes: 14, decSeconds: 8, magnitude: 2.47, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:王良二', names: { westernSystemName: '王良二', chineseAsterism: '王良二' }, raHours: 0, raMinutes: 47, raSeconds: 12.5, decDegrees: 59, decMinutes: 29, decSeconds: 41, magnitude: 3.37, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:策', names: { westernSystemName: '策', chineseAsterism: '策' }, raHours: 1, raMinutes: 3, raSeconds: 54.0, decDegrees: 59, decMinutes: 33, decSeconds: 54, magnitude: 3.37, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:kappa-cas', names: { westernSystemName: '仙后座κ' }, raHours: 0, raMinutes: 32, raSeconds: 59.9, decDegrees: 62, decMinutes: 56, decSeconds: 3, magnitude: 4.16, color: '#ffe4b5', catalog: 'constellation' },
 
   // 鹿豹座 (Camelopardalis)
@@ -393,7 +395,7 @@ export const CATALOG: StarData[] = [
   { id: 'star:custom:常陈一', names: { chineseAsterism: '常陈一' }, raHours: 12, raMinutes: 37, raSeconds: 33.5, decDegrees: 45, decMinutes: 28, decSeconds: 9, magnitude: 2.89, color: '#ffe4b5', catalog: 'constellation' },
 
   // 室女座 (Coma Berenices)
-  { id: 'star:custom:太微左垣五-2', names: { chineseAsterism: '太微左垣五' }, raHours: 12, raMinutes: 10, raSeconds: 29.2, decDegrees: 28, decMinutes: 1, decSeconds: 16, magnitude: 3.44, color: '#b4c8ff', catalog: 'constellation' },
+  { id: 'star:custom:太微左垣五-2', names: { }, raHours: 12, raMinutes: 10, raSeconds: 29.2, decDegrees: 28, decMinutes: 1, decSeconds: 16, magnitude: 3.44, color: '#b4c8ff', catalog: 'constellation' },
 
   // 后发座 (Coma Berenices)
   { id: 'star:bayer:beta-com', names: { westernSystemName: '后发座β' }, raHours: 13, raMinutes: 11, raSeconds: 52.4, decDegrees: 27, decMinutes: 52, decSeconds: 50, magnitude: 4.24, color: '#b4c8ff', catalog: 'constellation' },
@@ -405,11 +407,11 @@ export const CATALOG: StarData[] = [
   { id: 'star:bayer:epsilon-ser', names: { westernSystemName: '巨蛇座ε' }, raHours: 15, raMinutes: 51, raSeconds: 48.5, decDegrees: 4, decMinutes: 55, decSeconds: 42, magnitude: 3.69, color: '#ffe4b5', catalog: 'constellation' },
 
   // 蛇夫座 (Ophiuchus)
-  { id: 'star:custom:侯', names: { chineseAsterism: '侯' }, raHours: 17, raMinutes: 17, raSeconds: 48.1, decDegrees: 12, decMinutes: 33, decSeconds: 36, magnitude: 2.07, color: '#ffe4b5', catalog: 'constellation' },
+  // Verified: Rasalhague = α Ophiuchi = 侯
+  { id: 'star:bayer:alpha-oph', names: { chineseAsterism: '侯', westernProper: 'Rasalhague', westernSystemName: '蛇夫座α' }, raHours: 17, raMinutes: 34, raSeconds: 59.0, decDegrees: 12, decMinutes: 33, decSeconds: 36, magnitude: 2.07, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:宗正一', names: { chineseAsterism: '宗正一' }, raHours: 17, raMinutes: 14, raSeconds: 20.8, decDegrees: 15, decMinutes: 20, decSeconds: 27, magnitude: 2.43, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:zeta-oph', names: { westernSystemName: '蛇夫座ζ' }, raHours: 16, raMinutes: 37, raSeconds: 51.4, decDegrees: -10, decMinutes: 33, decSeconds: 51, magnitude: 2.54, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:eta-oph', names: { westernSystemName: '蛇夫座η' }, raHours: 17, raMinutes: 10, raSeconds: 22.7, decDegrees: -15, decMinutes: 43, decSeconds: 30, magnitude: 2.43, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:bayer:alpha-aql-2', names: { westernSystemName: '天鹰座α' }, raHours: 17, raMinutes: 34, raSeconds: 59.0, decDegrees: 12, decMinutes: 33, decSeconds: 36, magnitude: 2.07, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:巴德尔', names: { chineseAsterism: '巴德尔' }, raHours: 18, raMinutes: 31, raSeconds: 50.7, decDegrees: 2, decMinutes: 44, decSeconds: 12, magnitude: 3.0, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:custom:郑', names: { chineseAsterism: '郑' }, raHours: 17, raMinutes: 22, raSeconds: 51.6, decDegrees: 2, decMinutes: 42, decSeconds: 43, magnitude: 3.53, color: '#ffe4b5', catalog: 'constellation' },
 
@@ -432,9 +434,9 @@ export const CATALOG: StarData[] = [
   { id: 'star:custom:尾宿九', names: { chineseAsterism: '尾宿九' }, raHours: 18, raMinutes: 16, raSeconds: 55.0, decDegrees: -39, decMinutes: 1, decSeconds: 29, magnitude: 2.41, color: '#ff7f50', catalog: 'constellation' },
 
   // 半人马座 (Centaurus)
-  { id: 'star:custom:南门二', names: { chineseAsterism: '南门二' }, raHours: 14, raMinutes: 39, raSeconds: 36.5, decDegrees: -60, decMinutes: 50, decSeconds: 2, magnitude: -0.27, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:custom:马腹一', names: { chineseAsterism: '马腹一' }, raHours: 14, raMinutes: 3, raSeconds: 47.8, decDegrees: -60, decMinutes: 22, decSeconds: 57, magnitude: 0.61, color: '#ffe4b5', catalog: 'constellation' },
-  { id: 'star:bayer:beta-cen', names: { westernSystemName: '半人马座β' }, raHours: 14, raMinutes: 53, raSeconds: 49.9, decDegrees: -60, decMinutes: 22, decSeconds: 57, magnitude: 0.61, color: '#ffe4b5', catalog: 'constellation' },
+  { id: 'star:custom:南门二', names: { westernSystemName: '南门二', chineseAsterism: '南门二' }, raHours: 14, raMinutes: 39, raSeconds: 36.5, decDegrees: -60, decMinutes: 50, decSeconds: 2, magnitude: -0.27, color: '#ffe4b5', catalog: 'constellation' },
+  // Verified: 马腹一 = β Centauri (Hadar)
+  { id: 'star:bayer:beta-cen', names: { chineseAsterism: '马腹一', westernProper: 'Hadar', westernSystemName: '半人马座β' }, raHours: 14, raMinutes: 3, raSeconds: 49.4, decDegrees: -60, decMinutes: 22, decSeconds: 57, magnitude: 0.61, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:gamma-cen', names: { westernSystemName: '半人马座γ' }, raHours: 12, raMinutes: 26, raSeconds: 35.0, decDegrees: -48, decMinutes: 57, decSeconds: 35, magnitude: 2.17, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:epsilon-cen', names: { westernSystemName: '半人马座ε' }, raHours: 13, raMinutes: 39, raSeconds: 53.3, decDegrees: -53, decMinutes: 38, decSeconds: 4, magnitude: 2.3, color: '#ffe4b5', catalog: 'constellation' },
   { id: 'star:bayer:zeta-cen', names: { westernSystemName: '半人马座ζ' }, raHours: 13, raMinutes: 56, raSeconds: 26.5, decDegrees: -47, decMinutes: 10, decSeconds: 22, magnitude: 2.55, color: '#ffe4b5', catalog: 'constellation' },
@@ -454,9 +456,10 @@ export const CATALOG: StarData[] = [
   { id: 'star:bayer:gamma-ara', names: { westernSystemName: '天坛座γ' }, raHours: 17, raMinutes: 59, raSeconds: 23.1, decDegrees: -56, decMinutes: 22, decSeconds: 40, magnitude: 3.31, color: '#e8e8e8', catalog: 'constellation' },
 
   // 长蛇座 (Hydra)
-  { id: 'star:custom:星宿一', names: { chineseAsterism: '星宿一' }, raHours: 9, raMinutes: 27, raSeconds: 35.2, decDegrees: -8, decMinutes: 39, decSeconds: 30, magnitude: 1.98, color: '#b4c8ff', catalog: 'constellation' },
-  { id: 'star:bayer:gamma-hya', names: { westernSystemName: '长蛇座γ' }, raHours: 13, raMinutes: 21, raSeconds: 48.5, decDegrees: -23, decMinutes: 10, decSeconds: 23, magnitude: 2.99, color: '#b4c8ff', catalog: 'constellation' },
-  { id: 'star:bayer:pi-hya', names: { westernSystemName: '长蛇座π' }, raHours: 14, raMinutes: 26, raSeconds: 56.9, decDegrees: -26, decMinutes: 40, decSeconds: 57, magnitude: 3.27, color: '#b4c8ff', catalog: 'constellation' },
+  { id: 'star:custom:星宿一', names: { westernSystemName: '星宿一', chineseAsterism: '星宿一' }, raHours: 9, raMinutes: 27, raSeconds: 35.2, decDegrees: -8, decMinutes: 39, decSeconds: 30, magnitude: 1.98, color: '#b4c8ff', catalog: 'constellation' },
+  // Verified: 平一 = γ Hydrae; 平二 = π Hydrae
+  { id: 'star:bayer:gamma-hya', names: { chineseAsterism: '平一', westernSystemName: '长蛇座γ' }, raHours: 13, raMinutes: 21, raSeconds: 48.5, decDegrees: -23, decMinutes: 10, decSeconds: 23, magnitude: 2.99, color: '#b4c8ff', catalog: 'constellation' },
+  { id: 'star:bayer:pi-hya', names: { chineseAsterism: '平二', westernSystemName: '长蛇座π' }, raHours: 14, raMinutes: 26, raSeconds: 56.9, decDegrees: -26, decMinutes: 40, decSeconds: 57, magnitude: 3.27, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:bayer:rho-hya', names: { westernSystemName: '长蛇座ρ' }, raHours: 13, raMinutes: 29, raSeconds: 43.8, decDegrees: -23, decMinutes: 34, decSeconds: 38, magnitude: 4.35, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:custom:外厨一', names: { chineseAsterism: '外厨一' }, raHours: 10, raMinutes: 52, raSeconds: 32.5, decDegrees: -24, decMinutes: 43, decSeconds: 26, magnitude: 4.08, color: '#b4c8ff', catalog: 'constellation' },
   { id: 'star:custom:外厨二', names: { chineseAsterism: '外厨二' }, raHours: 11, raMinutes: 5, raSeconds: 32.2, decDegrees: -27, decMinutes: 3, decSeconds: 30, magnitude: 4.31, color: '#b4c8ff', catalog: 'constellation' },
@@ -684,7 +687,7 @@ export const CATALOG: StarData[] = [
 // Chinese asterism line definitions - reference stars by stable ids
 export const CHINESE_CONSTELLATIONS: Constellation[] = [
   {
-    id: 'big-dipper',
+    id: 'cn-big-dipper',
     names: { chineseAsterism: '北斗七星', westernConstellation: 'Big Dipper' },
     system: 'chinese',
     lines: [
@@ -697,7 +700,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'aries',
+    id: 'cn-aries',
     names: { chineseAsterism: '娄宿', westernConstellation: 'Aries Region' },
     system: 'chinese',
     lines: [
@@ -706,7 +709,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'taurus',
+    id: 'cn-taurus',
     names: { chineseAsterism: '毕宿', westernConstellation: 'Bi Xiu' },
     system: 'chinese',
     lines: [
@@ -716,7 +719,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'gemini',
+    id: 'cn-gemini',
     names: { chineseAsterism: '井宿', westernConstellation: 'Jing Xiu' },
     system: 'chinese',
     lines: [
@@ -726,7 +729,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'leo',
+    id: 'cn-leo',
     names: { chineseAsterism: '轩辕', westernConstellation: 'Xuanyuan' },
     system: 'chinese',
     lines: [
@@ -737,7 +740,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'virgo',
+    id: 'cn-virgo',
     names: { chineseAsterism: '角宿', westernConstellation: 'Jiao Xiu' },
     system: 'chinese',
     lines: [
@@ -747,7 +750,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'libra',
+    id: 'cn-libra',
     names: { chineseAsterism: '氐宿', westernConstellation: 'Di Xiu' },
     system: 'chinese',
     lines: [
@@ -757,7 +760,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'scorpius',
+    id: 'cn-scorpius',
     names: { chineseAsterism: '心房尾宿', westernConstellation: 'Xin and Wei' },
     system: 'chinese',
     lines: [
@@ -772,7 +775,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'sagittarius',
+    id: 'cn-sagittarius',
     names: { chineseAsterism: '斗建', westernConstellation: 'Dou and Jian' },
     system: 'chinese',
     lines: [
@@ -782,7 +785,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'shen',
+    id: 'cn-shen',
     names: { chineseAsterism: '参宿', westernConstellation: 'Shen Xiu' },
     system: 'chinese',
     lines: [
@@ -796,7 +799,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'shenqi',
+    id: 'cn-shenqi',
     names: { chineseAsterism: '参旗', westernConstellation: 'Shenqi' },
     system: 'chinese',
     lines: [
@@ -805,7 +808,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'ursa-major',
+    id: 'cn-ursa-major',
     names: { chineseAsterism: '北斗延伸', westernConstellation: 'Northern Dipper' },
     system: 'chinese',
     lines: [
@@ -818,20 +821,19 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'cygnus',
+    id: 'cn-cygnus',
     names: { chineseAsterism: '天津', westernConstellation: 'Tianjin' },
     system: 'chinese',
     lines: [
+      { from: 'star:custom:天津一', to: 'star:custom:天津二' },
+      { from: 'star:custom:天津二', to: 'star:bayer:alpha-cyg' },
       { from: 'star:bayer:alpha-cyg', to: 'star:custom:天津五' },
-      { from: 'star:custom:天津五', to: 'star:custom:天津一' },
-      { from: 'star:custom:天津一', to: 'star:custom:辇道增七' },
-      { from: 'star:custom:辇道增七', to: 'star:custom:天津九' },
-      { from: 'star:custom:天津九', to: 'star:custom:天津二' },
-      { from: 'star:custom:天津二', to: 'star:custom:天津八' },
+      { from: 'star:custom:天津五', to: 'star:custom:天津八' },
+      { from: 'star:custom:天津八', to: 'star:custom:天津九' },
     ],
   },
   {
-    id: 'lyra',
+    id: 'cn-lyra',
     names: { chineseAsterism: '织女', westernConstellation: 'Zhinu' },
     system: 'chinese',
     lines: [
@@ -842,7 +844,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'aquila',
+    id: 'cn-aquila',
     names: { chineseAsterism: '河鼓', westernConstellation: 'Hegu' },
     system: 'chinese',
     lines: [
@@ -852,7 +854,7 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'scorpius-extended',
+    id: 'cn-scorpius-extended',
     names: { chineseAsterism: '尾宿延长', westernConstellation: 'Wei Extension' },
     system: 'chinese',
     lines: [
@@ -860,25 +862,23 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'centaurus',
+    id: 'cn-centaurus',
     names: { chineseAsterism: '南门', westernConstellation: 'Nanmen' },
     system: 'chinese',
     lines: [
-      { from: 'star:custom:南门二', to: 'star:custom:马腹一' },
       { from: 'star:custom:南门二', to: 'star:bayer:beta-cen' },
     ],
   },
   {
-    id: 'hydra',
-    names: { chineseAsterism: '星宿', westernConstellation: 'Xing Xiu' },
+    id: 'cn-hydra',
+    names: { chineseAsterism: '平', westernConstellation: 'Ping' },
     system: 'chinese',
     lines: [
-      { from: 'star:custom:星宿一', to: 'star:bayer:gamma-hya' },
       { from: 'star:bayer:gamma-hya', to: 'star:bayer:pi-hya' },
     ],
   },
   {
-    id: 'cassiopeia',
+    id: 'cn-cassiopeia',
     names: { chineseAsterism: '王良', westernConstellation: 'Wangliang' },
     system: 'chinese',
     lines: [
@@ -889,19 +889,18 @@ export const CHINESE_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'perseus',
+    id: 'cn-perseus',
     names: { chineseAsterism: '大陵', westernConstellation: 'Daling' },
     system: 'chinese',
     lines: [
-      { from: 'star:custom:天船三', to: 'star:custom:大陵五' },
-      { from: 'star:custom:大陵五', to: 'star:bayer:alpha-per' },
+      { from: 'star:bayer:alpha-per', to: 'star:custom:大陵五' },
     ],
   },
 ];
 
 export const WESTERN_CONSTELLATIONS: Constellation[] = [
   {
-    id: 'aries',
+    id: 'western-aries',
     names: { westernSystemName: '白羊座', westernConstellation: 'Aries' },
     system: 'western',
     lines: [
@@ -910,7 +909,7 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'taurus',
+    id: 'western-taurus',
     names: { westernSystemName: '金牛座', westernConstellation: 'Taurus' },
     system: 'western',
     lines: [
@@ -920,7 +919,7 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'gemini',
+    id: 'western-gemini',
     names: { westernSystemName: '双子座', westernConstellation: 'Gemini' },
     system: 'western',
     lines: [
@@ -930,7 +929,7 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'orion',
+    id: 'western-orion',
     names: { westernSystemName: '猎户座', westernConstellation: 'Orion' },
     system: 'western',
     lines: [
@@ -947,7 +946,7 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'ursa-major',
+    id: 'western-ursa-major',
     names: { westernSystemName: '大熊座', westernConstellation: 'Ursa Major' },
     system: 'western',
     lines: [
@@ -960,20 +959,18 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'cygnus',
+    id: 'western-cygnus',
     names: { westernSystemName: '天鹅座', westernConstellation: 'Cygnus' },
     system: 'western',
     lines: [
-      { from: 'star:bayer:alpha-cyg', to: 'star:custom:天津五' },
-      { from: 'star:custom:天津五', to: 'star:custom:天津一' },
+      { from: 'star:bayer:alpha-cyg', to: 'star:custom:天津一' },
       { from: 'star:custom:天津一', to: 'star:custom:辇道增七' },
-      { from: 'star:custom:辇道增七', to: 'star:custom:天津九' },
-      { from: 'star:custom:天津九', to: 'star:custom:天津二' },
-      { from: 'star:custom:天津二', to: 'star:custom:天津八' },
+      { from: 'star:custom:天津一', to: 'star:custom:天津二' },
+      { from: 'star:custom:天津一', to: 'star:custom:天津九' },
     ],
   },
   {
-    id: 'lyra',
+    id: 'western-lyra',
     names: { westernSystemName: '天琴座', westernConstellation: 'Lyra' },
     system: 'western',
     lines: [
@@ -984,17 +981,19 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'aquila',
+    id: 'western-aquila',
     names: { westernSystemName: '天鹰座', westernConstellation: 'Aquila' },
     system: 'western',
     lines: [
-      { from: 'star:bayer:alpha-aql', to: 'star:custom:河鼓一' },
-      { from: 'star:custom:河鼓一', to: 'star:custom:河鼓三' },
-      { from: 'star:bayer:alpha-aql', to: 'star:bayer:zeta-aql' },
+      { from: 'star:custom:河鼓一', to: 'star:bayer:alpha-aql' },
+      { from: 'star:bayer:alpha-aql', to: 'star:custom:河鼓三' },
+      { from: 'star:bayer:alpha-aql', to: 'star:bayer:delta-aql' },
+      { from: 'star:bayer:delta-aql', to: 'star:bayer:zeta-aql' },
+      { from: 'star:bayer:delta-aql', to: 'star:bayer:theta-aql' },
     ],
   },
   {
-    id: 'cassiopeia',
+    id: 'western-cassiopeia',
     names: { westernSystemName: '仙后座', westernConstellation: 'Cassiopeia' },
     system: 'western',
     lines: [
@@ -1005,30 +1004,34 @@ export const WESTERN_CONSTELLATIONS: Constellation[] = [
     ],
   },
   {
-    id: 'perseus',
+    id: 'western-perseus',
     names: { westernSystemName: '英仙座', westernConstellation: 'Perseus' },
     system: 'western',
     lines: [
-      { from: 'star:custom:天船三', to: 'star:custom:大陵五' },
-      { from: 'star:custom:大陵五', to: 'star:bayer:alpha-per' },
+      { from: 'star:bayer:alpha-per', to: 'star:bayer:epsilon-per' },
+      { from: 'star:bayer:epsilon-per', to: 'star:bayer:zeta-per' },
+      { from: 'star:bayer:zeta-per', to: 'star:custom:大陵五' },
     ],
   },
   {
-    id: 'centaurus',
+    id: 'western-centaurus',
     names: { westernSystemName: '半人马座', westernConstellation: 'Centaurus' },
     system: 'western',
     lines: [
-      { from: 'star:custom:南门二', to: 'star:custom:马腹一' },
       { from: 'star:custom:南门二', to: 'star:bayer:beta-cen' },
+      { from: 'star:bayer:beta-cen', to: 'star:bayer:epsilon-cen' },
+      { from: 'star:bayer:epsilon-cen', to: 'star:bayer:zeta-cen' },
+      { from: 'star:bayer:zeta-cen', to: 'star:bayer:gamma-cen' },
     ],
   },
   {
-    id: 'hydra',
+    id: 'western-hydra',
     names: { westernSystemName: '长蛇座', westernConstellation: 'Hydra' },
     system: 'western',
     lines: [
       { from: 'star:custom:星宿一', to: 'star:bayer:gamma-hya' },
-      { from: 'star:bayer:gamma-hya', to: 'star:bayer:pi-hya' },
+      { from: 'star:bayer:gamma-hya', to: 'star:bayer:rho-hya' },
+      { from: 'star:bayer:rho-hya', to: 'star:bayer:pi-hya' },
     ],
   },
 ];

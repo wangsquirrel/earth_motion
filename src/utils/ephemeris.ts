@@ -9,7 +9,9 @@ import {
   EquatorFromVector,
   GeoMoon,
   HOUR2RAD,
+  Illumination,
   MakeTime,
+  MoonPhase,
   Observer,
 } from 'astronomy-engine';
 
@@ -36,6 +38,21 @@ export function getMoonPosition(date: Date): { ra: number; dec: number } {
   const vec = GeoMoon(time);
   const result = EquatorFromVector(vec);
   return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+}
+
+export interface MoonPhaseData {
+  illuminatedFraction: number;
+  waxing: boolean;
+}
+
+export function getMoonPhaseData(date: Date): MoonPhaseData {
+  const illumination = Illumination(Body.Moon, date);
+  const phase = MoonPhase(date);
+
+  return {
+    illuminatedFraction: Math.max(0, Math.min(1, illumination.phase_fraction)),
+    waxing: phase < 180,
+  };
 }
 
 /**

@@ -1,5 +1,6 @@
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { SCENE_LABEL_FONT_URL } from '../sceneLabel.constants';
 import { CONSTELLATION_LINE_COLOR, SPHERE_RADIUS } from '../SpaceView.constants';
 import { scalePoint } from '../builders/geometry';
 import type {
@@ -12,7 +13,6 @@ import EquatorialGridLayer from './EquatorialGridLayer';
 export function ObserverReferenceLayer({
   prefix,
   quaternion,
-  ringPoints,
   declinationGrid,
   hourGrid,
   equatorSegments,
@@ -22,7 +22,6 @@ export function ObserverReferenceLayer({
 }: {
   prefix: string;
   quaternion?: THREE.Quaternion;
-  ringPoints: [number, number, number][];
   declinationGrid: GridSegmentGroup[];
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
@@ -76,14 +75,6 @@ export function ObserverReferenceLayer({
         />
       </mesh>
 
-      <Line
-        points={ringPoints}
-        color="#66b7ff"
-        lineWidth={3}
-        transparent
-        opacity={0.98}
-      />
-
       <EquatorialGridLayer
         prefix={prefix}
         declinationGrid={declinationGrid}
@@ -92,7 +83,8 @@ export function ObserverReferenceLayer({
         equatorLabelPosition={equatorLabelPosition}
         declinationOpacity={0.11}
         hourOpacity={0.09}
-        equatorOpacity={0.24}
+        equatorOpacity={0.18}
+        equatorLineWidth={1.8}
       />
 
       {horizonLabels.map((item) => (
@@ -102,6 +94,7 @@ export function ObserverReferenceLayer({
             fontSize={0.28}
             anchorX="center"
             anchorY="middle"
+            font={SCENE_LABEL_FONT_URL}
           >
             {item.label}
           </Text>
@@ -150,13 +143,11 @@ export function ObserverReferenceLayer({
 }
 
 export function CelestialReferenceLayer({
-  ringPoints,
   declinationGrid,
   hourGrid,
   equatorSegments,
   equatorLabelPosition,
 }: {
-  ringPoints: [number, number, number][];
   declinationGrid: GridSegmentGroup[];
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
@@ -164,111 +155,57 @@ export function CelestialReferenceLayer({
 }) {
   return (
     <group>
+      {/* 内部球体 - 扁平风格 */}
       <mesh>
         <sphereGeometry args={[SPHERE_RADIUS, 64, 64]} />
-        <meshPhongMaterial
-          color="#153252"
-          emissive="#0a1a2f"
-          emissiveIntensity={0.55}
-          shininess={18}
-          specular="#6ea8d9"
+        <meshBasicMaterial
+          color="#2a4a6a"
           transparent
-          opacity={0.34}
+          opacity={0.22}
           side={THREE.BackSide}
           depthWrite={false}
         />
       </mesh>
 
+      {/* 外部光晕 */}
       <mesh>
-        <sphereGeometry args={[SPHERE_RADIUS * 1.003, 64, 64]} />
-        <meshPhongMaterial
-          color="#2e5d88"
-          emissive="#153252"
-          emissiveIntensity={0.38}
-          shininess={42}
-          specular="#cfe9ff"
+        <sphereGeometry args={[SPHERE_RADIUS * 1.004, 64, 64]} />
+        <meshBasicMaterial
+          color="#9fd6ff"
           transparent
-          opacity={0.16}
+          opacity={0.12}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
       </mesh>
 
-      <mesh>
-        <sphereGeometry args={[SPHERE_RADIUS * 1.018, 64, 64]} />
-        <meshBasicMaterial
-          color="#8ec8ff"
-          transparent
-          opacity={0.08}
-          side={THREE.FrontSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
 
-      <mesh position={[-0.45, -0.2, 0.55]}>
-        <sphereGeometry args={[SPHERE_RADIUS * 0.985, 64, 64]} />
-        <meshBasicMaterial
-          color="#081527"
-          transparent
-          opacity={0.08}
-          side={THREE.FrontSide}
-          depthWrite={false}
-        />
-      </mesh>
-
-      <Line
-        points={ringPoints}
-        color="#5f79ff"
-        lineWidth={2.4}
-        transparent
-        opacity={0.88}
-      />
-
+      {/* 赤道网格 - 统一配色和透明度 */}
       <EquatorialGridLayer
         prefix="celestial-grid"
         declinationGrid={declinationGrid}
         hourGrid={hourGrid}
         equatorSegments={equatorSegments}
         equatorLabelPosition={equatorLabelPosition}
-        declinationOpacity={0.12}
-        hourOpacity={0.08}
-        equatorOpacity={0.34}
-        equatorColor="#b8d8ff"
+        declinationOpacity={0.11}
+        hourOpacity={0.09}
+        equatorOpacity={0.18}
+        equatorColor="#c5e4ff"
+        equatorLineWidth={1.8}
       />
 
+      {/* 垂直轴线 */}
       <Line
         points={[[0, -SPHERE_RADIUS, 0], [0, SPHERE_RADIUS, 0]]}
-        color="#75adff"
-        lineWidth={1.8}
+        color="#5f718a"
+        lineWidth={1}
         dashed
-        dashSize={0.45}
-        gapSize={0.4}
+        dashSize={0.5}
+        gapSize={0.5}
         transparent
-        opacity={0.8}
+        opacity={0.6}
       />
     </group>
-  );
-}
-
-export function CelestialLightingRig() {
-  return (
-    <>
-      <hemisphereLight
-        args={['#9fd6ff', '#06111f', 0.7]}
-        intensity={0.7}
-      />
-      <directionalLight
-        position={[14, 10, 16]}
-        color="#d9efff"
-        intensity={1.1}
-      />
-      <directionalLight
-        position={[-10, -4, 12]}
-        color="#3c6fa3"
-        intensity={0.45}
-      />
-    </>
   );
 }
 
@@ -298,6 +235,14 @@ export function CelestialObserverOverlay({
         dashScale={10}
         dashSize={0.85}
         gapSize={0.55}
+      />
+
+      <Line
+        points={[[0, 0, 0], zenithPosition]}
+        color="#dcefff"
+        lineWidth={1.2}
+        transparent
+        opacity={0.12 + emphasis * 0.22}
       />
 
       <Billboard position={zenithPosition}>
@@ -337,6 +282,7 @@ export function CelestialObserverOverlay({
           anchorX="center"
           anchorY="middle"
           fillOpacity={0.35 + emphasis * 0.55}
+          font={SCENE_LABEL_FONT_URL}
         >
           天顶
         </Text>
@@ -377,7 +323,10 @@ export function StarFieldLayer({
               <meshBasicMaterial color={star.color} />
             </mesh>
 
-            <mesh position={(embedded ? corePosition : new THREE.Vector3(...star.position)).toArray()} scale={embedded ? 1.35 : 1.8}>
+            <mesh
+              position={(embedded ? corePosition : new THREE.Vector3(...star.position)).toArray()}
+              scale={embedded ? 1.35 : 1.8}
+            >
               <sphereGeometry args={[star.size, 12, 12]} />
               <meshBasicMaterial color={star.color} transparent opacity={embedded ? 0.06 : 0.1} />
             </mesh>
@@ -392,6 +341,7 @@ export function StarFieldLayer({
             fontSize={0.16}
             anchorX="center"
             anchorY="middle"
+            font={SCENE_LABEL_FONT_URL}
           >
             {star.label}
           </Text>
@@ -486,6 +436,7 @@ export function AnnualLayer({
             fontSize={0.22}
             anchorX="center"
             anchorY="middle"
+            font={SCENE_LABEL_FONT_URL}
           >
             {month.label}
           </Text>

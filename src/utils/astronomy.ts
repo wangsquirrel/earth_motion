@@ -12,35 +12,31 @@ export function getDaysSinceJ2000(date: Date): number {
   return (date.getTime() - J2000) / 86400000;
 }
 
-// Get Sun's position in Equatorial Coordinates (Right Ascension and Declination)
-// Returns { ra: number (radians), dec: number (radians) }
-export function getSunEquatorialPosition(date: Date) {
+export function getMeanObliquity(date: Date): number {
   const d = getDaysSinceJ2000(date);
-
-  // Mean anomaly of the Sun
-  let g = (357.529 + 0.98560028 * d) % 360;
-  if (g < 0) g += 360;
-
-  // Mean longitude of the Sun
-  let q = (280.459 + 0.98564736 * d) % 360;
-  if (q < 0) q += 360;
-
-  // Ecliptic longitude of the Sun
-  const gRad = g * Math.PI / 180;
-  const L = q + 1.915 * Math.sin(gRad) + 0.020 * Math.sin(2 * gRad);
-  const LRad = L * Math.PI / 180;
-
-  // Obliquity of the ecliptic
   const e = 23.439 - 0.00000036 * d;
-  const eRad = e * Math.PI / 180;
+  return e * Math.PI / 180;
+}
 
-  // Right ascension and declination
-  let ra = Math.atan2(Math.cos(eRad) * Math.sin(LRad), Math.cos(LRad));
+export function eclipticToEquatorial(
+  eclipticLongitude: number,
+  eclipticLatitude = 0,
+  date: Date = new Date()
+) {
+  const obliquity = getMeanObliquity(date);
+
+  const sinDec = Math.sin(eclipticLatitude) * Math.cos(obliquity)
+    + Math.cos(eclipticLatitude) * Math.sin(obliquity) * Math.sin(eclipticLongitude);
+  const dec = Math.asin(Math.max(-1, Math.min(1, sinDec)));
+
+  const y = Math.sin(eclipticLongitude) * Math.cos(obliquity)
+    - Math.tan(eclipticLatitude) * Math.sin(obliquity);
+  const x = Math.cos(eclipticLongitude);
+
+  let ra = Math.atan2(y, x);
   if (ra < 0) ra += 2 * Math.PI;
 
-  const dec = Math.asin(Math.sin(eRad) * Math.sin(LRad));
-
-  return { ra, dec, LRad }; // LRad is useful for drawing the ecliptic position
+  return { ra, dec };
 }
 
 // Calculate Greenwich Mean Sidereal Time (GMST) in radians

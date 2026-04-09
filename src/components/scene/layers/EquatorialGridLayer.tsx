@@ -1,5 +1,6 @@
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { SCENE_LABEL_FONT_URL } from '../sceneLabel.constants';
 import type { GridSegmentGroup } from '../spaceView.types';
 
 interface EquatorialGridLayerProps {
@@ -12,6 +13,7 @@ interface EquatorialGridLayerProps {
   hourOpacity: number;
   equatorOpacity: number;
   equatorColor?: string;
+  equatorLineWidth?: number;
 }
 
 export default function EquatorialGridLayer({
@@ -24,6 +26,7 @@ export default function EquatorialGridLayer({
   hourOpacity,
   equatorOpacity,
   equatorColor = '#c5e4ff',
+  equatorLineWidth = 1.35,
 }: EquatorialGridLayerProps) {
   return (
     <>
@@ -54,7 +57,7 @@ export default function EquatorialGridLayer({
           key={`${prefix}-equator-${index}`}
           points={segment}
           color={equatorColor}
-          lineWidth={1.35}
+          lineWidth={equatorLineWidth}
           transparent
           opacity={equatorOpacity}
         />
@@ -62,7 +65,13 @@ export default function EquatorialGridLayer({
 
       {equatorLabelPosition && (
         <Billboard position={equatorLabelPosition}>
-          <Text color="#d9ecff" fontSize={0.2} anchorX="center" anchorY="middle">
+          <Text
+            color="#d9ecff"
+            fontSize={0.2}
+            anchorX="center"
+            anchorY="middle"
+            font={SCENE_LABEL_FONT_URL}
+          >
             天赤道
           </Text>
         </Billboard>

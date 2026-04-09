@@ -53,8 +53,8 @@ import type {
   VisiblePlanetRenderData,
 } from '../spaceView.types';
 
-export function buildAnnualSunEquatorialSamples() {
-  const startDate = new Date('2024-03-20T00:00:00Z');
+export function buildAnnualSunEquatorialSamples(year: number) {
+  const startDate = new Date(Date.UTC(year, 2, 20, 0, 0, 0));
 
   return Array.from({ length: 361 }).map((_, index) => {
     const sampleDate = new Date(startDate.getTime() + (index / 360) * YEAR_MS);
@@ -368,47 +368,6 @@ export function buildDiurnalLayerData(currentTime: Date, latitude: number): Obse
       ))
       .map((sample) => sample.point),
     rayPoint: null,
-  };
-}
-
-export function buildStarFieldLayerData({
-  catalog,
-  activeConstellations,
-  latitude,
-  currentTime,
-  skyCulture,
-}: {
-  catalog: StarData[];
-  activeConstellations: Constellation[];
-  latitude: number;
-  currentTime: Date;
-  skyCulture: SkyCulture;
-}): {
-  celestial: StarFieldLayerData;
-  observer: StarFieldLayerData;
-} {
-  return {
-    celestial: {
-      stars: buildCelestialStarRenderData(catalog, SPHERE_RADIUS, STAR_LABEL_RADIUS_SCALE, skyCulture),
-      constellationLines: buildCelestialConstellationLines(activeConstellations, catalog, SPHERE_RADIUS),
-    },
-    observer: {
-      stars: buildObserverStarRenderData(
-        catalog,
-        latitude,
-        currentTime,
-        SPHERE_RADIUS,
-        STAR_LABEL_RADIUS_SCALE,
-        skyCulture
-      ),
-      constellationLines: buildObserverConstellationLines(
-        activeConstellations,
-        catalog,
-        latitude,
-        currentTime,
-        SPHERE_RADIUS
-      ),
-    },
   };
 }
 

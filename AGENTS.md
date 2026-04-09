@@ -2,82 +2,77 @@
 
 基于 Vite 6 + React 18 + TypeScript + Three.js / R3F 的天文可视化单页应用。
 
-- **Space View**：在 `observer` 或 `celestial` 参考系下观察太阳、月亮、行星、恒星和参考网格
-- **Earth View**：站在地面观察天空半球中的太阳周日运动
+- `Space View`：`observer` / `celestial` 两套参考系
+- `Earth View`：地面视角天空半球
 
-技术栈：Vite 6 · React 18 · TypeScript 5 · Three.js · `@react-three/fiber` · `@react-three/drei` · Zustand · Tailwind CSS · `astronomy-engine` · Lucide React
+技术栈：Vite 6 · React 18 · TypeScript 5 · Three.js · `@react-three/fiber` · `@react-three/drei` · Zustand · Tailwind CSS · `astronomy-engine`
 
-## 入口链路
+## 入口
 
-`src/main.tsx` -> `src/App.tsx` -> `ControlPanel` + `SpaceView/EarthView`
+`src/main.tsx` -> `src/App.tsx` -> `ControlPanel` + `SpaceView | EarthView`
 
-## 目录结构
+## 关键目录
 
 ```text
+public/
+├── favicon.svg
+└── fonts/
+    └── noto-sans-sc-sc-400.woff*
+
 src/
-├── App.tsx                          # Canvas + 标题/footer
+├── App.tsx
 ├── components/scene/
-│   ├── SpaceView.tsx                # 主场景，两套参考系可视化
-│   ├── SpaceView.constants.ts       # SpaceView 共享常量
-│   ├── spaceView.types.ts           # SpaceView 共享类型
-│   ├── builders/                    # SpaceView 数据构建与几何辅助
-│   ├── layers/                      # SpaceView 图层渲染组件
-│   └── EarthView.tsx                # 地面视角，鼠标拖拽控制
-├── components/ui/ControlPanel.tsx   # 模式切换、时间、显示开关、农历、纬度
-├── store/useAppStore.ts             # 唯一状态源
+│   ├── SpaceView.tsx
+│   ├── EarthView.tsx
+│   ├── MoonPhaseDisc.tsx
+│   ├── sceneLabel.constants.ts
+│   ├── builders/
+│   └── layers/
+├── components/ui/ControlPanel.tsx
+├── hooks/useSimulationTime.ts
+├── store/useAppStore.ts
 └── utils/
-    ├── astronomy.ts                 # 基础坐标转换
-    ├── ephemeris.ts                 # astronomy-engine 封装
-    ├── stars.ts                     # 星表 + 中西星官定义
-    ├── starField.ts                 # 星点/连线渲染数据（celestial/observer 双框架）
-    ├── skyProjection.ts             # 赤道 -> 双 frame 投影
-    ├── observerGrid.ts              # observer 网格采样
-    └── sunPaths.ts                  # 周日弧采样 + 可见分段
+    ├── astronomy.ts
+    ├── ephemeris.ts
+    ├── skyProjection.ts
+    ├── starField.ts
+    ├── stars.ts
+    └── sunPaths.ts
 ```
 
-## 状态（useAppStore）
+## 状态
 
-- `scene`: `viewMode`, `referenceFrame`, `skyCulture`（默认 `'chinese'`）
-- `observer`: `latitude`（默认 `30`）
-- `clock`: `currentTime`, `isPlaying`（默认 `true`）, `timeSpeed`（默认 `3600`）, `playbackStartWallTime`, `playbackStartSimTimeMs`
-- `display`: `showDiurnalArc`, `showAnnualTrail`（"Show Ecliptic"）, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
+- `scene`: `viewMode`, `referenceFrame`, `skyCulture`
+- `observer`: `latitude`（默认 `40`）
+- `clock`: `currentTime`, `isPlaying`, `timeSpeed`, `playbackStartWallTime`, `playbackStartSimTimeMs`, `displayTime`
+- `display`: `showDiurnalArc`, `showAnnualTrail`, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
 
 ## 场景约定
 
-- App.tsx 建唯一 `<Canvas>`，相机 `position: [0, 5, 20], fov: 60`
-- Space/Earth 共用 Canvas，只切换场景组件
+- `App.tsx` 保持唯一 `<Canvas>`，相机初始值 `position: [0, 5, 20], fov: 60`
+- Space / Earth 共用同一个 Canvas，仅切换场景组件
 - 背景色随 `viewMode` 和 `referenceFrame` 变化
-- SpaceView：OrbitControls + `builders/` 组装场景数据 + `layers/` 渲染两套参考系图层
-- EarthView：鼠标拖拽(yaw/pitch) + 天空半球 + 赤纬/时圈网格 + 周日弧 + 天地星 + 方向/天顶标签
+- 场景内 `Text` 统一使用 `sceneLabel.constants.ts`，字体来自 `public/fonts/noto-sans-sc-sc-400.woff`
+- `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
+- `EarthView` 使用鼠标拖拽控制视角
 
-## 天文约定
+## 开发约束
 
-- 时间 UTC，经度固定 0°
-- `astronomy.ts`: `getJulianDay`, `getGMST`, `equatorialToHorizontal`, `horizontalToCartesian`, `equatorialToCartesian`
-- `ephemeris.ts`: `getSunPosition`, `getMoonPosition`, `getPlanetPosition`, `PLANET_BODIES`
-- `skyProjection.ts`: `celestialPosition` + `observerPosition` + `isVisible`
+1. 优先复用现有 store、builders、utils，不新增状态库或路由。
+2. 改 `store` 订阅、`useFrame`、节流快照、memo 依赖时，按高风险行为改动处理。
+3. 用户输入不能被低频时间节流吞掉；时间推进和用户输入分开设计。
+4. 改坐标/投影逻辑时，同时检查 `observer` 和 `celestial` 两种 frame。
+5. 视觉修复做局部修正，不随意改相机、交互、默认展示语义。
 
-## 星图约定
+## 验证
 
-- `CATALOG`：恒星，`id` 稳定
-- `CONSTELLATIONS_BY_CULTURE`：中西分组的连线
-- `getStarDisplayName`：按文化切换
-
-## 开发命令
+- 至少检查 `slider/toggle -> store -> scene`
+- 检查拖动中、切换瞬间、播放中三个时序
+- 改动完成后用 Chrome DevTools MCP 打开页面，做验证！
+- 验证不能只生成截图；要明确确认修改已经生效，且未影响无关逻辑
+- 提交前运行：
 
 ```bash
-npm run dev    # 开发
-npm run check  # 类型检查
-npm run build  # 构建
-npm run lint   # lint
+npm run check
+npm run build
 ```
-
-提交前跑 `npm run check` + `npm run build`。
-
-## 协作约束
-
-1. 优先复用已有状态和 utils 函数
-2. 视觉修复做局部修正，不改配色/相机/交互
-3. 改坐标逻辑时同时检查 observer 和 celestial 两种 frame
-4. 不引入 React Router 或新的状态库
-5. 改动完成后用 Chrome DevTools MCP 打开浏览器验证生效，且不影响其他功能

@@ -14,4 +14,4 @@ export const VIEWPORT_LEFT_SHIFT_RATIO = 0.1;
 export const INITIAL_CAMERA_TARGET_X = 0;
 export const INITIAL_CAMERA_Y = 8.2;
 export const INITIAL_CAMERA_TARGET_Y = 2.2;
-export const OBSERVER_FRAME_SCALE = 1.2;
+export const OBSERVER_FRAME_SCALE = 1.15;

@@ -118,15 +118,18 @@ export function buildCelestialStarRenderData(
   culture: SkyCulture
 ): RenderableStar[] {
   return catalog.map((star) => {
+    const label = getStarDisplayName(star, culture);
     const position = new THREE.Vector3(
       ...equatorialToCartesian(starRaToRadians(star), starDecToRadians(star), sphereRadius)
     );
-    const labelPosition = scalePoint(position, sphereRadius, labelRadiusScale);
+    const labelPosition = label
+      ? scalePoint(position, sphereRadius, labelRadiusScale)
+      : position;
 
     return {
       renderKey: buildRenderableStarKey(star),
       id: star.id,
-      label: getStarDisplayName(star, culture),
+      label,
       color: star.color,
       position: position.toArray() as [number, number, number],
       labelPosition: labelPosition.toArray() as [number, number, number],
@@ -157,12 +160,15 @@ export function buildObserverStarRenderData(
     }
 
     const position = new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, sphereRadius));
-    const labelPosition = scalePoint(position, sphereRadius, labelRadiusScale);
+    const label = getStarDisplayName(star, culture);
+    const labelPosition = label
+      ? scalePoint(position, sphereRadius, labelRadiusScale)
+      : position;
 
     return [{
       renderKey: buildRenderableStarKey(star),
       id: star.id,
-      label: getStarDisplayName(star, culture),
+      label,
       color: star.color,
       position: position.toArray() as [number, number, number],
       labelPosition: labelPosition.toArray() as [number, number, number],

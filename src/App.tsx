@@ -12,10 +12,10 @@ function App() {
     ? 'Observing the Sun in the local horizon frame.'
     : 'Observing the Sun against the celestial sphere in the celestial frame.';
   const sceneBackground = viewMode === 'space'
-    ? (referenceFrame === 'observer' ? '#10273f' : '#09162a')
+    ? (referenceFrame === 'observer' ? '#0a1a2a' : '#09162a')
     : '#050510';
-  const githubHandle = import.meta.env.VITE_GITHUB_HANDLE ?? '@wangsquirrel';
-  const githubUrl = import.meta.env.VITE_GITHUB_URL ?? 'https://github.com/wangsquirrel';
+  const githubHandle = '@wangsquirrel';
+  const githubUrl = 'https://github.com/wangsquirrel';
   const year = new Date().getFullYear();
 
   return (
@@ -60,7 +60,7 @@ function App() {
         </p>
       </div>
 
-      <footer className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-3">
+      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-3">
         <div className="pointer-events-auto inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/28 px-4 py-2 text-xs text-slate-200/90 backdrop-blur-md">
           <span>© {year} Earth Motion</span>
           <span className="text-slate-400/90">•</span>

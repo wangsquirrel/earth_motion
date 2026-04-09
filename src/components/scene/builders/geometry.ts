@@ -38,3 +38,13 @@ export function buildObserverFrameBasis(latitude: number, date: Date) {
 
   return { east, up, south };
 }
+
+export function buildObserverFrameQuaternion(latitude: number, date: Date) {
+  const { east, up, south } = buildObserverFrameBasis(latitude, date);
+  const basis = new THREE.Matrix4().makeBasis(east, up, south);
+  return new THREE.Quaternion().setFromRotationMatrix(basis);
+}
+
+export function buildCelestialToObserverQuaternion(latitude: number, date: Date) {
+  return buildObserverFrameQuaternion(latitude, date).invert();
+}
