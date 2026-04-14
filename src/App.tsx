@@ -28,6 +28,9 @@ function App() {
       <Canvas 
         camera={{ position: [0, 5, 20], fov: 60 }}
         className="w-full h-full relative z-10"
+        onCreated={({ gl }) => {
+          gl.localClippingEnabled = true;
+        }}
       >
         <color attach="background" args={[sceneBackground]} />
         

@@ -28,6 +28,7 @@ interface ClockState {
 interface DisplayState {
   showDiurnalArc: boolean;
   showAnnualTrail: boolean;
+  showMilkyWay: boolean;
   showStars: boolean;
   showCelestialObserverOverlay: boolean;
   showMoon: boolean;
@@ -51,6 +52,7 @@ interface AppState {
   setTimeSpeed: (speed: number) => void;
   setShowDiurnalArc: (show: boolean) => void;
   setShowAnnualTrail: (show: boolean) => void;
+  setShowMilkyWay: (show: boolean) => void;
   setShowStars: (show: boolean) => void;
   setShowCelestialObserverOverlay: (show: boolean) => void;
   setShowMoon: (show: boolean) => void;
@@ -109,6 +111,7 @@ export const useAppStore = create<AppState>((set) => {
     display: {
       showDiurnalArc: true,
       showAnnualTrail: true,
+      showMilkyWay: true,
       showStars: true,
       showCelestialObserverOverlay: false,
       showMoon: true,
@@ -170,6 +173,7 @@ export const useAppStore = create<AppState>((set) => {
       }),
     setShowDiurnalArc: (show) => set((state) => ({ display: { ...state.display, showDiurnalArc: show } })),
     setShowAnnualTrail: (show) => set((state) => ({ display: { ...state.display, showAnnualTrail: show } })),
+    setShowMilkyWay: (show) => set((state) => ({ display: { ...state.display, showMilkyWay: show } })),
     setShowStars: (show) => set((state) => ({ display: { ...state.display, showStars: show } })),
     setShowCelestialObserverOverlay: (show) => set((state) => ({ display: { ...state.display, showCelestialObserverOverlay: show } })),
     setShowMoon: (show) => set((state) => ({ display: { ...state.display, showMoon: show } })),

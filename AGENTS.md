@@ -21,6 +21,8 @@ public/
 
 src/
 ├── App.tsx
+├── data/
+│   └── mw.min.geojson
 ├── components/scene/
 │   ├── SpaceView.tsx
 │   ├── EarthView.tsx
@@ -34,6 +36,7 @@ src/
 └── utils/
     ├── astronomy.ts
     ├── ephemeris.ts
+    ├── milkyWay.ts
     ├── skyProjection.ts
     ├── starField.ts
     ├── stars.ts
@@ -45,7 +48,7 @@ src/
 - `scene`: `viewMode`, `referenceFrame`, `skyCulture`, `language`
 - `observer`: `latitude`（默认 `40`）
 - `clock`: `currentTime`, `isPlaying`, `timeSpeed`, `playbackStartWallTime`, `playbackStartSimTimeMs`, `displayTime`
-- `display`: `showDiurnalArc`, `showAnnualTrail`, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
+- `display`: `showDiurnalArc`, `showAnnualTrail`, `showMilkyWay`, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
 
 ## 场景约定
 
@@ -55,7 +58,10 @@ src/
 - 场景内 `Text` 统一使用 `sceneLabel.constants.ts`，字体来自 `public/fonts/noto-sans-sc-sc-400.woff`
 - `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
 - `EarthView` 使用鼠标拖拽控制视角
+- `SpaceView(observer)` 在低速播放（`<= 1时/秒`）时提高动态天层快照频率，优先保证连续旋转感；更重的年度轨迹仍保持节流
 - `language` 只控制界面文案和通用场景辅助标签；`skyCulture` 只控制中国传统星官 / 西方星座及恒星命名，不要混用
+- 银河是独立物理天空层，统一由 `utils/milkyWay.ts` 生成；`EarthView`、`Space(observer)`、`Space(celestial)` 共用同一数据源与投影逻辑
+- 银河使用真实数据生成的全天纹理，默认弱化显示，并由 `display.showMilkyWay` 独立控制开关
 - 英文界面下，农历内容和中国传统星官名称保持中文，不做英文翻译
 
 ## 开发约束

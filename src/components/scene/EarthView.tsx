@@ -3,6 +3,7 @@ import { Billboard, Line, Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAppStore } from '../../store/useAppStore';
+import { buildMilkyWayTexture } from '../../utils/milkyWay';
 import {
   getMoonPhaseData,
   getMoonPosition,
@@ -37,9 +38,11 @@ import {
   buildCelestialReferenceLayerData,
 } from './builders/sceneData';
 import EquatorialGridLayer from './layers/EquatorialGridLayer';
+import { MilkyWayLayer } from './layers';
 
 const SKY_RADIUS = 50;
 const SKY_OBJECT_RADIUS = SKY_RADIUS * 0.9;
+const SKY_MILKY_WAY_RADIUS = SKY_OBJECT_RADIUS * 1.002;
 const HORIZON_POINT_COUNT = 65;
 const STAR_LABEL_RADIUS_SCALE = 1.04;
 
@@ -574,6 +577,7 @@ export default function EarthView() {
   const displayYear = useAppStore((state) => state.clock.displayTime.getUTCFullYear());
   const {
     showAnnualTrail,
+    showMilkyWay,
     showStars,
     showMoon,
     showPlanets,
@@ -606,6 +610,16 @@ export default function EarthView() {
       SKY_OBJECT_RADIUS
     ),
   }), [activeConstellations, language, skyCulture]);
+  const milkyWayTexture = useMemo(
+    () => (showMilkyWay ? buildMilkyWayTexture() : null),
+    [showMilkyWay]
+  );
+
+  useEffect(() => {
+    return () => {
+      milkyWayTexture?.dispose();
+    };
+  }, [milkyWayTexture]);
   const celestialEclipticPoints = useMemo(
     () => annualSunEquatorialSamples.map(({ ra, dec }) => (
       new THREE.Vector3(...equatorialToCartesian(ra, dec, SKY_OBJECT_RADIUS))
@@ -679,6 +693,16 @@ export default function EarthView() {
         />
       </group>
 
+      {showMilkyWay && (
+        <MilkyWayLayer
+          prefix="earth"
+          texture={milkyWayTexture}
+          radius={SKY_MILKY_WAY_RADIUS}
+          side={THREE.BackSide}
+          clipToHorizon
+        />
+      )}
+
       {showStars && (
         <EarthSkyFieldLayer
           stars={celestialStarField.stars}
@@ -709,7 +733,9 @@ export default function EarthView() {
     celestialReferenceData.hourGrid,
     celestialStarField.constellationLines,
     celestialStarField.stars,
+    milkyWayTexture,
     showAnnualTrail,
+    showMilkyWay,
     showStars,
     spriteTexture,
     copy.scene.celestialEquator,

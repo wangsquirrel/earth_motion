@@ -373,6 +373,40 @@ export function StarFieldLayer({
   );
 }
 
+export function MilkyWayLayer({
+  prefix,
+  texture,
+  radius,
+  side,
+  clipToHorizon = false,
+}: {
+  prefix: string;
+  texture: THREE.Texture | null;
+  radius: number;
+  side: THREE.Side;
+  clipToHorizon?: boolean;
+}) {
+  if (!texture) {
+    return null;
+  }
+
+  return (
+    <mesh renderOrder={6}>
+      <sphereGeometry args={[radius, 96, 96]} />
+      <meshBasicMaterial
+        key={`${prefix}-milky-way`}
+        map={texture}
+        transparent
+        opacity={1}
+        side={side}
+        depthWrite={false}
+        clippingPlanes={clipToHorizon ? [new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)] : undefined}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
 export function AnnualLayer({
   prefix,
   fullPath,

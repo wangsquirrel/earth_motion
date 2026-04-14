@@ -3,6 +3,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { getMoonPhaseData } from '../../utils/ephemeris';
+import { buildMilkyWayTexture } from '../../utils/milkyWay';
 import { useAppStore } from '../../store/useAppStore';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
 import { useShallow } from 'zustand/react/shallow';
@@ -48,6 +49,7 @@ import {
   CelestialObserverOverlay,
   CelestialReferenceLayer,
   DiurnalLayer,
+  MilkyWayLayer,
   ObserverReferenceLayer,
   SceneBodiesLayer,
   StarFieldLayer,
@@ -58,9 +60,9 @@ import type {
 } from './spaceView.types';
 
 /**
- * Throttled scene data snapshot, rebuilt from simDateRef at ~7fps inside useFrame.
- * This replaces the old pattern where every useMemo depended on `currentTime`
- * (which changed at 60fps and caused full React re-renders every frame).
+ * Scene snapshots are rebuilt from simDateRef inside useFrame with adaptive throttling.
+ * Observer-mode low-speed playback uses a tighter cadence so visible sky rotation
+ * does not feel stepwise, while heavier paths stay throttled off the hot path.
  */
 interface StaticSceneSnapshot {
   observerReferenceData: ReturnType<typeof buildObserverReferenceLayerData>;
@@ -83,6 +85,9 @@ const BODY_REBUILD_INTERVAL_MS = 33;
 const ANNUAL_REBUILD_INTERVAL_MS = 33;
 const OBSERVER_STARFIELD_REBUILD_INTERVAL_MS = 24;
 const STATIC_SCENE_REBUILD_INTERVAL_MS = 33;
+const SMOOTH_OBSERVER_PLAYBACK_THRESHOLD = 3600;
+const SMOOTH_OBSERVER_REBUILD_INTERVAL_MS = 16;
+const MILKY_WAY_RADIUS = SPHERE_RADIUS * 1.002;
 
 function bodyInputsChanged(
   previous: { latitude: number; isCelestialFrame: boolean; showMoon: boolean; showPlanets: boolean },
@@ -209,6 +214,7 @@ export default function SpaceView() {
   const {
     showDiurnalArc,
     showAnnualTrail,
+    showMilkyWay,
     showStars,
     showCelestialObserverOverlay,
     showMoon,
@@ -217,6 +223,7 @@ export default function SpaceView() {
     useShallow((state) => ({
       showDiurnalArc: state.display.showDiurnalArc,
       showAnnualTrail: state.display.showAnnualTrail,
+      showMilkyWay: state.display.showMilkyWay,
       showStars: state.display.showStars,
       showCelestialObserverOverlay: state.display.showCelestialObserverOverlay,
       showMoon: state.display.showMoon,
@@ -290,7 +297,6 @@ export default function SpaceView() {
       SPHERE_RADIUS
     ),
   }));
-
   // --- Static data (no time dependency) ---
   const celestialReferenceData = useMemo(
     () => buildCelestialReferenceLayerData(),
@@ -310,6 +316,16 @@ export default function SpaceView() {
       constellationLines: buildCelestialConstellationLines(activeConstellations, CATALOG, SPHERE_RADIUS),
     };
   }, [activeConstellations, language, skyCulture]);
+  const milkyWayTexture = useMemo(
+    () => (showMilkyWay ? buildMilkyWayTexture() : null),
+    [showMilkyWay]
+  );
+
+  useEffect(() => {
+    return () => {
+      milkyWayTexture?.dispose();
+    };
+  }, [milkyWayTexture]);
 
   // --- useFrame: throttled scene data rebuild ---
   useFrame(() => {
@@ -343,12 +359,26 @@ export default function SpaceView() {
       latitude: lat,
       isCelestialFrame: isCelestial,
     };
+    const useSmoothObserverPlayback = (
+      frame === 'observer'
+      && state.clock.isPlaying
+      && state.clock.timeSpeed <= SMOOTH_OBSERVER_PLAYBACK_THRESHOLD
+    );
+    const bodyRebuildIntervalMs = useSmoothObserverPlayback
+      ? SMOOTH_OBSERVER_REBUILD_INTERVAL_MS
+      : BODY_REBUILD_INTERVAL_MS;
+    const observerStarfieldRebuildIntervalMs = useSmoothObserverPlayback
+      ? SMOOTH_OBSERVER_REBUILD_INTERVAL_MS
+      : OBSERVER_STARFIELD_REBUILD_INTERVAL_MS;
+    const staticSceneRebuildIntervalMs = useSmoothObserverPlayback
+      ? SMOOTH_OBSERVER_REBUILD_INTERVAL_MS
+      : STATIC_SCENE_REBUILD_INTERVAL_MS;
 
     let latestBodySnapshot: BodySceneSnapshot | null = null;
 
     if (
       bodyInputsChanged(lastBodyInputsRef.current, nextBodyInputs)
-      || now - lastBodyRebuildRef.current >= BODY_REBUILD_INTERVAL_MS
+      || now - lastBodyRebuildRef.current >= bodyRebuildIntervalMs
     ) {
       lastBodyRebuildRef.current = now;
       lastBodyInputsRef.current = nextBodyInputs;
@@ -380,7 +410,7 @@ export default function SpaceView() {
 
     if (
       observerStarFieldInputsChanged(lastObserverStarFieldInputsRef.current, nextObserverStarFieldInputs)
-      || now - lastObserverStarfieldRebuildRef.current >= OBSERVER_STARFIELD_REBUILD_INTERVAL_MS
+      || now - lastObserverStarfieldRebuildRef.current >= observerStarfieldRebuildIntervalMs
     ) {
       lastObserverStarfieldRebuildRef.current = now;
       lastObserverStarFieldInputsRef.current = nextObserverStarFieldInputs;
@@ -406,7 +436,7 @@ export default function SpaceView() {
 
     if (
       staticSceneInputsChanged(lastStaticInputsRef.current, nextStaticInputs)
-      || now - lastStaticRebuildRef.current >= STATIC_SCENE_REBUILD_INTERVAL_MS
+      || now - lastStaticRebuildRef.current >= staticSceneRebuildIntervalMs
     ) {
       lastStaticRebuildRef.current = now;
       lastStaticInputsRef.current = nextStaticInputs;
@@ -557,6 +587,10 @@ export default function SpaceView() {
       observerOverlayEmphasis: celestialObserverOverlayEmphasis,
     });
   }, [annualSnapshot, staticSnapshot, celestialStarField, celestialReferenceData, celestialObserverOverlayEmphasis]);
+  const observerMilkyWayQuaternion = useMemo(
+    () => staticSnapshot.observerFrameQuaternion.clone().invert(),
+    [staticSnapshot.observerFrameQuaternion]
+  );
 
   const observerFrameLayer = useMemo(() => {
     if (isCelestialFrame) {
@@ -575,6 +609,18 @@ export default function SpaceView() {
           horizonLabels={horizonLabels}
           observerAxisPoints={staticSnapshot.observerAxisPoints}
         />
+
+        {showMilkyWay && (
+          <group quaternion={observerMilkyWayQuaternion}>
+            <MilkyWayLayer
+              prefix="observer"
+              texture={milkyWayTexture}
+              radius={MILKY_WAY_RADIUS}
+              side={THREE.DoubleSide}
+              clipToHorizon
+            />
+          </group>
+        )}
 
         {showStars && (
           <StarFieldLayer
@@ -609,8 +655,11 @@ export default function SpaceView() {
   }, [
     horizonLabels,
     isCelestialFrame,
+    milkyWayTexture,
     observerSceneData,
+    observerMilkyWayQuaternion,
     showAnnualLayer,
+    showMilkyWay,
     showObserverDiurnalArc,
     showStars,
     staticSnapshot.observerAxisPoints,
@@ -641,6 +690,15 @@ export default function SpaceView() {
           />
         )}
 
+        {showMilkyWay && (
+          <MilkyWayLayer
+            prefix="celestial"
+            texture={milkyWayTexture}
+            radius={MILKY_WAY_RADIUS}
+            side={THREE.DoubleSide}
+          />
+        )}
+
         {showStars && (
           <StarFieldLayer
             prefix="celestial"
@@ -665,8 +723,10 @@ export default function SpaceView() {
   }, [
     celestialSceneData,
     isCelestialFrame,
+    milkyWayTexture,
     showAnnualLayer,
     showCelestialObserverOverlay,
+    showMilkyWay,
     showStars,
     copy.scene.celestialEquator,
     copy.scene.zenith,

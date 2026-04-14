@@ -92,6 +92,7 @@ export default function ControlPanel() {
     setTimeSpeed,
     setShowDiurnalArc,
     setShowAnnualTrail,
+    setShowMilkyWay,
     setShowStars,
     setShowCelestialObserverOverlay,
     setShowMoon,
@@ -107,6 +108,7 @@ export default function ControlPanel() {
       setTimeSpeed: state.setTimeSpeed,
       setShowDiurnalArc: state.setShowDiurnalArc,
       setShowAnnualTrail: state.setShowAnnualTrail,
+      setShowMilkyWay: state.setShowMilkyWay,
       setShowStars: state.setShowStars,
       setShowCelestialObserverOverlay: state.setShowCelestialObserverOverlay,
       setShowMoon: state.setShowMoon,
@@ -125,6 +127,7 @@ export default function ControlPanel() {
   const {
     showDiurnalArc,
     showAnnualTrail,
+    showMilkyWay,
     showStars,
     showCelestialObserverOverlay,
     showMoon,
@@ -133,6 +136,7 @@ export default function ControlPanel() {
     useShallow((state) => ({
       showDiurnalArc: state.display.showDiurnalArc,
       showAnnualTrail: state.display.showAnnualTrail,
+      showMilkyWay: state.display.showMilkyWay,
       showStars: state.display.showStars,
       showCelestialObserverOverlay: state.display.showCelestialObserverOverlay,
       showMoon: state.display.showMoon,
@@ -235,6 +239,11 @@ export default function ControlPanel() {
                 onChange={isCelestialFrame ? setShowCelestialObserverOverlay : setShowDiurnalArc}
               />
             )}
+            <ToggleCard
+              label={copy.controls.milkyWay}
+              checked={showMilkyWay}
+              onChange={setShowMilkyWay}
+            />
             <ToggleCard
               label={copy.controls.stars}
               checked={showStars}
