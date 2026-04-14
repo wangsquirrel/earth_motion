@@ -59,6 +59,8 @@ src/
 - `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
 - `EarthView` 使用鼠标拖拽控制视角
 - `SpaceView(observer)` 在低速播放（`<= 1时/秒`）时提高动态天层快照频率，优先保证连续旋转感；更重的年度轨迹仍保持节流
+- `SpaceView(observer)` 的恒星/星座线/参考网格优先复用天球采样并通过四元数投影到地平系，避免在热路径里重复做整批三角换算
+- observer 侧重快照按图层开关按需更新：隐藏的周年轨迹 / 周日轨迹不参与热路径重建；隐藏行星时不计算行星位置
 - `language` 只控制界面文案和通用场景辅助标签；`skyCulture` 只控制中国传统星官 / 西方星座及恒星命名，不要混用
 - 银河是独立物理天空层，统一由 `utils/milkyWay.ts` 生成；`EarthView`、`Space(observer)`、`Space(celestial)` 共用同一数据源与投影逻辑
 - 银河使用真实数据生成的全天纹理，默认弱化显示，并由 `display.showMilkyWay` 独立控制开关

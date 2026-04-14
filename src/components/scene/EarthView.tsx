@@ -13,7 +13,7 @@ import {
 } from '../../utils/ephemeris';
 import { equatorialToCartesian, horizontalToCartesian } from '../../utils/astronomy';
 import { projectEquatorialCoordinate } from '../../utils/skyProjection';
-import { CATALOG, CONSTELLATIONS_BY_CULTURE, type SkyCulture } from '../../utils/stars';
+import { CATALOG, CONSTELLATIONS_BY_CULTURE } from '../../utils/stars';
 import { getDirectionLabels, getLanguageCopy, type AppLanguage } from '../../utils/i18n';
 import {
   BODY_LABEL_ANCHOR_X,
@@ -348,14 +348,12 @@ function EarthSkyDome() {
 
 function EarthDynamicBodiesLayer({
   simDateRef,
-  skyCulture,
   language,
   showMoon,
   showPlanets,
   spriteTexture,
 }: {
   simDateRef: { current: Date };
-  skyCulture: SkyCulture;
   language: AppLanguage;
   showMoon: boolean;
   showPlanets: boolean;
@@ -908,7 +906,6 @@ export default function EarthView() {
       {rotatingSkyLayer}
       <EarthDynamicBodiesLayer
         simDateRef={simDateRef}
-        skyCulture={skyCulture}
         language={language}
         showMoon={showMoon}
         showPlanets={showPlanets}

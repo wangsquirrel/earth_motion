@@ -11,18 +11,7 @@ import {
   PLANET_BODIES,
 } from '../../../utils/ephemeris';
 import { projectEquatorialCoordinate } from '../../../utils/skyProjection';
-import {
-  buildObserverDeclinationGridSamples,
-  buildObserverHourGridSamples,
-} from '../../../utils/observerGrid';
 import { buildSunDiurnalArcSamples, splitPointSegments } from '../../../utils/sunPaths';
-import {
-  buildCelestialConstellationLines,
-  buildCelestialStarRenderData,
-  buildObserverConstellationLines,
-  buildObserverStarRenderData,
-} from '../../../utils/starField';
-import type { Constellation, SkyCulture, StarData } from '../../../utils/stars';
 import {
   DIURNAL_MARKER_INTERVAL,
   DIURNAL_SAMPLE_COUNT,
@@ -31,10 +20,9 @@ import {
   LOW_SPEED_TIME_THRESHOLD,
   MONTH_LABEL_RADIUS_SCALE,
   SPHERE_RADIUS,
-  STAR_LABEL_RADIUS_SCALE,
   YEAR_MS,
 } from '../SpaceView.constants';
-import { scalePoint } from './geometry';
+import { buildCelestialToObserverQuaternion, scalePoint } from './geometry';
 import type {
   AnnualProjectionLayerData,
   BodyRenderData,
@@ -58,6 +46,61 @@ export function buildAnnualSunEquatorialSamples(year: number) {
   return Array.from({ length: 361 }).map((_, index) => {
     const sampleDate = new Date(startDate.getTime() + (index / 360) * YEAR_MS);
     return getSunPosition(sampleDate);
+  });
+}
+
+const OBSERVER_REFERENCE_SAMPLE_COUNT = 181;
+const OBSERVER_DECLINATION_SAMPLE_DEGREES = [-60, -30, 0, 30, 60] as const;
+const OBSERVER_HOUR_SAMPLE_HOURS = [0, 3, 6, 9, 12, 15, 18, 21] as const;
+
+function buildCelestialDeclinationSamples(radius: number, declinationDegrees: number) {
+  const declination = (declinationDegrees * Math.PI) / 180;
+  const ringRadius = radius * Math.cos(declination);
+  const y = radius * Math.sin(declination);
+
+  return Array.from({ length: OBSERVER_REFERENCE_SAMPLE_COUNT }).map((_, index) => {
+    const ra = (index / (OBSERVER_REFERENCE_SAMPLE_COUNT - 1)) * Math.PI * 2;
+    return new THREE.Vector3(
+      ringRadius * Math.cos(ra),
+      y,
+      -ringRadius * Math.sin(ra)
+    );
+  });
+}
+
+function buildCelestialHourSamples(radius: number, raHours: number) {
+  const ra = (raHours / 24) * Math.PI * 2;
+
+  return Array.from({ length: OBSERVER_REFERENCE_SAMPLE_COUNT }).map((_, index) => {
+    const dec = (((index / (OBSERVER_REFERENCE_SAMPLE_COUNT - 1)) * 180) - 90) * (Math.PI / 180);
+    return new THREE.Vector3(...equatorialToCartesian(ra, dec, radius));
+  });
+}
+
+const OBSERVER_DECLINATION_SAMPLE_MAP = new Map<number, THREE.Vector3[]>(
+  OBSERVER_DECLINATION_SAMPLE_DEGREES.map((declination) => [
+    declination,
+    buildCelestialDeclinationSamples(SPHERE_RADIUS, declination),
+  ])
+);
+
+const OBSERVER_HOUR_SAMPLE_MAP = new Map<number, THREE.Vector3[]>(
+  OBSERVER_HOUR_SAMPLE_HOURS.map((hour) => [
+    hour,
+    buildCelestialHourSamples(SPHERE_RADIUS, hour),
+  ])
+);
+
+function projectCelestialSamplesToObserverFrame(
+  samples: THREE.Vector3[],
+  quaternion: THREE.Quaternion
+) {
+  return samples.map((sample) => {
+    const point = sample.clone().applyQuaternion(quaternion);
+    return {
+      point,
+      isVisible: point.y >= 0,
+    };
   });
 }
 
@@ -170,21 +213,31 @@ export function buildObserverReferenceLayerData(
   latitude: number,
   date: Date
 ): ReferenceLayerData {
+  const celestialToObserverQuaternion = buildCelestialToObserverQuaternion(latitude, date);
   const declinationGrid = [-60, -30, 30, 60].map((declination) => ({
     key: `dec-${declination}`,
     segments: splitPointSegments(
-      buildObserverDeclinationGridSamples(SPHERE_RADIUS, declination, latitude, date, 181),
+      projectCelestialSamplesToObserverFrame(
+        OBSERVER_DECLINATION_SAMPLE_MAP.get(declination) ?? [],
+        celestialToObserverQuaternion
+      ),
       true
     ),
   }));
   const equatorSegments = splitPointSegments(
-    buildObserverDeclinationGridSamples(SPHERE_RADIUS, 0, latitude, date, 181),
+    projectCelestialSamplesToObserverFrame(
+      OBSERVER_DECLINATION_SAMPLE_MAP.get(0) ?? [],
+      celestialToObserverQuaternion
+    ),
     true
   );
   const hourGrid = [0, 3, 6, 9, 12, 15, 18, 21].map((hour) => ({
     key: `hour-${hour}`,
     segments: splitPointSegments(
-      buildObserverHourGridSamples(SPHERE_RADIUS, hour, latitude, date, 181),
+      projectCelestialSamplesToObserverFrame(
+        OBSERVER_HOUR_SAMPLE_MAP.get(hour) ?? [],
+        celestialToObserverQuaternion
+      ),
       true
     ),
   }));
@@ -263,10 +316,12 @@ export function buildProjectedSceneBodies({
   currentTime,
   latitude,
   isCelestialFrame,
+  showPlanets = true,
 }: {
   currentTime: Date;
   latitude: number;
   isCelestialFrame: boolean;
+  showPlanets?: boolean;
 }): ProjectedSceneBodies {
   const sun = getSunPosition(currentTime);
   const moon = getMoonPosition(currentTime);
@@ -286,25 +341,27 @@ export function buildProjectedSceneBodies({
     SPHERE_RADIUS,
     isCelestialFrame
   );
-  const planets = PLANET_BODIES.flatMap((planet) => {
-    const position = getPlanetPosition(planet.name, currentTime);
-    if (!position) {
-      return [];
-    }
+  const planets = showPlanets
+    ? PLANET_BODIES.flatMap((planet) => {
+      const position = getPlanetPosition(planet.name, currentTime);
+      if (!position) {
+        return [];
+      }
 
-    return [{
-      name: planet.name,
-      color: planet.color,
-      ...projectEquatorialCoordinateToFrame(
-        position.ra,
-        position.dec,
-        latitude,
-        currentTime,
-        SPHERE_RADIUS,
-        isCelestialFrame
-      ),
-    }];
-  }) as ProjectedPlanetPosition[];
+      return [{
+        name: planet.name,
+        color: planet.color,
+        ...projectEquatorialCoordinateToFrame(
+          position.ra,
+          position.dec,
+          latitude,
+          currentTime,
+          SPHERE_RADIUS,
+          isCelestialFrame
+        ),
+      }];
+    }) as ProjectedPlanetPosition[]
+    : [];
 
   return {
     sun: projectedSun,
