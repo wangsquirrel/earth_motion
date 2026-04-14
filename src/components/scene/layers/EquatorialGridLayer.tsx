@@ -1,5 +1,6 @@
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { useViewportLayout } from '../../../hooks/useViewportLayout';
 import { SCENE_LABEL_FONT_URL } from '../sceneLabel.constants';
 import type { GridSegmentGroup } from '../spaceView.types';
 
@@ -30,6 +31,9 @@ export default function EquatorialGridLayer({
   equatorColor = '#c5e4ff',
   equatorLineWidth = 1.35,
 }: EquatorialGridLayerProps) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <>
       {declinationGrid.map((grid) => grid.segments.map((segment, index) => (
@@ -69,7 +73,7 @@ export default function EquatorialGridLayer({
         <Billboard position={equatorLabelPosition}>
           <Text
             color="#d9ecff"
-            fontSize={0.2}
+            fontSize={0.2 * labelScale}
             anchorX="center"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}

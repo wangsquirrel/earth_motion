@@ -75,6 +75,10 @@ export function getLanguageCopy(language: AppLanguage) {
         lunar: '农历',
         latitude: '纬度',
         utcBadge: 'UTC',
+        mobileControls: '控制面板',
+        mobileMinimize: '收起',
+        mobileControlsExpand: '展开控制面板',
+        mobileControlsCollapse: '收起控制面板',
       },
       controls: {
         earth: '地面',
@@ -132,6 +136,10 @@ export function getLanguageCopy(language: AppLanguage) {
         lunar: 'Lunar',
         latitude: 'Latitude',
         utcBadge: 'UTC',
+        mobileControls: 'Controls',
+        mobileMinimize: 'Minimize',
+        mobileControlsExpand: 'Expand controls',
+        mobileControlsCollapse: 'Collapse controls',
       },
       controls: {
         earth: 'Earth',

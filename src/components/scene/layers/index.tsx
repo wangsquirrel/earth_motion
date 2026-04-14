@@ -1,5 +1,6 @@
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { useViewportLayout } from '../../../hooks/useViewportLayout';
 import { SCENE_LABEL_FONT_URL } from '../sceneLabel.constants';
 import { CONSTELLATION_LINE_COLOR, SPHERE_RADIUS } from '../SpaceView.constants';
 import { scalePoint } from '../builders/geometry';
@@ -31,6 +32,9 @@ export function ObserverReferenceLayer({
   horizonLabels: Array<{ label: string; position: [number, number, number] }>;
   observerAxisPoints: [number, number, number][];
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <group quaternion={quaternion}>
       <mesh>
@@ -94,7 +98,7 @@ export function ObserverReferenceLayer({
         <Billboard key={`${prefix}-horizon-${item.label}`} position={item.position}>
           <Text
             color="#d8ecff"
-            fontSize={0.28}
+            fontSize={0.28 * labelScale}
             anchorX="center"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}
@@ -226,6 +230,8 @@ export function CelestialObserverOverlay({
   emphasis: number;
   zenithLabel: string;
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
   const zenithLabelPosition = scalePoint(new THREE.Vector3(...zenithPosition), 1.06).toArray() as [number, number, number];
   const insetHorizonPoints = horizonPoints.map(([x, y, z]) => (
     new THREE.Vector3(x, y, z).normalize().multiplyScalar(SPHERE_RADIUS * 0.972).toArray() as [number, number, number]
@@ -286,7 +292,7 @@ export function CelestialObserverOverlay({
       <Billboard position={zenithLabelPosition}>
         <Text
           color="#e7f4ff"
-          fontSize={0.16}
+          fontSize={0.16 * labelScale}
           anchorX="center"
           anchorY="middle"
           fillOpacity={0.35 + emphasis * 0.55}
@@ -310,6 +316,9 @@ export function StarFieldLayer({
   constellationLines: RenderableConstellationLine[];
   embedded?: boolean;
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <>
       {stars.map((star) => {
@@ -346,7 +355,7 @@ export function StarFieldLayer({
         <Billboard key={`${prefix}-star-label-${star.renderKey}`} position={star.labelPosition}>
           <Text
             color={star.color}
-            fontSize={0.16}
+            fontSize={0.16 * labelScale}
             anchorX="center"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}
@@ -422,6 +431,9 @@ export function AnnualLayer({
   visibleSegments: THREE.Vector3[][];
   months: MonthLabelData[];
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <>
       {fullPath ? (
@@ -475,7 +487,7 @@ export function AnnualLayer({
         <Billboard key={`${prefix}-month-${month.label}`} position={month.position}>
           <Text
             color="#fff1a8"
-            fontSize={0.22}
+            fontSize={0.22 * labelScale}
             anchorX="center"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}

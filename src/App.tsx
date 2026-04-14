@@ -3,10 +3,12 @@ import { useAppStore } from './store/useAppStore';
 import SpaceView from './components/scene/SpaceView';
 import EarthView from './components/scene/EarthView';
 import ControlPanel from './components/ui/ControlPanel';
+import { useViewportLayout } from './hooks/useViewportLayout';
 import { getLanguageCopy } from './utils/i18n';
 
 function App() {
   const { viewMode, referenceFrame, language } = useAppStore((state) => state.scene);
+  const { isDesktop } = useViewportLayout();
   const copy = getLanguageCopy(language);
   const frameLabel = referenceFrame === 'observer' ? copy.app.frameObserver : copy.app.frameCelestial;
   const spaceDescription = referenceFrame === 'observer'
@@ -18,6 +20,9 @@ function App() {
   const githubHandle = '@wangsquirrel';
   const githubUrl = 'https://github.com/wangsquirrel';
   const year = new Date().getFullYear();
+  const canvasDpr = isDesktop
+    ? (typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1)
+    : [1, 1.8] as [number, number];
 
   return (
     <div className="w-screen h-screen overflow-hidden relative bg-[#08111d] text-white">
@@ -27,6 +32,7 @@ function App() {
       {/* 3D Scene */}
       <Canvas 
         camera={{ position: [0, 5, 20], fov: 60 }}
+        dpr={canvasDpr}
         className="w-full h-full relative z-10"
         onCreated={({ gl }) => {
           gl.localClippingEnabled = true;
@@ -43,7 +49,7 @@ function App() {
       <ControlPanel />
       
       {/* Title/Info Overlay */}
-      <div className="absolute top-6 left-6 z-20 pointer-events-none max-w-lg">
+      <div className="absolute left-6 top-6 z-20 hidden max-w-lg pointer-events-none lg:block">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-sky-100/90 shadow-[0_10px_35px_rgba(0,0,0,0.18)] backdrop-blur-md">
           <span className="h-2 w-2 rounded-full bg-amber-300/90" />
           <span>{viewMode === 'space' ? frameLabel : copy.app.earthView}</span>
@@ -64,7 +70,7 @@ function App() {
         </p>
       </div>
 
-      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-3">
+      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden justify-center px-4 pb-3 lg:flex">
         <div className="pointer-events-auto inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/28 px-4 py-2 text-xs text-slate-200/90 backdrop-blur-md">
           <span>© {year} {copy.app.footerBrand}</span>
           <span className="text-slate-400/90">•</span>

@@ -3,6 +3,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { getMoonPhaseData } from '../../utils/ephemeris';
+import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { buildMilkyWayTexture } from '../../utils/milkyWay';
 import { useAppStore } from '../../store/useAppStore';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
@@ -256,6 +257,7 @@ function buildObserverStarFieldFromCelestial(
 
 export default function SpaceView() {
   const { camera, size } = useThree();
+  const { isDesktop } = useViewportLayout();
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const hasInitializedCameraRef = useRef(false);
   const lastReferenceFrameRef = useRef<'observer' | 'celestial'>('observer');
@@ -482,14 +484,18 @@ export default function SpaceView() {
   // --- Camera setup ---
   useEffect(() => {
     if (camera instanceof THREE.PerspectiveCamera) {
-      camera.setViewOffset(
-        Math.round(size.width),
-        Math.round(size.height),
-        Math.round(size.width * VIEWPORT_LEFT_SHIFT_RATIO),
-        0,
-        Math.round(size.width),
-        Math.round(size.height)
-      );
+      if (isDesktop) {
+        camera.setViewOffset(
+          Math.round(size.width),
+          Math.round(size.height),
+          Math.round(size.width * VIEWPORT_LEFT_SHIFT_RATIO),
+          0,
+          Math.round(size.width),
+          Math.round(size.height)
+        );
+      } else {
+        camera.clearViewOffset();
+      }
       camera.updateProjectionMatrix();
     }
     return () => {
@@ -498,18 +504,22 @@ export default function SpaceView() {
         camera.updateProjectionMatrix();
       }
     };
-  }, [camera, size.height, size.width]);
+  }, [camera, isDesktop, size.height, size.width]);
 
   useEffect(() => {
     if (hasInitializedCameraRef.current) return;
     camera.up.set(0, 1, 0);
-    camera.position.set(16, INITIAL_CAMERA_Y, 18);
+    if (isDesktop) {
+      camera.position.set(16, INITIAL_CAMERA_Y, 18);
+    } else {
+      camera.position.set(24, INITIAL_CAMERA_Y + 1.6, 28);
+    }
     camera.lookAt(INITIAL_CAMERA_TARGET_X, INITIAL_CAMERA_TARGET_Y, 0);
     controlsRef.current?.object.up.set(0, 1, 0);
     controlsRef.current?.target.set(INITIAL_CAMERA_TARGET_X, INITIAL_CAMERA_TARGET_Y, 0);
     controlsRef.current?.update();
     hasInitializedCameraRef.current = true;
-  }, [camera]);
+  }, [camera, isDesktop]);
 
   // --- Reference frame switch ---
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { useAppStore } from '../../store/useAppStore';
 import { buildMilkyWayTexture } from '../../utils/milkyWay';
 import {
@@ -171,6 +172,9 @@ function EarthSkyFieldLayer({
   constellationLines: RenderableConstellationLine[];
   spriteTexture: THREE.Texture | null;
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <>
       {stars.map((star) => (
@@ -197,7 +201,7 @@ function EarthSkyFieldLayer({
           <Text
             position={EARTH_STAR_LABEL_OFFSET}
             color={star.color}
-            fontSize={EARTH_STAR_LABEL_FONT_SIZE}
+            fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
             anchorX="left"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}
@@ -252,6 +256,8 @@ function EarthHorizonGlow() {
 
 
 function EarthCompassLabels({ language }: { language: AppLanguage }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
   const labels = useMemo(() => (
     getDirectionLabels(language).map((label, index) => {
       const azimuth = index * (Math.PI / 2);
@@ -270,7 +276,7 @@ function EarthCompassLabels({ language }: { language: AppLanguage }) {
         <Billboard key={`earth-direction-${item.label}`} position={item.position}>
           <Text
             color="#e3edf7"
-            fontSize={1.9}
+            fontSize={1.9 * labelScale}
             anchorX="center"
             anchorY="middle"
             font={SCENE_LABEL_FONT_URL}
@@ -359,6 +365,8 @@ function EarthDynamicBodiesLayer({
   showPlanets: boolean;
   spriteTexture: THREE.Texture | null;
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
   const lastBodyUpdateRef = useRef(0);
   const lastMoonPhaseUpdateRef = useRef(0);
   const latitudeRef = useRef(useAppStore.getState().observer.latitude);
@@ -456,7 +464,7 @@ function EarthDynamicBodiesLayer({
             position={BODY_LABEL_SPECS.sun.offset}
             color="#fff1b8"
             font={SCENE_LABEL_FONT_URL}
-            fontSize={BODY_LABEL_SPECS.sun.fontSize}
+            fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
             anchorX={BODY_LABEL_ANCHOR_X}
             anchorY={BODY_LABEL_ANCHOR_Y}
             fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
@@ -488,7 +496,7 @@ function EarthDynamicBodiesLayer({
             position={EARTH_MOON_LABEL_OFFSET}
             color="#eaf2ff"
             font={SCENE_LABEL_FONT_URL}
-            fontSize={EARTH_STAR_LABEL_FONT_SIZE}
+            fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
             anchorX={BODY_LABEL_ANCHOR_X}
             anchorY={BODY_LABEL_ANCHOR_Y}
             fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
@@ -527,7 +535,7 @@ function EarthDynamicBodiesLayer({
               position={EARTH_PLANET_LABEL_OFFSET}
               color={planet.color}
               font={SCENE_LABEL_FONT_URL}
-              fontSize={EARTH_STAR_LABEL_FONT_SIZE}
+              fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
               anchorX={BODY_LABEL_ANCHOR_X}
               anchorY={BODY_LABEL_ANCHOR_Y}
               fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
@@ -545,8 +553,11 @@ function EarthDynamicBodiesLayer({
 
 export default function EarthView() {
   const { camera, gl, size } = useThree();
+  const { isDesktop } = useViewportLayout();
   const isDraggingRef = useRef(false);
+  const activePointerIdRef = useRef<number | null>(null);
   const hasInitializedViewRef = useRef(false);
+  const lastPointerPositionRef = useRef<{ x: number; y: number } | null>(null);
   const latitudeRef = useRef(useAppStore.getState().observer.latitude);
   const yawRef = useRef(0);
   const pitchRef = useRef(0.24);
@@ -572,6 +583,7 @@ export default function EarthView() {
 
   const { skyCulture, language } = useAppStore((state) => state.scene);
   const copy = getLanguageCopy(language);
+  const labelScale = isDesktop ? 1 : 1.8;
   const displayYear = useAppStore((state) => state.clock.displayTime.getUTCFullYear());
   const {
     showAnnualTrail,
@@ -668,7 +680,7 @@ export default function EarthView() {
       <EarthHorizonGlow />
       <EarthCompassLabels language={language} />
       <Billboard position={[0, SKY_RADIUS + 2, 0]}>
-        <Text color="#cfd8e6" fontSize={1.1} anchorX="center" anchorY="middle" font={SCENE_LABEL_FONT_URL}>
+        <Text color="#cfd8e6" fontSize={1.1 * labelScale} anchorX="center" anchorY="middle" font={SCENE_LABEL_FONT_URL}>
           {copy.scene.zenith}
         </Text>
       </Billboard>
@@ -750,46 +762,69 @@ export default function EarthView() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      if (event.button !== 0) {
+      if (event.pointerType === 'mouse' && event.button !== 0) {
         return;
       }
+
+      activePointerIdRef.current = event.pointerId;
+      lastPointerPositionRef.current = { x: event.clientX, y: event.clientY };
       isDraggingRef.current = true;
       gl.domElement.style.cursor = 'grabbing';
+      event.preventDefault();
     };
 
     const onPointerMove = (event: PointerEvent) => {
-      if (!isDraggingRef.current) {
+      if (!isDraggingRef.current || activePointerIdRef.current !== event.pointerId || !lastPointerPositionRef.current) {
         return;
       }
 
-      yawRef.current -= event.movementX * LOOK_SENSITIVITY;
+      const deltaX = event.clientX - lastPointerPositionRef.current.x;
+      const deltaY = event.clientY - lastPointerPositionRef.current.y;
+      lastPointerPositionRef.current = { x: event.clientX, y: event.clientY };
+
+      yawRef.current -= deltaX * LOOK_SENSITIVITY;
       pitchRef.current = THREE.MathUtils.clamp(
-        pitchRef.current + event.movementY * LOOK_SENSITIVITY,
+        pitchRef.current + deltaY * LOOK_SENSITIVITY,
         MIN_PITCH,
         MAX_PITCH,
       );
       updateCameraOrientation();
     };
 
-    const stopDragging = () => {
+    const resetDragging = () => {
+      activePointerIdRef.current = null;
+      lastPointerPositionRef.current = null;
       isDraggingRef.current = false;
       gl.domElement.style.cursor = 'grab';
     };
 
+    const stopDragging = (event: PointerEvent) => {
+      if (
+        activePointerIdRef.current !== null
+        && event.pointerId !== activePointerIdRef.current
+      ) {
+        return;
+      }
+
+      resetDragging();
+    };
+
     gl.domElement.style.cursor = 'grab';
+    gl.domElement.style.touchAction = 'none';
     gl.domElement.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', stopDragging);
     window.addEventListener('pointercancel', stopDragging);
-    window.addEventListener('blur', stopDragging);
+    window.addEventListener('blur', resetDragging);
 
     return () => {
       gl.domElement.style.cursor = '';
+      gl.domElement.style.touchAction = '';
       gl.domElement.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', stopDragging);
       window.removeEventListener('pointercancel', stopDragging);
-      window.removeEventListener('blur', stopDragging);
+      window.removeEventListener('blur', resetDragging);
     };
   }, [camera, gl]);
 

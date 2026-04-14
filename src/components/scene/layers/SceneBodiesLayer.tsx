@@ -1,4 +1,5 @@
 import { Billboard, Text } from '@react-three/drei';
+import { useViewportLayout } from '../../../hooks/useViewportLayout';
 import {
   BODY_LABEL_ANCHOR_X,
   BODY_LABEL_ANCHOR_Y,
@@ -21,6 +22,9 @@ export default function SceneBodiesLayer({
   language: AppLanguage;
   moonPhase: MoonPhaseData;
 }) {
+  const { isDesktop } = useViewportLayout();
+  const labelScale = isDesktop ? 1 : 1.8;
+
   return (
     <>
       {bodyRenderData.sun.isVisible && (
@@ -47,7 +51,7 @@ export default function SceneBodiesLayer({
             <Text
               color="#fff1b8"
               font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.sun.fontSize}
+              fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
               anchorX={BODY_LABEL_ANCHOR_X}
               anchorY={BODY_LABEL_ANCHOR_Y}
               fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
@@ -73,7 +77,7 @@ export default function SceneBodiesLayer({
             <Text
               color="#eaf2ff"
               font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.moon.fontSize}
+              fontSize={BODY_LABEL_SPECS.moon.fontSize * labelScale}
               anchorX={BODY_LABEL_ANCHOR_X}
               anchorY={BODY_LABEL_ANCHOR_Y}
               fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
@@ -97,7 +101,7 @@ export default function SceneBodiesLayer({
             <Text
               color={planet.color}
               font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.planet.fontSize}
+              fontSize={BODY_LABEL_SPECS.planet.fontSize * labelScale}
               anchorX={BODY_LABEL_ANCHOR_X}
               anchorY={BODY_LABEL_ANCHOR_Y}
               fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
