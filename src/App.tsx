@@ -1,15 +1,28 @@
+import { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useAppStore } from './store/useAppStore';
 import SpaceView from './components/scene/SpaceView';
 import EarthView from './components/scene/EarthView';
 import ControlPanel from './components/ui/ControlPanel';
 import { useViewportLayout } from './hooks/useViewportLayout';
-import { getLanguageCopy } from './utils/i18n';
+import { getLanguageCopy, getSeoCopy } from './utils/i18n';
+
+function setMetaAttribute(
+  selector: string,
+  attributeName: 'content' | 'href',
+  value: string,
+) {
+  const element = document.head.querySelector(selector);
+  if (element instanceof HTMLMetaElement || element instanceof HTMLLinkElement) {
+    element.setAttribute(attributeName, value);
+  }
+}
 
 function App() {
   const { viewMode, referenceFrame, language } = useAppStore((state) => state.scene);
   const { isDesktop } = useViewportLayout();
   const copy = getLanguageCopy(language);
+  const seo = getSeoCopy(language);
   const frameLabel = referenceFrame === 'observer' ? copy.app.frameObserver : copy.app.frameCelestial;
   const spaceDescription = referenceFrame === 'observer'
     ? copy.app.spaceDescriptionObserver
@@ -24,8 +37,37 @@ function App() {
     ? (typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1)
     : [1, 1.8] as [number, number];
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.title = seo.pageTitle;
+    setMetaAttribute('meta[name="description"]', 'content', seo.pageDescription);
+    setMetaAttribute('meta[property="og:title"]', 'content', seo.pageTitle);
+    setMetaAttribute('meta[property="og:description"]', 'content', seo.ogDescription);
+    setMetaAttribute('meta[property="og:locale"]', 'content', language === 'zh-CN' ? 'zh_CN' : 'en_US');
+    setMetaAttribute('meta[name="twitter:title"]', 'content', seo.pageTitle);
+    setMetaAttribute('meta[name="twitter:description"]', 'content', seo.ogDescription);
+    setMetaAttribute('link[rel="canonical"]', 'href', 'https://earth-motion.waschzy.top');
+  }, [language, seo.ogDescription, seo.pageDescription, seo.pageTitle]);
+
   return (
     <div className="w-screen h-screen overflow-hidden relative bg-[#08111d] text-white">
+      <main className="sr-only">
+        <h1>{seo.semanticHeading}</h1>
+        <p>{seo.semanticIntro}</p>
+        <section>
+          <h2>{seo.semanticViewsHeading}</h2>
+          <p>{seo.semanticViewsBody}</p>
+        </section>
+        <section>
+          <h2>{seo.semanticFeaturesHeading}</h2>
+          <ul>
+            {seo.semanticFeatures.map((feature) => (
+              <li key={feature}>{feature}</li>
+            ))}
+          </ul>
+        </section>
+      </main>
+
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(129,191,255,0.18),_transparent_40%),radial-gradient(circle_at_20%_80%,_rgba(255,210,120,0.08),_transparent_28%),linear-gradient(180deg,_#11243a_0%,_#0b1726_45%,_#08111d_100%)]" />
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,_rgba(255,255,255,0.04)_0%,_transparent_18%,_transparent_82%,_rgba(0,0,0,0.28)_100%)]" />
 

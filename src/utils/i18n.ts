@@ -1,5 +1,17 @@
 export type AppLanguage = 'zh-CN' | 'en';
 
+export interface SeoCopy {
+  pageTitle: string;
+  pageDescription: string;
+  ogDescription: string;
+  semanticHeading: string;
+  semanticIntro: string;
+  semanticViewsHeading: string;
+  semanticViewsBody: string;
+  semanticFeaturesHeading: string;
+  semanticFeatures: string[];
+}
+
 const MONTH_LABELS_BY_LANGUAGE: Record<AppLanguage, string[]> = {
   'zh-CN': ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -49,6 +61,52 @@ export function getLocalizedBodyLabel(name: string, language: AppLanguage) {
   return BODY_LABELS_BY_LANGUAGE[language][name] ?? name;
 }
 
+export function getSeoCopy(language: AppLanguage): SeoCopy {
+  if (language === 'zh-CN') {
+    return {
+      pageTitle: 'Earth Motion | 交互式天文可视化与天球运动模拟',
+      pageDescription:
+        'Earth Motion 是一个交互式天文可视化应用，使用 Three.js 展示太阳、月亮、行星、恒星、银河与天球网格，支持地面视角与 observer/celestial 两套参考系切换，以及中国星官和西方星座文化。',
+      ogDescription:
+        '在浏览器中查看太阳、月亮、行星、恒星、银河与天球网格，切换地面视角与 observer/celestial 参考系，并探索中西星空文化。',
+      semanticHeading: 'Earth Motion 天文可视化',
+      semanticIntro:
+        'Earth Motion 是一个基于浏览器的交互式天文可视化应用，用于观察太阳、月亮、行星、恒星、银河和天球网格的运动关系。',
+      semanticViewsHeading: '视图与参考系',
+      semanticViewsBody:
+        '应用提供 Earth View 地面视角，以及 Space View 空间视角；在 Space View 中可以切换 observer 与 celestial 两套参考系，比较本地地平坐标和天球坐标下的天体运动。',
+      semanticFeaturesHeading: '主要功能',
+      semanticFeatures: [
+        '观察太阳周日运动与周年视运动。',
+        '查看月亮、行星、恒星、银河与天球参考网格。',
+        '切换中国星官与西方星座两套星空文化。',
+        '结合 UTC 时间、纬度和农历信息进行天空演示。',
+      ],
+    };
+  }
+
+  return {
+    pageTitle: 'Earth Motion | Interactive Astronomy Visualization and Celestial Motion Simulator',
+    pageDescription:
+      'Earth Motion is an interactive astronomy visualization app built with Three.js. Explore the Sun, Moon, planets, stars, the Milky Way, and celestial grids across Earth View and observer/celestial reference frames.',
+    ogDescription:
+      'Explore the Sun, Moon, planets, stars, the Milky Way, and celestial grids in the browser with Earth View and observer/celestial reference frames.',
+    semanticHeading: 'Earth Motion Astronomy Visualization',
+    semanticIntro:
+      'Earth Motion is a browser-based interactive astronomy visualization for exploring the motion of the Sun, Moon, planets, stars, the Milky Way, and celestial grids.',
+    semanticViewsHeading: 'Views and Reference Frames',
+    semanticViewsBody:
+      'The app includes Earth View for a ground-based sky dome and Space View for comparing observer and celestial reference frames in the same scene.',
+    semanticFeaturesHeading: 'Core Features',
+    semanticFeatures: [
+      'Inspect the Sun’s daily and annual apparent motion.',
+      'Render the Moon, planets, stars, the Milky Way, and celestial guide layers.',
+      'Switch between Chinese asterisms and Western constellation culture.',
+      'Use UTC time, observer latitude, and lunar date context while exploring the sky.',
+    ],
+  };
+}
+
 export function getLanguageCopy(language: AppLanguage) {
   return language === 'zh-CN'
     ? {
@@ -69,6 +127,8 @@ export function getLanguageCopy(language: AppLanguage) {
         frame: '参考系',
         skyCulture: '星空体系',
         language: '界面语言',
+        play: '播放',
+        pause: '暂停',
         layers: '图层',
         timeControls: '时间控制',
         timeUtc: '时间（UTC）',
@@ -130,6 +190,8 @@ export function getLanguageCopy(language: AppLanguage) {
         frame: 'Frame',
         skyCulture: 'Sky Culture',
         language: 'Language',
+        play: 'Play',
+        pause: 'Pause',
         layers: 'Layers',
         timeControls: 'Time Controls',
         timeUtc: 'Time (UTC)',

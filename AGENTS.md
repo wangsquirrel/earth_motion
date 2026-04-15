@@ -16,11 +16,13 @@
 ```text
 public/
 ├── favicon.svg                          # 应用图标
+├── robots.txt                           # 允许搜索引擎抓取并声明 sitemap
+├── sitemap.xml                          # 当前公开页面列表
 └── fonts/                               # 静态字体资源
     └── noto-sans-sc-sc-400.woff*        # 场景 Text 统一使用的中文字体
 
 src/
-├── App.tsx                              # 应用总装层；唯一 Canvas、背景层、overlay 和场景切换入口
+├── App.tsx                              # 应用总装层；唯一 Canvas、背景层、overlay、场景切换入口，以及非视觉 SEO 语义正文/动态 head 同步
 ├── data/
 │   └── mw.min.geojson                   # 银河带原始空间数据，供银河纹理生成
 ├── components/scene/
@@ -58,6 +60,7 @@ src/
 - `App.tsx` 保持唯一 `<Canvas>`，相机初始值 `position: [0, 5, 20], fov: 60`
 - Space / Earth 共用同一个 Canvas，仅切换场景组件
 - 背景色随 `viewMode` 和 `referenceFrame` 变化
+- SEO 增强优先放在非视觉层：`index.html` 的 meta / structured data / noscript，以及 `App.tsx` 中不影响布局的语义文本；不要为了 SEO 改现有视觉效果
 - 移动端竖屏采用“顶部状态 + 底部控制”的 overlay；中部画面优先留给天球，桌面端仍保持右侧常驻控制栏；expanded 面板保持固定高度并内部滚动，不通过整页上推侵占顶部状态区
 - 场景内 `Text` 统一使用 `sceneLabel.constants.ts`，字体来自 `public/fonts/noto-sans-sc-sc-400.woff`
 - 移动端场景标签统一按桌面端的 `1.8x` 放大；新增或调整场景文字时优先复用 `useViewportLayout.ts`

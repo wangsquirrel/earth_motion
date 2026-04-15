@@ -4,31 +4,56 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>地球运动 - Earth Motion</title>
+    <title>Earth Motion | 交互式天文可视化与天球运动模拟</title>
 
     <!-- SEO Meta -->
-    <meta name="description" content="Earth Motion 是一个基于 Three.js 的天文可视化应用，支持从地面视角观察太阳周日运动，以及在地平线和天球参考系下观察天体运动。包含中西星官文化切换、农历显示等功能。" />
-    <meta name="keywords" content="astronomy, 天文, sun motion, 太阳运动, celestial sphere, 天球, three.js, visualization, 可视化, 星座, constellation" />
+    <meta name="description" content="Earth Motion 是一个交互式天文可视化应用，使用 Three.js 展示太阳、月亮、行星、恒星、银河与天球网格，支持地面视角与 observer/celestial 两套参考系切换，以及中国星官和西方星座文化。" />
+    <meta name="keywords" content="astronomy, 天文, astronomy visualization, 交互式天文, sky simulation, 天球, celestial sphere, sun motion, 太阳周日运动, moon phase, 行星, 恒星, 银河, 中国星官, western constellations, three.js" />
     <meta name="author" content="wangsquirrel" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="application-name" content="Earth Motion" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="地球运动 - Earth Motion" />
-    <meta property="og:description" content="基于 Three.js 的交互式天文可视化应用，观察太阳周日运动与天球坐标。" />
+    <meta property="og:title" content="Earth Motion | 交互式天文可视化与天球运动模拟" />
+    <meta property="og:description" content="在浏览器中查看太阳、月亮、行星、恒星、银河与天球网格，切换地面视角与 observer/celestial 参考系，并探索中西星空文化。" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://earth-motion.waschzy.top" />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:site_name" content="地球运动" />
+    <meta property="og:image" content="https://earth-motion.waschzy.top/favicon.svg" />
+    <meta property="og:image:alt" content="Earth Motion application icon" />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="地球运动 - Earth Motion" />
-    <meta name="twitter:description" content="基于 Three.js 的交互式天文可视化应用，观察太阳周日运动与天球坐标。" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Earth Motion | 交互式天文可视化与天球运动模拟" />
+    <meta name="twitter:description" content="交互式天文可视化应用，支持太阳、月亮、行星、恒星、银河与 observer/celestial 参考系观察。" />
     <meta name="twitter:creator" content="@wangsquirrel" />
+    <meta name="twitter:image" content="https://earth-motion.waschzy.top/favicon.svg" />
+    <meta name="twitter:image:alt" content="Earth Motion application icon" />
 
     <!-- Theme Color -->
     <meta name="theme-color" content="#0c1522" />
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://earth-motion.waschzy.top" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Earth Motion",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "url": "https://earth-motion.waschzy.top",
+        "description": "Earth Motion is a browser-based astronomy visualization app for exploring the Sun, Moon, planets, stars, the Milky Way, and celestial reference frames from Earth and space viewpoints.",
+        "inLanguage": ["zh-CN", "en"],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
     <script type="module">
       if (import.meta.hot?.on) {
         import.meta.hot.on('vite:error', (error) => {
@@ -43,6 +68,20 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <section style="max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem; color: #e5eef9; background: #08111d; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+        <h1 style="margin: 0 0 1rem; font-size: 2rem;">Earth Motion</h1>
+        <p style="margin: 0 0 0.75rem;">
+          Earth Motion 是一个交互式天文可视化应用，用于观察太阳、月亮、行星、恒星、银河和天球网格的运动。
+        </p>
+        <p style="margin: 0 0 0.75rem;">
+          应用包含 Space View 与 Earth View，支持 observer / celestial 参考系切换，以及中国星官和西方星座两套星空文化。
+        </p>
+        <p style="margin: 0;">
+          This app requires JavaScript to render the interactive Three.js sky simulation.
+        </p>
+      </section>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

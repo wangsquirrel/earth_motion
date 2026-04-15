@@ -108,6 +108,7 @@ function LanguageSwitch({ isEnglish, onToggle, ariaLabel, compact = false }: Lan
         compact ? 'px-1.5 py-1 text-[10px]' : 'px-2 py-1.5 text-[11px]'
       }`}
     >
+      <span className="sr-only">{ariaLabel}</span>
       <span
         className={`relative flex items-center rounded-full border transition-colors ${
           compact ? 'h-5 w-[3rem]' : 'h-6 w-[3.5rem]'
@@ -115,9 +116,10 @@ function LanguageSwitch({ isEnglish, onToggle, ariaLabel, compact = false }: Lan
           isEnglish ? 'border-sky-300/30 bg-sky-400/14' : 'border-amber-300/24 bg-amber-300/10'
         }`}
       >
-        <span className="absolute left-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">中</span>
-        <span className="absolute right-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">EN</span>
+        <span aria-hidden="true" className="absolute left-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">中</span>
+        <span aria-hidden="true" className="absolute right-1 text-[8px] font-medium tracking-[0.14em] text-slate-300/80">EN</span>
         <span
+          aria-hidden="true"
           className={`absolute rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition-all ${
             compact ? 'top-[2px] h-3.5 w-[1.35rem]' : 'top-[2px] h-4 w-[1.55rem]'
           } ${
@@ -371,6 +373,7 @@ export default function ControlPanel() {
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-2.5 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
+            aria-label={isPlaying ? copy.panel.pause : copy.panel.play}
             className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/18"
           >
             {isPlaying ? <Pause size={18} /> : <Play size={18} />}
@@ -431,6 +434,7 @@ export default function ControlPanel() {
                 max="90"
                 step="0.1"
                 value={latitude}
+                aria-label={copy.panel.latitude}
                 onInput={(event) => handleLatitudeInput((event.target as HTMLInputElement).value)}
                 onChange={(event) => handleLatitudeInput(event.target.value)}
                 className="w-full accent-sky-400"
@@ -493,6 +497,7 @@ export default function ControlPanel() {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setIsPlaying(!isPlaying)}
+          aria-label={isPlaying ? copy.panel.pause : copy.panel.play}
           className="rounded-full bg-white/10 p-2.5 text-white transition-colors hover:bg-white/18"
         >
           {isPlaying ? <Pause size={18} /> : <Play size={18} />}
