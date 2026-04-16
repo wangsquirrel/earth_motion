@@ -70,6 +70,10 @@ src/
 - `SpaceView(observer)` 的恒星/星座线/参考网格优先复用天球采样并通过四元数投影到地平系，避免在热路径里重复做整批三角换算
 - observer 侧重快照按图层开关按需更新：隐藏的周年轨迹 / 周日轨迹不参与热路径重建；隐藏行星时不计算行星位置
 - `language` 只控制界面文案和通用场景辅助标签；`skyCulture` 只控制中国传统星官 / 西方星座及恒星命名，不要混用
+- `utils/stars.ts` 的名称字段要区分来源可信度：没有明确依据时，不要把 `westernSystemName` 的中文翻法回填为 `chineseAsterism`，也不要把中文占位名写进 `westernDesignation`
+- `utils/stars.ts` 的 `names` 字段按语义分层维护：`chineseAsterism` 只放中国传统星官/星名，不当作泛中文翻译字段；`westernProper` 只放西方专名（proper name）；`westernDesignation` 只放 Bayer / Flamsteed 这类稳定标准编号；`westernSystemName` 只放面向界面的西方星座系统中文名（如“天鹰座α”“金牛座17”）
+- `utils/stars.ts` 里 `StarData.catalog` 是项目内部的展示分组，不是天文学星表来源；补星时要把“名称映射”和“数值来源”分开处理，优先用 Stellarium sky culture / HIP 锁定身份，再用正式星表数值回填 RA/Dec/magnitude
+- `utils/stars.ts` 的星官/星座连线优先参考公开 sky culture 数据（当前以 Stellarium skycultures 为准）手工转写到现有 `lines` 结构；缺少中间星时保持保守，只保留有公开依据的线段，不凭视觉直觉跨星直连
 - 银河是独立物理天空层，统一由 `utils/milkyWay.ts` 生成；`EarthView`、`Space(observer)`、`Space(celestial)` 共用同一数据源与投影逻辑
 - 银河使用真实数据生成的全天纹理，默认弱化显示，并由 `display.showMilkyWay` 独立控制开关
 - 英文界面下，农历内容和中国传统星官名称保持中文，不做英文翻译
