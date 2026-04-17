@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useAppStore } from './store/useAppStore';
-import SpaceView from './components/scene/SpaceView';
-import EarthView from './components/scene/EarthView';
 import ControlPanel from './components/ui/ControlPanel';
 import { useViewportLayout } from './hooks/useViewportLayout';
 import { getLanguageCopy, getSeoCopy } from './utils/i18n';
+import SpaceView from './components/scene/SpaceView';
+
+const EarthView = lazy(() => import('./components/scene/EarthView'));
 
 function setMetaAttribute(
   selector: string,
@@ -34,7 +35,7 @@ function App() {
   const githubUrl = 'https://github.com/wangsquirrel';
   const year = new Date().getFullYear();
   const canvasDpr = isDesktop
-    ? (typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1)
+    ? [1, 1.5] as [number, number]
     : [1, 1.8] as [number, number];
 
   useEffect(() => {
@@ -48,6 +49,28 @@ function App() {
     setMetaAttribute('meta[name="twitter:description"]', 'content', seo.ogDescription);
     setMetaAttribute('link[rel="canonical"]', 'href', 'https://earth-motion.waschzy.top');
   }, [language, seo.ogDescription, seo.pageDescription, seo.pageTitle]);
+
+  useEffect(() => {
+    if (import.meta.env.DEV || viewMode !== 'space') {
+      return;
+    }
+
+    const preloadEarthView = () => {
+      void import('./components/scene/EarthView');
+    };
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if ('requestIdleCallback' in window) {
+      const idleCallbackId = window.requestIdleCallback(preloadEarthView, { timeout: 1500 });
+      return () => window.cancelIdleCallback(idleCallbackId);
+    }
+
+    const timeoutId = setTimeout(preloadEarthView, 3000);
+    return () => clearTimeout(timeoutId);
+  }, [viewMode]);
 
   return (
     <div className="w-screen h-screen overflow-hidden relative bg-[#08111d] text-white">
@@ -81,8 +104,14 @@ function App() {
         }}
       >
         <color attach="background" args={[sceneBackground]} />
-        
-        {viewMode === 'space' ? <SpaceView /> : <EarthView />}
+
+        {viewMode === 'space' ? (
+          <SpaceView />
+        ) : (
+          <Suspense fallback={null}>
+            <EarthView />
+          </Suspense>
+        )}
       </Canvas>
 
       <div className="absolute inset-x-0 top-0 z-20 h-40 pointer-events-none bg-[linear-gradient(180deg,_rgba(7,16,28,0.8)_0%,_rgba(7,16,28,0.2)_60%,_transparent_100%)]" />

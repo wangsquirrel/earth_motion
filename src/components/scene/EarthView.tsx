@@ -31,6 +31,7 @@ import {
   type RenderableConstellationLine,
   type RenderableStar,
 } from '../../utils/starField';
+import { warmupSceneText } from '../../utils/sceneTextPreload';
 import MoonPhaseDisc from './MoonPhaseDisc';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
 import { buildCelestialToObserverQuaternion } from './builders/geometry';
@@ -167,10 +168,12 @@ function EarthSkyFieldLayer({
   stars,
   constellationLines,
   spriteTexture,
+  showLabels = true,
 }: {
   stars: RenderableStar[];
   constellationLines: RenderableConstellationLine[];
   spriteTexture: THREE.Texture | null;
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -196,7 +199,7 @@ function EarthSkyFieldLayer({
         </group>
       ))}
 
-      {stars.filter((star) => star.label).map((star) => (
+      {showLabels && stars.filter((star) => star.label).map((star) => (
         <Billboard key={`earth-star-label-${star.renderKey}`} position={star.position}>
           <Text
             position={EARTH_STAR_LABEL_OFFSET}
@@ -255,7 +258,7 @@ function EarthHorizonGlow() {
 }
 
 
-function EarthCompassLabels({ language }: { language: AppLanguage }) {
+function EarthCompassLabels({ language, showLabels = true }: { language: AppLanguage; showLabels?: boolean }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
   const labels = useMemo(() => (
@@ -272,7 +275,7 @@ function EarthCompassLabels({ language }: { language: AppLanguage }) {
 
   return (
     <>
-      {labels.map((item) => (
+      {showLabels && labels.map((item) => (
         <Billboard key={`earth-direction-${item.label}`} position={item.position}>
           <Text
             color="#e3edf7"
@@ -358,12 +361,14 @@ function EarthDynamicBodiesLayer({
   showMoon,
   showPlanets,
   spriteTexture,
+  showLabels = true,
 }: {
   simDateRef: { current: Date };
   language: AppLanguage;
   showMoon: boolean;
   showPlanets: boolean;
   spriteTexture: THREE.Texture | null;
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -459,21 +464,23 @@ function EarthDynamicBodiesLayer({
           blending={THREE.AdditiveBlending}
           texture={spriteTexture}
         />
-        <Billboard position={[0, 0, 0]}>
-          <Text
-            position={BODY_LABEL_SPECS.sun.offset}
-            color="#fff1b8"
-            font={SCENE_LABEL_FONT_URL}
-            fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
-            anchorX={BODY_LABEL_ANCHOR_X}
-            anchorY={BODY_LABEL_ANCHOR_Y}
-            fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
-            outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
-            outlineColor={BODY_LABEL_OUTLINE_COLOR}
-          >
-            {getLocalizedBodyLabel('Sun', language)}
-          </Text>
-        </Billboard>
+        {showLabels && (
+          <Billboard position={[0, 0, 0]}>
+            <Text
+              position={BODY_LABEL_SPECS.sun.offset}
+              color="#fff1b8"
+              font={SCENE_LABEL_FONT_URL}
+              fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
+              anchorX={BODY_LABEL_ANCHOR_X}
+              anchorY={BODY_LABEL_ANCHOR_Y}
+              fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
+              outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
+              outlineColor={BODY_LABEL_OUTLINE_COLOR}
+            >
+              {getLocalizedBodyLabel('Sun', language)}
+            </Text>
+          </Billboard>
+        )}
       </group>
 
       <group ref={moonGroupRef} visible={false}>
@@ -491,21 +498,23 @@ function EarthDynamicBodiesLayer({
           blending={THREE.AdditiveBlending}
           texture={spriteTexture}
         />
-        <Billboard position={[0, 0, 0]}>
-          <Text
-            position={EARTH_MOON_LABEL_OFFSET}
-            color="#eaf2ff"
-            font={SCENE_LABEL_FONT_URL}
-            fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
-            anchorX={BODY_LABEL_ANCHOR_X}
-            anchorY={BODY_LABEL_ANCHOR_Y}
-            fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
-            outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
-            outlineColor={BODY_LABEL_OUTLINE_COLOR}
-          >
-            {getLocalizedBodyLabel('Moon', language)}
-          </Text>
-        </Billboard>
+        {showLabels && (
+          <Billboard position={[0, 0, 0]}>
+            <Text
+              position={EARTH_MOON_LABEL_OFFSET}
+              color="#eaf2ff"
+              font={SCENE_LABEL_FONT_URL}
+              fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
+              anchorX={BODY_LABEL_ANCHOR_X}
+              anchorY={BODY_LABEL_ANCHOR_Y}
+              fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
+              outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
+              outlineColor={BODY_LABEL_OUTLINE_COLOR}
+            >
+              {getLocalizedBodyLabel('Moon', language)}
+            </Text>
+          </Billboard>
+        )}
       </group>
 
       {PLANET_BODIES.map((planet) => (
@@ -530,21 +539,23 @@ function EarthDynamicBodiesLayer({
             blending={THREE.AdditiveBlending}
             texture={spriteTexture}
           />
-          <Billboard position={[0, 0, 0]}>
-            <Text
-              position={EARTH_PLANET_LABEL_OFFSET}
-              color={planet.color}
-              font={SCENE_LABEL_FONT_URL}
-              fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
-              anchorX={BODY_LABEL_ANCHOR_X}
-              anchorY={BODY_LABEL_ANCHOR_Y}
-              fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
-              outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
-              outlineColor={BODY_LABEL_OUTLINE_COLOR}
-            >
-              {getLocalizedBodyLabel(planet.name, language)}
-            </Text>
-          </Billboard>
+          {showLabels && (
+            <Billboard position={[0, 0, 0]}>
+              <Text
+                position={EARTH_PLANET_LABEL_OFFSET}
+                color={planet.color}
+                font={SCENE_LABEL_FONT_URL}
+                fontSize={EARTH_STAR_LABEL_FONT_SIZE * labelScale}
+                anchorX={BODY_LABEL_ANCHOR_X}
+                anchorY={BODY_LABEL_ANCHOR_Y}
+                fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
+                outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
+                outlineColor={BODY_LABEL_OUTLINE_COLOR}
+              >
+                {getLocalizedBodyLabel(planet.name, language)}
+              </Text>
+            </Billboard>
+          )}
         </group>
       ))}
     </>
@@ -602,27 +613,47 @@ export default function EarthView() {
     () => buildCelestialReferenceLayerData(),
     []
   );
+  useEffect(() => {
+    void warmupSceneText();
+  }, []);
+  const enableStarPointsLayer = showStars;
+  const enableConstellationLineLayer = showStars;
+  const enableMilkyWayLayer = showMilkyWay;
+  const enableAnnualLayer = showAnnualTrail;
   const annualSunEquatorialSamples = useMemo(
-    () => buildAnnualSunEquatorialSamples(displayYear),
-    [displayYear]
+    () => (enableAnnualLayer ? buildAnnualSunEquatorialSamples(displayYear) : []),
+    [displayYear, enableAnnualLayer]
+  );
+  const celestialStars = useMemo(
+    () => (enableStarPointsLayer
+      ? buildCelestialStarRenderData(
+        CATALOG,
+        SKY_OBJECT_RADIUS,
+        STAR_LABEL_RADIUS_SCALE,
+        skyCulture,
+        language
+      )
+      : [] as RenderableStar[]),
+    [enableStarPointsLayer, language, skyCulture]
+  );
+  const celestialConstellationLines = useMemo(
+    () => (enableConstellationLineLayer
+      ? buildCelestialConstellationLines(
+        activeConstellations,
+        CATALOG,
+        SKY_OBJECT_RADIUS
+      )
+      : [] as RenderableConstellationLine[]),
+    [activeConstellations, enableConstellationLineLayer]
   );
   const celestialStarField = useMemo(() => ({
-    stars: buildCelestialStarRenderData(
-      CATALOG,
-      SKY_OBJECT_RADIUS,
-      STAR_LABEL_RADIUS_SCALE,
-      skyCulture,
-      language
-    ),
-    constellationLines: buildCelestialConstellationLines(
-      activeConstellations,
-      CATALOG,
-      SKY_OBJECT_RADIUS
-    ),
-  }), [activeConstellations, language, skyCulture]);
+    stars: celestialStars,
+    constellationLines: celestialConstellationLines,
+  }), [celestialConstellationLines, celestialStars]);
+  const labelLayersReady = true;
   const milkyWayTexture = useMemo(
-    () => (showMilkyWay ? buildMilkyWayTexture() : null),
-    [showMilkyWay]
+    () => (enableMilkyWayLayer ? buildMilkyWayTexture() : null),
+    [enableMilkyWayLayer]
   );
 
   useEffect(() => {
@@ -678,12 +709,14 @@ export default function EarthView() {
     <>
       <EarthSkyDome />
       <EarthHorizonGlow />
-      <EarthCompassLabels language={language} />
-      <Billboard position={[0, SKY_RADIUS + 2, 0]}>
-        <Text color="#cfd8e6" fontSize={1.1 * labelScale} anchorX="center" anchorY="middle" font={SCENE_LABEL_FONT_URL}>
-          {copy.scene.zenith}
-        </Text>
-      </Billboard>
+      <EarthCompassLabels language={language} showLabels={labelLayersReady} />
+      {labelLayersReady && (
+        <Billboard position={[0, SKY_RADIUS + 2, 0]}>
+          <Text color="#cfd8e6" fontSize={1.1 * labelScale} anchorX="center" anchorY="middle" font={SCENE_LABEL_FONT_URL}>
+            {copy.scene.zenith}
+          </Text>
+        </Billboard>
+      )}
     </>
   );
   const rotatingSkyLayer = useMemo(() => (
@@ -700,10 +733,11 @@ export default function EarthView() {
           hourOpacity={0.09}
           equatorOpacity={0.18}
           equatorLineWidth={1.35}
+          showLabels={labelLayersReady}
         />
       </group>
 
-      {showMilkyWay && (
+      {enableMilkyWayLayer && (
         <MilkyWayLayer
           prefix="earth"
           texture={milkyWayTexture}
@@ -713,15 +747,16 @@ export default function EarthView() {
         />
       )}
 
-      {showStars && (
+      {enableStarPointsLayer && (
         <EarthSkyFieldLayer
           stars={celestialStarField.stars}
-          constellationLines={celestialStarField.constellationLines}
+          constellationLines={enableConstellationLineLayer ? celestialStarField.constellationLines : []}
           spriteTexture={spriteTexture}
+          showLabels={labelLayersReady}
         />
       )}
 
-      {showAnnualTrail && (
+      {enableAnnualLayer && (
         <Line
           points={celestialEclipticPoints}
           color="#ffe066"
@@ -743,12 +778,14 @@ export default function EarthView() {
     celestialReferenceData.hourGrid,
     celestialStarField.constellationLines,
     celestialStarField.stars,
+    enableAnnualLayer,
+    enableMilkyWayLayer,
+    enableConstellationLineLayer,
+    enableStarPointsLayer,
     milkyWayTexture,
-    showAnnualTrail,
-    showMilkyWay,
-    showStars,
     spriteTexture,
     copy.scene.celestialEquator,
+    labelLayersReady,
   ]);
 
   useEffect(() => {
@@ -945,6 +982,7 @@ export default function EarthView() {
         showMoon={showMoon}
         showPlanets={showPlanets}
         spriteTexture={spriteTexture}
+        showLabels={labelLayersReady}
       />
 
       <ambientLight intensity={0.06} />

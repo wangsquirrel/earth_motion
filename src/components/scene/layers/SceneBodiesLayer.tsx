@@ -17,10 +17,12 @@ export default function SceneBodiesLayer({
   bodyRenderData,
   language,
   moonPhase,
+  showLabels = true,
 }: {
   bodyRenderData: BodyRenderData;
   language: AppLanguage;
   moonPhase: MoonPhaseData;
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -47,20 +49,22 @@ export default function SceneBodiesLayer({
             />
           </mesh>
 
-          <Billboard position={BODY_LABEL_SPECS.sun.offset}>
-            <Text
-              color="#fff1b8"
-              font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
-              anchorX={BODY_LABEL_ANCHOR_X}
-              anchorY={BODY_LABEL_ANCHOR_Y}
-              fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
-              outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
-              outlineColor={BODY_LABEL_OUTLINE_COLOR}
-            >
-              {getLocalizedBodyLabel('Sun', language)}
-            </Text>
-          </Billboard>
+          {showLabels && (
+            <Billboard position={BODY_LABEL_SPECS.sun.offset}>
+              <Text
+                color="#fff1b8"
+                font={SCENE_LABEL_FONT_URL}
+                fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
+                anchorX={BODY_LABEL_ANCHOR_X}
+                anchorY={BODY_LABEL_ANCHOR_Y}
+                fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
+                outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
+                outlineColor={BODY_LABEL_OUTLINE_COLOR}
+              >
+                {getLocalizedBodyLabel('Sun', language)}
+              </Text>
+            </Billboard>
+          )}
         </group>
       )}
 
@@ -73,20 +77,22 @@ export default function SceneBodiesLayer({
             size={0.24}
           />
 
-          <Billboard position={BODY_LABEL_SPECS.moon.offset}>
-            <Text
-              color="#eaf2ff"
-              font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.moon.fontSize * labelScale}
-              anchorX={BODY_LABEL_ANCHOR_X}
-              anchorY={BODY_LABEL_ANCHOR_Y}
-              fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
-              outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
-              outlineColor={BODY_LABEL_OUTLINE_COLOR}
-            >
-              {getLocalizedBodyLabel('Moon', language)}
-            </Text>
-          </Billboard>
+          {showLabels && (
+            <Billboard position={BODY_LABEL_SPECS.moon.offset}>
+              <Text
+                color="#eaf2ff"
+                font={SCENE_LABEL_FONT_URL}
+                fontSize={BODY_LABEL_SPECS.moon.fontSize * labelScale}
+                anchorX={BODY_LABEL_ANCHOR_X}
+                anchorY={BODY_LABEL_ANCHOR_Y}
+                fillOpacity={BODY_LABEL_SPECS.moon.fillOpacity}
+                outlineWidth={BODY_LABEL_SPECS.moon.outlineWidth}
+                outlineColor={BODY_LABEL_OUTLINE_COLOR}
+              >
+                {getLocalizedBodyLabel('Moon', language)}
+              </Text>
+            </Billboard>
+          )}
         </group>
       )}
 
@@ -97,20 +103,22 @@ export default function SceneBodiesLayer({
             <meshBasicMaterial color={planet.color} transparent opacity={0.9} />
           </mesh>
 
-          <Billboard position={BODY_LABEL_SPECS.planet.offset}>
-            <Text
-              color={planet.color}
-              font={SCENE_LABEL_FONT_URL}
-              fontSize={BODY_LABEL_SPECS.planet.fontSize * labelScale}
-              anchorX={BODY_LABEL_ANCHOR_X}
-              anchorY={BODY_LABEL_ANCHOR_Y}
-              fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
-              outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
-              outlineColor={BODY_LABEL_OUTLINE_COLOR}
-            >
-              {getLocalizedBodyLabel(planet.name, language)}
-            </Text>
-          </Billboard>
+          {showLabels && (
+            <Billboard position={BODY_LABEL_SPECS.planet.offset}>
+              <Text
+                color={planet.color}
+                font={SCENE_LABEL_FONT_URL}
+                fontSize={BODY_LABEL_SPECS.planet.fontSize * labelScale}
+                anchorX={BODY_LABEL_ANCHOR_X}
+                anchorY={BODY_LABEL_ANCHOR_Y}
+                fillOpacity={BODY_LABEL_SPECS.planet.fillOpacity}
+                outlineWidth={BODY_LABEL_SPECS.planet.outlineWidth}
+                outlineColor={BODY_LABEL_OUTLINE_COLOR}
+              >
+                {getLocalizedBodyLabel(planet.name, language)}
+              </Text>
+            </Billboard>
+          )}
         </group>
       ))}
     </>

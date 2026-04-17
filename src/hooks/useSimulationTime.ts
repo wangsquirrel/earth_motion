@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useAppStore } from '../store/useAppStore';
+import { getSyncedSimTimeMs, getWallNow, useAppStore } from '../store/useAppStore';
 
 /**
  * A hook that computes the current simulation time imperatively inside useFrame,
@@ -33,10 +33,8 @@ export function useSimulationTime() {
       return;
     }
 
-    const wallNow = performance.now();
-    const simTimeMs =
-      clock.playbackStartSimTimeMs +
-      (wallNow - clock.playbackStartWallTime) * clock.timeSpeed;
+    const wallNow = getWallNow();
+    const simTimeMs = getSyncedSimTimeMs(clock, wallNow);
     simDateRef.current = new Date(simTimeMs);
 
     // Throttled update for the UI display

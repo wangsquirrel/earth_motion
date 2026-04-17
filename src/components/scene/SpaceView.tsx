@@ -5,11 +5,13 @@ import * as THREE from 'three';
 import { getMoonPhaseData } from '../../utils/ephemeris';
 import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { buildMilkyWayTexture } from '../../utils/milkyWay';
-import { useAppStore } from '../../store/useAppStore';
+import { getSyncedSimTimeMs, getWallNow, useAppStore } from '../../store/useAppStore';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
+import { warmupSceneText } from '../../utils/sceneTextPreload';
 import { useShallow } from 'zustand/react/shallow';
 import { CATALOG, CONSTELLATIONS_BY_CULTURE } from '../../utils/stars';
 import { getDirectionLabels, getLanguageCopy, getMonthLabels } from '../../utils/i18n';
+import { measurePerf } from '../../utils/perf';
 import {
   buildCelestialConstellationLines,
   buildCelestialStarRenderData,
@@ -55,6 +57,7 @@ import {
   SceneBodiesLayer,
   StarFieldLayer,
 } from './layers';
+import { SCENE_LABEL_FONT_URL } from './sceneLabel.constants';
 import type {
   CelestialSceneData,
   ObserverSceneData,
@@ -94,6 +97,16 @@ const EMPTY_DIURNAL_LAYER: ObserverSceneData['diurnalLayer'] = {
   visibleSegments: [],
   markerPoints: [],
   rayPoint: null,
+};
+
+const EMPTY_ANNUAL_PROJECTION: AnnualSceneSnapshot = {
+  annualProjection: {
+    fullPath: undefined,
+    fullPathDashed: false,
+    hiddenSegments: [],
+    visibleSegments: [],
+    months: [],
+  },
 };
 
 const annualSunEquatorialSamplesCache = new Map<number, ReturnType<typeof buildAnnualSunEquatorialSamples>>();
@@ -222,37 +235,39 @@ function buildObserverStarFieldFromCelestial(
   celestialStarField: ObserverSceneData['starField'],
   celestialToObserverQuaternion: THREE.Quaternion
 ) {
-  const stars = celestialStarField.stars.flatMap((star) => {
-    const position = new THREE.Vector3(...star.position).applyQuaternion(celestialToObserverQuaternion);
-    if (position.y < 0) {
-      return [];
-    }
+  return measurePerf('buildObserverStarFieldFromCelestial', () => {
+    const stars = celestialStarField.stars.flatMap((star) => {
+      const position = new THREE.Vector3(...star.position).applyQuaternion(celestialToObserverQuaternion);
+      if (position.y < 0) {
+        return [];
+      }
 
-    const labelPosition = star.label
-      ? new THREE.Vector3(...star.labelPosition).applyQuaternion(celestialToObserverQuaternion)
-      : position;
+      const labelPosition = star.label
+        ? new THREE.Vector3(...star.labelPosition).applyQuaternion(celestialToObserverQuaternion)
+        : position;
 
-    return [{
-      ...star,
-      position: position.toArray() as [number, number, number],
-      labelPosition: labelPosition.toArray() as [number, number, number],
-    } satisfies RenderableStar];
-  });
+      return [{
+        ...star,
+        position: position.toArray() as [number, number, number],
+        labelPosition: labelPosition.toArray() as [number, number, number],
+      } satisfies RenderableStar];
+    });
 
-  const constellationLines = celestialStarField.constellationLines.flatMap((line) => {
-    const start = line.points[0].clone().applyQuaternion(celestialToObserverQuaternion);
-    const end = line.points[1].clone().applyQuaternion(celestialToObserverQuaternion);
-    if (start.y < 0 || end.y < 0) {
-      return [];
-    }
+    const constellationLines = celestialStarField.constellationLines.flatMap((line) => {
+      const start = line.points[0].clone().applyQuaternion(celestialToObserverQuaternion);
+      const end = line.points[1].clone().applyQuaternion(celestialToObserverQuaternion);
+      if (start.y < 0 || end.y < 0) {
+        return [];
+      }
 
-    return [{
-      ...line,
-      points: [start, end] as [THREE.Vector3, THREE.Vector3],
-    } satisfies RenderableConstellationLine];
-  });
+      return [{
+        ...line,
+        points: [start, end] as [THREE.Vector3, THREE.Vector3],
+      } satisfies RenderableConstellationLine];
+    });
 
-  return { stars, constellationLines };
+    return { stars, constellationLines };
+  }, { thresholdMs: 3 });
 }
 
 export default function SpaceView() {
@@ -267,7 +282,14 @@ export default function SpaceView() {
     up: THREE.Vector3;
     target: THREE.Vector3;
   } | null>(null);
-  const initialLatitudeRef = useRef(useAppStore.getState().observer.latitude);
+  const initialAppStateRef = useRef(useAppStore.getState());
+  const initialSceneBuildWallTimeRef = useRef(getWallNow());
+  const initialSceneDateRef = useRef(
+    new Date(getSyncedSimTimeMs(initialAppStateRef.current.clock, initialSceneBuildWallTimeRef.current))
+  );
+  const initialLatitudeRef = useRef(initialAppStateRef.current.observer.latitude);
+  const initialIsCelestialFrameRef = useRef(initialAppStateRef.current.scene.referenceFrame === 'celestial');
+  const initialDisplayRef = useRef(initialAppStateRef.current.display);
 
   // Non-time-dependent store state
   const { isPlaying, timeSpeed } = useAppStore(
@@ -305,55 +327,69 @@ export default function SpaceView() {
   const { simDateRef } = useSimulationTime();
 
   // --- Scene snapshot: rebuilt at ~7fps, triggers React re-render ---
-  const lastBodyRebuildRef = useRef(0);
-  const lastAnnualRebuildRef = useRef(0);
-  const lastStaticRebuildRef = useRef(0);
+  const lastBodyRebuildRef = useRef(initialSceneBuildWallTimeRef.current);
+  const lastAnnualRebuildRef = useRef(initialSceneBuildWallTimeRef.current);
+  const lastStaticRebuildRef = useRef(initialSceneBuildWallTimeRef.current);
   const lastBodyInputsRef = useRef({
     latitude: initialLatitudeRef.current,
-    isCelestialFrame,
-    showMoon,
-    showPlanets,
+    isCelestialFrame: initialIsCelestialFrameRef.current,
+    showMoon: initialDisplayRef.current.showMoon,
+    showPlanets: initialDisplayRef.current.showPlanets,
   });
   const lastAnnualInputsRef = useRef({
     latitude: initialLatitudeRef.current,
-    isCelestialFrame,
-    year: simDateRef.current.getUTCFullYear(),
-    language,
-    isVisible: showAnnualTrail,
+    isCelestialFrame: initialIsCelestialFrameRef.current,
+    year: initialSceneDateRef.current.getUTCFullYear(),
+    language: initialAppStateRef.current.scene.language,
+    isVisible: initialDisplayRef.current.showAnnualTrail,
   });
   const lastStaticInputsRef = useRef({
     latitude: initialLatitudeRef.current,
-    isCelestialFrame,
-    includeDiurnalLayer: showDiurnalArc && !isCelestialFrame,
+    isCelestialFrame: initialIsCelestialFrameRef.current,
+    includeDiurnalLayer: initialDisplayRef.current.showDiurnalArc && !initialIsCelestialFrameRef.current,
   });
   const activeConstellations = useMemo(
     () => CONSTELLATIONS_BY_CULTURE[skyCulture],
     [skyCulture]
   );
-  const [bodySnapshot, setBodySnapshot] = useState<BodySceneSnapshot>(() => {
-    const now = new Date();
-    return buildSpaceBodySnapshot(now, initialLatitudeRef.current, isCelestialFrame, showMoon, showPlanets);
-  });
-  const [staticSnapshot, setStaticSnapshot] = useState<StaticSceneSnapshot>(() => {
-    const now = new Date();
-    const initialBodySnapshot = buildSpaceBodySnapshot(now, initialLatitudeRef.current, isCelestialFrame, showMoon, showPlanets);
-    return buildStaticSceneSnapshot(
-      now,
+  const initialBodySnapshotRef = useRef<BodySceneSnapshot>(
+    buildSpaceBodySnapshot(
+      initialSceneDateRef.current,
       initialLatitudeRef.current,
-      isCelestialFrame,
-      initialBodySnapshot,
-      showDiurnalArc && !isCelestialFrame
+      initialIsCelestialFrameRef.current,
+      initialDisplayRef.current.showMoon,
+      initialDisplayRef.current.showPlanets
+    )
+  );
+  const [bodySnapshot, setBodySnapshot] = useState<BodySceneSnapshot>(() => initialBodySnapshotRef.current);
+  const [staticSnapshot, setStaticSnapshot] = useState<StaticSceneSnapshot>(() => {
+    return buildStaticSceneSnapshot(
+      initialSceneDateRef.current,
+      initialLatitudeRef.current,
+      initialIsCelestialFrameRef.current,
+      initialBodySnapshotRef.current,
+      initialDisplayRef.current.showDiurnalArc && !initialIsCelestialFrameRef.current
     );
   });
-  const [annualSnapshot, setAnnualSnapshot] = useState<AnnualSceneSnapshot>(() => {
-    const now = new Date();
-    return buildAnnualSceneSnapshot(now, initialLatitudeRef.current, isCelestialFrame, monthLabels);
-  });
+  const [annualSnapshot, setAnnualSnapshot] = useState<AnnualSceneSnapshot>(() => (
+    initialDisplayRef.current.showAnnualTrail
+      ? buildAnnualSceneSnapshot(
+        initialSceneDateRef.current,
+        initialLatitudeRef.current,
+        initialIsCelestialFrameRef.current,
+        monthLabels
+      )
+      : EMPTY_ANNUAL_PROJECTION
+  ));
   // --- Static data (no time dependency) ---
   const celestialReferenceData = useMemo(
     () => buildCelestialReferenceLayerData(),
     []
   );
+
+  useEffect(() => {
+    void warmupSceneText();
+  }, []);
 
   const horizonLabels = useMemo(() => buildHorizonLabels(getDirectionLabels(language)), [language]);
 
@@ -362,15 +398,32 @@ export default function SpaceView() {
     [isPlaying, timeSpeed]
   );
 
-  const celestialStarField = useMemo(() => {
-    return {
-      stars: buildCelestialStarRenderData(CATALOG, SPHERE_RADIUS, 1.04, skyCulture, language),
-      constellationLines: buildCelestialConstellationLines(activeConstellations, CATALOG, SPHERE_RADIUS),
-    };
-  }, [activeConstellations, language, skyCulture]);
+  const enableStarPointsLayer = showStars;
+  const enableConstellationLineLayer = showStars;
+  const enableMilkyWayLayer = showMilkyWay;
+  const enableAnnualLayer = showAnnualTrail;
+  const enableDiurnalLayer = showDiurnalArc && !isCelestialFrame;
+
+  const celestialStars = useMemo(
+    () => (enableStarPointsLayer
+      ? buildCelestialStarRenderData(CATALOG, SPHERE_RADIUS, 1.04, skyCulture, language)
+      : [] as RenderableStar[]),
+    [enableStarPointsLayer, language, skyCulture]
+  );
+  const celestialConstellationLines = useMemo(
+    () => (enableConstellationLineLayer
+      ? buildCelestialConstellationLines(activeConstellations, CATALOG, SPHERE_RADIUS)
+      : [] as RenderableConstellationLine[]),
+    [activeConstellations, enableConstellationLineLayer]
+  );
+  const celestialStarField = useMemo(() => ({
+    stars: celestialStars,
+    constellationLines: celestialConstellationLines,
+  }), [celestialConstellationLines, celestialStars]);
+  const labelLayersReady = true;
   const milkyWayTexture = useMemo(
-    () => (showMilkyWay ? buildMilkyWayTexture() : null),
-    [showMilkyWay]
+    () => (enableMilkyWayLayer ? buildMilkyWayTexture() : null),
+    [enableMilkyWayLayer]
   );
 
   useEffect(() => {
@@ -590,16 +643,18 @@ export default function SpaceView() {
   }, [camera, simDateRef]);
 
   // --- Derived flags ---
-  const showObserverDiurnalArc = showDiurnalArc && !isCelestialFrame;
-  const showAnnualLayer = showAnnualTrail;
+  const showObserverDiurnalArc = enableDiurnalLayer;
+  const showAnnualLayer = enableAnnualLayer;
 
   const observerMilkyWayQuaternion = useMemo(
     () => staticSnapshot.observerFrameQuaternion.clone().invert(),
     [staticSnapshot.observerFrameQuaternion]
   );
   const observerStarField = useMemo(
-    () => buildObserverStarFieldFromCelestial(celestialStarField, observerMilkyWayQuaternion),
-    [celestialStarField, observerMilkyWayQuaternion]
+    () => enableStarPointsLayer
+      ? buildObserverStarFieldFromCelestial(celestialStarField, observerMilkyWayQuaternion)
+      : { stars: [] as RenderableStar[], constellationLines: [] as RenderableConstellationLine[] },
+    [celestialStarField, enableStarPointsLayer, observerMilkyWayQuaternion]
   );
   // Build scene data wrappers (using snapshot + static data)
   const observerSceneData = useMemo<ObserverSceneData>(() => {
@@ -643,9 +698,10 @@ export default function SpaceView() {
           equatorLabel={copy.scene.celestialEquator}
           horizonLabels={horizonLabels}
           observerAxisPoints={staticSnapshot.observerAxisPoints}
+          showLabels={labelLayersReady}
         />
 
-        {showMilkyWay && (
+        {enableMilkyWayLayer && (
           <group quaternion={observerMilkyWayQuaternion}>
             <MilkyWayLayer
               prefix="observer"
@@ -657,11 +713,12 @@ export default function SpaceView() {
           </group>
         )}
 
-        {showStars && (
+        {enableStarPointsLayer && (
           <StarFieldLayer
             prefix="observer"
             stars={observerSceneData.starField.stars}
-            constellationLines={observerSceneData.starField.constellationLines}
+            constellationLines={enableConstellationLineLayer ? observerSceneData.starField.constellationLines : []}
+            showLabels={labelLayersReady}
           />
         )}
 
@@ -673,6 +730,7 @@ export default function SpaceView() {
             hiddenSegments={observerSceneData.annualLayer.hiddenSegments}
             visibleSegments={observerSceneData.annualLayer.visibleSegments}
             months={observerSceneData.annualLayer.months}
+            showLabels={labelLayersReady}
           />
         )}
 
@@ -688,17 +746,19 @@ export default function SpaceView() {
       </group>
     );
   }, [
+    enableConstellationLineLayer,
     horizonLabels,
+    enableMilkyWayLayer,
+    enableStarPointsLayer,
     isCelestialFrame,
     milkyWayTexture,
     observerSceneData,
     observerMilkyWayQuaternion,
     showAnnualLayer,
-    showMilkyWay,
     showObserverDiurnalArc,
-    showStars,
     staticSnapshot.observerAxisPoints,
     copy.scene.celestialEquator,
+    labelLayersReady,
   ]);
 
   const celestialFrameLayer = useMemo(() => {
@@ -714,6 +774,7 @@ export default function SpaceView() {
           equatorSegments={celestialSceneData.referenceLayer.equatorSegments}
           equatorLabelPosition={celestialSceneData.referenceLayer.equatorLabelPosition}
           equatorLabel={copy.scene.celestialEquator}
+          showLabels={labelLayersReady}
         />
 
         {showCelestialObserverOverlay && (
@@ -722,10 +783,11 @@ export default function SpaceView() {
             zenithPosition={celestialSceneData.observerOverlay.zenithPosition}
             emphasis={celestialSceneData.observerOverlay.emphasis}
             zenithLabel={copy.scene.zenith}
+            showLabels={labelLayersReady}
           />
         )}
 
-        {showMilkyWay && (
+        {enableMilkyWayLayer && (
           <MilkyWayLayer
             prefix="celestial"
             texture={milkyWayTexture}
@@ -734,12 +796,13 @@ export default function SpaceView() {
           />
         )}
 
-        {showStars && (
+        {enableStarPointsLayer && (
           <StarFieldLayer
             prefix="celestial"
             stars={celestialSceneData.starField.stars}
-            constellationLines={celestialSceneData.starField.constellationLines}
+            constellationLines={enableConstellationLineLayer ? celestialSceneData.starField.constellationLines : []}
             embedded
+            showLabels={labelLayersReady}
           />
         )}
 
@@ -751,20 +814,23 @@ export default function SpaceView() {
             hiddenSegments={celestialSceneData.annualLayer.hiddenSegments}
             visibleSegments={celestialSceneData.annualLayer.visibleSegments}
             months={celestialSceneData.annualLayer.months}
+            showLabels={labelLayersReady}
           />
         )}
       </group>
     );
   }, [
     celestialSceneData,
+    enableConstellationLineLayer,
+    enableMilkyWayLayer,
+    enableStarPointsLayer,
     isCelestialFrame,
     milkyWayTexture,
     showAnnualLayer,
     showCelestialObserverOverlay,
-    showMilkyWay,
-    showStars,
     copy.scene.celestialEquator,
     copy.scene.zenith,
+    labelLayersReady,
   ]);
 
   return (
@@ -804,6 +870,7 @@ export default function SpaceView() {
           bodyRenderData={bodySnapshot.bodyRenderData}
           language={language}
           moonPhase={bodySnapshot.moonPhase}
+          showLabels={labelLayersReady}
         />
       </group>
     </group>

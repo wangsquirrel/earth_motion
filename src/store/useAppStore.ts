@@ -69,11 +69,11 @@ interface AppState {
   advanceTime: (wallNow: number) => void;
 }
 
-function getWallNow() {
+export function getWallNow() {
   return performance.now();
 }
 
-function getSyncedSimTimeMs(clock: ClockState, wallNow: number) {
+export function getSyncedSimTimeMs(clock: ClockState, wallNow: number) {
   if (
     !clock.isPlaying ||
     clock.playbackStartWallTime === null ||

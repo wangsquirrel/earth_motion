@@ -16,6 +16,7 @@ interface EquatorialGridLayerProps {
   equatorOpacity: number;
   equatorColor?: string;
   equatorLineWidth?: number;
+  showLabels?: boolean;
 }
 
 export default function EquatorialGridLayer({
@@ -30,6 +31,7 @@ export default function EquatorialGridLayer({
   equatorOpacity,
   equatorColor = '#c5e4ff',
   equatorLineWidth = 1.35,
+  showLabels = true,
 }: EquatorialGridLayerProps) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -69,7 +71,7 @@ export default function EquatorialGridLayer({
         />
       ))}
 
-      {equatorLabelPosition && (
+      {showLabels && equatorLabelPosition && (
         <Billboard position={equatorLabelPosition}>
           <Text
             color="#d9ecff"

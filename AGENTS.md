@@ -59,10 +59,20 @@ src/
 
 - `App.tsx` 保持唯一 `<Canvas>`，相机初始值 `position: [0, 5, 20], fov: 60`
 - Space / Earth 共用同一个 Canvas，仅切换场景组件
+- 首屏性能优化优先保持场景级懒加载与独立 chunk，避免两个重场景及其星表/银河数据同时进入初始包
+- 首屏优化优先做“根因级”修复：减少首批 `Text` 的 glyph/SDF 构建、避免无效 warmup、保证 fallback 字体资源本地可用；不要默认依赖分步 reveal 掩盖卡顿
+- 默认首屏场景不要自己再走 `lazy + Suspense(null)` 空白等待；优先保证当前默认视图能直接进入，非默认视图再按需懒加载
+- 类似银河纹理这类辅助重图层，不要在首帧用过高分辨率或不必要的同步计算阻塞基础球体出现
+- 场景初始化快照要直接对齐当前同步后的仿真时间和当前显示开关；不要用 `new Date()` 或空图层占位让首帧与 remount 首帧出现错时/缺层
+- `useViewportLayout.ts` 作为共享 viewport 信息入口时，应保持单例订阅/单组 window 监听；不要让每个图层实例各自挂 resize listener 和挂载即二次 setState
+- 全屏 Canvas 的 DPR 需要设合理上限；桌面端不要直接无上限吃原生 `devicePixelRatio`
 - 背景色随 `viewMode` 和 `referenceFrame` 变化
 - SEO 增强优先放在非视觉层：`index.html` 的 meta / structured data / noscript，以及 `App.tsx` 中不影响布局的语义文本；不要为了 SEO 改现有视觉效果
 - 移动端竖屏采用“顶部状态 + 底部控制”的 overlay；中部画面优先留给天球，桌面端仍保持右侧常驻控制栏；expanded 面板保持固定高度并内部滚动，不通过整页上推侵占顶部状态区
 - 场景内 `Text` 统一使用 `sceneLabel.constants.ts`，字体来自 `public/fonts/noto-sans-sc-sc-400.woff`
+- Troika 场景文字预热必须带实际会出现的字符集；只 preload 字体文件而不预热 glyph/SDF，不能解决首帧文字卡顿
+- 场景文字预热统一走 `src/utils/sceneTextPreload.ts`，并在场景挂载后尽快启动；不要把实际 glyph/SDF warmup 放到根节点首帧渲染前阻塞 Canvas，也不要再延后到 `requestIdleCallback`
+- troika `Text` 的 Unicode fallback 数据走本地 `public/unicode-fonts/`；新增场景字符集时要同步补齐 `codepoint-index / font-meta / font-files` 成套资源，避免本地 miss 后回退 CDN
 - 移动端场景标签统一按桌面端的 `1.8x` 放大；新增或调整场景文字时优先复用 `useViewportLayout.ts`
 - `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
 - `EarthView` 使用 pointer 拖拽控制视角；移动端触摸拖拽需避免与底部控制区手势冲突

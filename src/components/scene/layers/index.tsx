@@ -21,6 +21,7 @@ export function ObserverReferenceLayer({
   equatorLabel,
   horizonLabels,
   observerAxisPoints,
+  showLabels = true,
 }: {
   prefix: string;
   quaternion?: THREE.Quaternion;
@@ -31,6 +32,7 @@ export function ObserverReferenceLayer({
   equatorLabel: string;
   horizonLabels: Array<{ label: string; position: [number, number, number] }>;
   observerAxisPoints: [number, number, number][];
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -92,9 +94,10 @@ export function ObserverReferenceLayer({
         hourOpacity={0.09}
         equatorOpacity={0.18}
         equatorLineWidth={1.8}
+        showLabels={showLabels}
       />
 
-      {horizonLabels.map((item) => (
+      {showLabels && horizonLabels.map((item) => (
         <Billboard key={`${prefix}-horizon-${item.label}`} position={item.position}>
           <Text
             color="#d8ecff"
@@ -155,12 +158,14 @@ export function CelestialReferenceLayer({
   equatorSegments,
   equatorLabelPosition,
   equatorLabel,
+  showLabels = true,
 }: {
   declinationGrid: GridSegmentGroup[];
   hourGrid: GridSegmentGroup[];
   equatorSegments: THREE.Vector3[][];
   equatorLabelPosition: [number, number, number];
   equatorLabel: string;
+  showLabels?: boolean;
 }) {
   return (
     <group>
@@ -202,6 +207,7 @@ export function CelestialReferenceLayer({
         equatorOpacity={0.18}
         equatorColor="#c5e4ff"
         equatorLineWidth={1.8}
+        showLabels={showLabels}
       />
 
       {/* 垂直轴线 */}
@@ -224,11 +230,13 @@ export function CelestialObserverOverlay({
   zenithPosition,
   emphasis,
   zenithLabel,
+  showLabels = true,
 }: {
   horizonPoints: [number, number, number][];
   zenithPosition: [number, number, number];
   emphasis: number;
   zenithLabel: string;
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -289,18 +297,20 @@ export function CelestialObserverOverlay({
         </group>
       </Billboard>
 
-      <Billboard position={zenithLabelPosition}>
-        <Text
-          color="#e7f4ff"
-          fontSize={0.16 * labelScale}
-          anchorX="center"
-          anchorY="middle"
-          fillOpacity={0.35 + emphasis * 0.55}
-          font={SCENE_LABEL_FONT_URL}
-        >
-          {zenithLabel}
-        </Text>
-      </Billboard>
+      {showLabels && (
+        <Billboard position={zenithLabelPosition}>
+          <Text
+            color="#e7f4ff"
+            fontSize={0.16 * labelScale}
+            anchorX="center"
+            anchorY="middle"
+            fillOpacity={0.35 + emphasis * 0.55}
+            font={SCENE_LABEL_FONT_URL}
+          >
+            {zenithLabel}
+          </Text>
+        </Billboard>
+      )}
     </group>
   );
 }
@@ -310,11 +320,13 @@ export function StarFieldLayer({
   stars,
   constellationLines,
   embedded = false,
+  showLabels = true,
 }: {
   prefix: string;
   stars: RenderableStar[];
   constellationLines: RenderableConstellationLine[];
   embedded?: boolean;
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -351,7 +363,7 @@ export function StarFieldLayer({
         );
       })}
 
-      {stars.filter((star) => star.label).map((star) => (
+      {showLabels && stars.filter((star) => star.label).map((star) => (
         <Billboard key={`${prefix}-star-label-${star.renderKey}`} position={star.labelPosition}>
           <Text
             color={star.color}
@@ -423,6 +435,7 @@ export function AnnualLayer({
   hiddenSegments,
   visibleSegments,
   months,
+  showLabels = true,
 }: {
   prefix: string;
   fullPath?: THREE.Vector3[];
@@ -430,6 +443,7 @@ export function AnnualLayer({
   hiddenSegments: THREE.Vector3[][];
   visibleSegments: THREE.Vector3[][];
   months: MonthLabelData[];
+  showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -483,7 +497,7 @@ export function AnnualLayer({
         </>
       )}
 
-      {months.filter((month) => month.isVisible ?? true).map((month) => (
+      {showLabels && months.filter((month) => month.isVisible ?? true).map((month) => (
         <Billboard key={`${prefix}-month-${month.label}`} position={month.position}>
           <Text
             color="#fff1a8"

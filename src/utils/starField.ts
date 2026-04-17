@@ -6,6 +6,7 @@ import {
 } from './astronomy';
 import { getStarDisplayName, type Constellation, type SkyCulture, type StarData } from './stars';
 import type { AppLanguage } from './i18n';
+import { measurePerf } from './perf';
 
 export interface RenderableStar {
   renderKey: string;
@@ -21,6 +22,9 @@ export interface RenderableConstellationLine {
   constellationId: string;
   points: [THREE.Vector3, THREE.Vector3];
 }
+
+const celestialStarRenderDataCache = new Map<string, RenderableStar[]>();
+const celestialConstellationLinesCache = new Map<string, RenderableConstellationLine[]>();
 
 function scalePoint(point: THREE.Vector3, sphereRadius: number, radiusScale: number) {
   return point.clone().normalize().multiplyScalar(sphereRadius * radiusScale);
@@ -119,7 +123,19 @@ export function buildCelestialStarRenderData(
   culture: SkyCulture,
   language: AppLanguage
 ): RenderableStar[] {
-  return catalog.map((star) => {
+  const cacheKey = [
+    sphereRadius,
+    labelRadiusScale,
+    culture,
+    language,
+    catalog.length,
+  ].join('|');
+  const cached = celestialStarRenderDataCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const renderData = measurePerf('buildCelestialStarRenderData', () => catalog.map((star) => {
     const label = getStarDisplayName(star, culture, language);
     const position = new THREE.Vector3(
       ...equatorialToCartesian(starRaToRadians(star), starDecToRadians(star), sphereRadius)
@@ -137,7 +153,10 @@ export function buildCelestialStarRenderData(
       labelPosition: labelPosition.toArray() as [number, number, number],
       size: starSize(star),
     };
-  });
+  }), { thresholdMs: 3 });
+
+  celestialStarRenderDataCache.set(cacheKey, renderData);
+  return renderData;
 }
 
 export function buildObserverStarRenderData(
@@ -185,9 +204,19 @@ export function buildCelestialConstellationLines(
   catalog: StarData[],
   sphereRadius: number
 ): RenderableConstellationLine[] {
+  const cacheKey = [
+    sphereRadius,
+    constellations.map((constellation) => constellation.id).join(','),
+    catalog.length,
+  ].join('|');
+  const cached = celestialConstellationLinesCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const starIndex = buildConstellationStarIndex(catalog);
 
-  return constellations.flatMap((constellation) =>
+  const lines = measurePerf('buildCelestialConstellationLines', () => constellations.flatMap((constellation) =>
     constellation.lines.flatMap((line) => {
       const fromStar = starIndex.get(line.from);
       const toStar = starIndex.get(line.to);
@@ -204,7 +233,10 @@ export function buildCelestialConstellationLines(
         ] as [THREE.Vector3, THREE.Vector3],
       }];
     })
-  );
+  ), { thresholdMs: 3 });
+
+  celestialConstellationLinesCache.set(cacheKey, lines);
+  return lines;
 }
 
 export function buildObserverConstellationLines(
