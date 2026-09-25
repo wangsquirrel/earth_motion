@@ -22,6 +22,7 @@ function setMetaAttribute(
 function App() {
   const { viewMode, referenceFrame, language } = useAppStore((state) => state.scene);
   const { isDesktop } = useViewportLayout();
+  const isPlaying = useAppStore((state) => state.clock.isPlaying);
   const copy = getLanguageCopy(language);
   const seo = getSeoCopy(language);
   const frameLabel = referenceFrame === 'observer' ? copy.app.frameObserver : copy.app.frameCelestial;
@@ -98,6 +99,7 @@ function App() {
       <Canvas 
         camera={{ position: [0, 5, 20], fov: 60 }}
         dpr={canvasDpr}
+        frameloop={isPlaying ? 'always' : 'demand'}
         className="w-full h-full relative z-10"
         onCreated={({ gl }) => {
           gl.localClippingEnabled = true;

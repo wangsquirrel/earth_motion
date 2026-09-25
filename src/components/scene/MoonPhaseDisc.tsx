@@ -1,115 +1,70 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 
-function clamp01(value: number) {
-  return Math.max(0, Math.min(1, value));
-}
-
-function createMoonPhaseTexture(
-  illuminatedFraction: number,
-  waxing: boolean,
-  resolution = 256
-) {
-  const canvas = document.createElement('canvas');
-  canvas.width = resolution;
-  canvas.height = resolution;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return null;
-  }
-
-  const image = ctx.createImageData(resolution, resolution);
-  const data = image.data;
-  const radius = resolution * 0.42;
-  const cx = resolution / 2;
-  const cy = resolution / 2;
-  const phase = clamp01(illuminatedFraction);
-  const lightZ = 2 * phase - 1;
-  const lightX = Math.sqrt(Math.max(0, 1 - lightZ * lightZ)) * (waxing ? 1 : -1);
-
-  const lit = { r: 237, g: 241, b: 252 };
-  const dark = { r: 17, g: 24, b: 38 };
-
-  for (let y = 0; y < resolution; y += 1) {
-    for (let x = 0; x < resolution; x += 1) {
-      const dx = (x + 0.5 - cx) / radius;
-      const dy = (cy - (y + 0.5)) / radius;
-      const rr = dx * dx + dy * dy;
-      const index = (y * resolution + x) * 4;
-
-      if (rr > 1) {
-        data[index + 3] = 0;
-        continue;
+function createMoonPhaseMaterial() {
+  return new THREE.ShaderMaterial({
+    uniforms: { uLight: { value: new THREE.Vector2(0, 1) } },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
-
-      const nz = Math.sqrt(1 - rr);
-      const isLit = lightX * dx + lightZ * nz >= 0;
-      const base = isLit ? lit : dark;
-      const shade = isLit ? 0.9 + 0.1 * nz : 0.72 + 0.16 * nz;
-      const alpha = clamp01((1 - Math.sqrt(rr)) / 0.03);
-
-      data[index] = Math.round(base.r * shade);
-      data[index + 1] = Math.round(base.g * shade);
-      data[index + 2] = Math.round(base.b * shade);
-      data[index + 3] = Math.round(255 * alpha);
-    }
-  }
-
-  ctx.putImageData(image, 0, 0);
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = Math.max(2, resolution * 0.014);
-  ctx.stroke();
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform vec2 uLight;
+      void main() {
+        // Keep the original disc's radius, colors and soft edge.
+        vec2 p = (vUv - 0.5) / 0.42;
+        float radius = length(p);
+        float edge = max(fwidth(radius), 0.004);
+        if (radius > 1.0 + edge) discard;
+        float nz = sqrt(max(0.0, 1.0 - dot(p, p)));
+        float light = uLight.x * p.x + uLight.y * nz;
+        float lit = step(0.0, light);
+        vec3 base = mix(vec3(17.0, 24.0, 38.0), vec3(237.0, 241.0, 252.0), lit) / 255.0;
+        float shade = mix(0.72 + 0.16 * nz, 0.9 + 0.1 * nz, lit);
+        float alpha = clamp((1.0 - radius) / 0.03, 0.0, 1.0);
+        float rim = (1.0 - smoothstep(0.007, 0.007 + edge, abs(radius - 1.0))) * 0.2;
+        vec3 rgb = mix(base * shade, vec3(1.0), rim);
+        // The previous CanvasTexture encoded these values in sRGB.
+        gl_FragColor = vec4(sRGBTransferEOTF(vec4(rgb, 1.0)).rgb, max(alpha, rim));
+        #include <colorspace_fragment>
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    toneMapped: false,
+  });
 }
 
 export default function MoonPhaseDisc({
-  position,
-  illuminatedFraction,
-  waxing,
-  size,
+  position, illuminatedFraction, waxing, size,
 }: {
   position: [number, number, number];
   illuminatedFraction: number;
   waxing: boolean;
   size: number;
 }) {
-  const texture = useMemo(
-    () => createMoonPhaseTexture(illuminatedFraction, waxing),
-    [illuminatedFraction, waxing]
-  );
-
-  useEffect(() => {
-    return () => {
-      texture?.dispose();
-    };
-  }, [texture]);
-
-  if (!texture) {
-    return null;
-  }
+  const [material] = useState(createMoonPhaseMaterial);
+  useLayoutEffect(() => {
+    const lightZ = 2 * THREE.MathUtils.clamp(illuminatedFraction, 0, 1) - 1;
+    material.uniforms.uLight.value.set(
+      Math.sqrt(Math.max(0, 1 - lightZ * lightZ)) * (waxing ? 1 : -1),
+      lightZ
+    );
+  }, [illuminatedFraction, waxing, material]);
+  useEffect(() => () => material.dispose(), [material]);
 
   return (
     <Billboard position={position}>
-      <sprite scale={[size, size, 1]} renderOrder={31}>
-        <spriteMaterial
-          map={texture}
-          transparent
-          depthWrite={false}
-          depthTest={false}
-          toneMapped={false}
-        />
-      </sprite>
+      <mesh scale={[size, size, 1]} renderOrder={31}>
+        <planeGeometry args={[1, 1]} />
+        <primitive attach="material" object={material} />
+      </mesh>
     </Billboard>
   );
 }

@@ -1,4 +1,7 @@
-// Simple astronomical calculations for visualization purposes
+import { EquatorFromVector, MakeTime, Observer, RotateVector, Rotation_ECT_EQJ, Rotation_EQJ_HOR, Vector } from 'astronomy-engine';
+
+// Equatorial inputs and scene geometry use geocentric J2000 coordinates.
+// Projection includes precession, nutation and apparent sidereal time.
 
 const J2000 = new Date('2000-01-01T12:00:00Z').getTime();
 
@@ -23,20 +26,15 @@ export function eclipticToEquatorial(
   eclipticLatitude = 0,
   date: Date = new Date()
 ) {
-  const obliquity = getMeanObliquity(date);
-
-  const sinDec = Math.sin(eclipticLatitude) * Math.cos(obliquity)
-    + Math.cos(eclipticLatitude) * Math.sin(obliquity) * Math.sin(eclipticLongitude);
-  const dec = Math.asin(Math.max(-1, Math.min(1, sinDec)));
-
-  const y = Math.sin(eclipticLongitude) * Math.cos(obliquity)
-    - Math.tan(eclipticLatitude) * Math.sin(obliquity);
-  const x = Math.cos(eclipticLongitude);
-
-  let ra = Math.atan2(y, x);
-  if (ra < 0) ra += 2 * Math.PI;
-
-  return { ra, dec };
+  const time = MakeTime(date);
+  const vector = new Vector(
+    Math.cos(eclipticLatitude) * Math.cos(eclipticLongitude),
+    Math.cos(eclipticLatitude) * Math.sin(eclipticLongitude),
+    Math.sin(eclipticLatitude),
+    time
+  );
+  const equatorial = EquatorFromVector(RotateVector(Rotation_ECT_EQJ(time), vector));
+  return { ra: equatorial.ra * Math.PI / 12, dec: equatorial.dec * Math.PI / 180 };
 }
 
 // Calculate Greenwich Mean Sidereal Time (GMST) in radians
@@ -48,32 +46,40 @@ export function getGMST(date: Date): number {
   return gmst * Math.PI / 180;
 }
 
-// Convert Equatorial to Horizontal Coordinates
-// Returns { azimuth: radians, altitude: radians }
-export function equatorialToHorizontal(ra: number, dec: number, lat: number, lon: number, date: Date) {
-  const gmst = getGMST(date);
-  const latRad = lat * Math.PI / 180;
-  const lonRad = lon * Math.PI / 180;
+type ObserverRotation = readonly [number, number, number, number, number, number, number, number, number];
+let cachedObserverRotation: { time: number; latitude: number; longitude: number; matrix: ObserverRotation } | null = null;
 
-  // Local Sidereal Time
-  const lst = gmst + lonRad;
-
-  // Hour Angle
-  const ha = lst - ra;
-
-  // Altitude
-  const sinAlt = Math.sin(dec) * Math.sin(latRad) + Math.cos(dec) * Math.cos(latRad) * Math.cos(ha);
-  const alt = Math.asin(sinAlt);
-
-  // Azimuth
-  const cosAz = (Math.sin(dec) - Math.sin(alt) * Math.sin(latRad)) / (Math.cos(alt) * Math.cos(latRad));
-  let az = Math.acos(Math.max(-1, Math.min(1, cosAz))); // clamp to [-1, 1] to avoid NaN
-
-  if (Math.sin(ha) > 0) {
-    az = 2 * Math.PI - az;
+/** Row-major rotation from scene J2000 (x, z, -y) to local (east, up, south). */
+export function getObserverRotation(latitude: number, longitude: number, date: Date): ObserverRotation {
+  const time = date.getTime();
+  if (cachedObserverRotation?.time === time
+    && cachedObserverRotation.latitude === latitude
+    && cachedObserverRotation.longitude === longitude) {
+    return cachedObserverRotation.matrix;
   }
+  // Astronomy Engine uses (north, west, zenith) for the horizontal frame.
+  const r = Rotation_EQJ_HOR(date, new Observer(latitude, longitude, 0)).rot;
+  const matrix: ObserverRotation = [
+    -r[0][1], -r[2][1], r[1][1],
+    r[0][2], r[2][2], -r[1][2],
+    -r[0][0], -r[2][0], r[1][0],
+  ];
+  cachedObserverRotation = { time, latitude, longitude, matrix };
+  return matrix;
+}
 
-  return { azimuth: az, altitude: alt };
+// No division by cos(latitude) or cos(altitude): valid at the poles and zenith.
+export function equatorialToHorizontal(ra: number, dec: number, lat: number, lon: number, date: Date) {
+  const [x, y, z] = equatorialToCartesian(ra, dec, 1);
+  const r = getObserverRotation(lat, lon, date);
+  const east = r[0] * x + r[1] * y + r[2] * z;
+  const up = r[3] * x + r[4] * y + r[5] * z;
+  const south = r[6] * x + r[7] * y + r[8] * z;
+  const altitude = Math.atan2(up, Math.hypot(east, south));
+  const azimuth = Math.hypot(east, south) < 1e-14
+    ? 0 // Azimuth at zenith/nadir is undefined; choose a deterministic value.
+    : (Math.atan2(east, -south) + 2 * Math.PI) % (2 * Math.PI);
+  return { azimuth, altitude };
 }
 
 // Convert spherical to cartesian coordinates

@@ -162,6 +162,7 @@ export function buildCelestialStarRenderData(
 export function buildObserverStarRenderData(
   catalog: StarData[],
   latitude: number,
+  longitude: number,
   date: Date,
   sphereRadius: number,
   labelRadiusScale: number,
@@ -173,7 +174,7 @@ export function buildObserverStarRenderData(
       starRaToRadians(star),
       starDecToRadians(star),
       latitude,
-      0,
+      longitude,
       date
     );
 
@@ -243,6 +244,7 @@ export function buildObserverConstellationLines(
   constellations: Constellation[],
   catalog: StarData[],
   latitude: number,
+  longitude: number,
   date: Date,
   sphereRadius: number
 ): RenderableConstellationLine[] {
@@ -261,14 +263,14 @@ export function buildObserverConstellationLines(
         starRaToRadians(fromStar),
         starDecToRadians(fromStar),
         latitude,
-        0,
+        longitude,
         date
       );
       const toHorizontal = equatorialToHorizontal(
         starRaToRadians(toStar),
         starDecToRadians(toStar),
         latitude,
-        0,
+        longitude,
         date
       );
 

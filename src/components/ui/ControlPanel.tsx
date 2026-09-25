@@ -12,51 +12,32 @@ import { useShallow } from 'zustand/react/shallow';
 import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageCopy } from '../../utils/i18n';
+import {
+  formatLunarDate,
+  formatUtcDate,
+  formatUtcDateTimeInput,
+  formatUtcTime,
+  parseUtcDateTimeInput,
+} from '../../utils/observerDateTime';
 
-function formatUtcDate(date: Date) {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+const TIME_SPEEDS = [1, 3600, 86400, 604800] as const;
+const TIME_STEPS = [
+  { delta: -DAY_MS, label: '−1d', copyKey: 'previousDay' },
+  { delta: -HOUR_MS, label: '−1h', copyKey: 'previousHour' },
+  { delta: HOUR_MS, label: '+1h', copyKey: 'nextHour' },
+  { delta: DAY_MS, label: '+1d', copyKey: 'nextDay' },
+] as const;
 
-function formatUtcTime(date: Date) {
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
-}
-
-function formatLunarDate(date: Date) {
-  try {
-    const raw = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(date);
-
-    const chineseDigits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-    const toChineseDay = (value: number) => {
-      if (value <= 10) return `初${value === 10 ? '十' : chineseDigits[value]}`;
-      if (value < 20) return `十${chineseDigits[value % 10]}`;
-      if (value === 20) return '二十';
-      if (value < 30) return `廿${chineseDigits[value % 10]}`;
-      if (value === 30) return '三十';
-      return `三十${chineseDigits[value % 10]}`;
-    };
-
-    const yearMatch = raw.match(/([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]年)/);
-    const monthMatch = raw.match(/(闰?[正一二三四五六七八九十冬腊]+月)/);
-    const dayMatch = raw.match(/(\d+)$/);
-    if (!yearMatch || !monthMatch || !dayMatch) {
-      return raw;
-    }
-
-    return `${yearMatch[1]}${monthMatch[1]}${toChineseDay(Number(dayMatch[1]))}`;
-  } catch {
-    return null;
-  }
-}
+const CITY_PRESETS = [
+  { id: 'beijing', names: { 'zh-CN': '北京', en: 'Beijing' }, latitude: 39.9042, longitude: 116.4074 },
+  { id: 'shanghai', names: { 'zh-CN': '上海', en: 'Shanghai' }, latitude: 31.2304, longitude: 121.4737 },
+  { id: 'urumqi', names: { 'zh-CN': '乌鲁木齐', en: 'Urumqi' }, latitude: 43.8256, longitude: 87.6168 },
+  { id: 'london', names: { 'zh-CN': '伦敦', en: 'London' }, latitude: 51.5074, longitude: -0.1278 },
+  { id: 'new-york', names: { 'zh-CN': '纽约', en: 'New York' }, latitude: 40.7128, longitude: -74.006 },
+  { id: 'sydney', names: { 'zh-CN': '悉尼', en: 'Sydney' }, latitude: -33.8688, longitude: 151.2093 },
+] as const;
 
 interface ToggleCardProps {
   label: string;
@@ -142,6 +123,10 @@ export default function ControlPanel() {
     setSkyCulture,
     setLanguage,
     setLatitude,
+    setLongitude,
+    setObserverLocation,
+    setCurrentTime,
+    stepCurrentTime,
     setIsPlaying,
     setTimeSpeed,
     setShowDiurnalArc,
@@ -158,6 +143,10 @@ export default function ControlPanel() {
       setSkyCulture: state.setSkyCulture,
       setLanguage: state.setLanguage,
       setLatitude: state.setLatitude,
+      setLongitude: state.setLongitude,
+      setObserverLocation: state.setObserverLocation,
+      setCurrentTime: state.setCurrentTime,
+      stepCurrentTime: state.stepCurrentTime,
       setIsPlaying: state.setIsPlaying,
       setTimeSpeed: state.setTimeSpeed,
       setShowDiurnalArc: state.setShowDiurnalArc,
@@ -170,7 +159,7 @@ export default function ControlPanel() {
     }))
   );
   const { viewMode, referenceFrame, skyCulture, language } = useAppStore(useShallow((state) => state.scene));
-  const latitude = useAppStore((state) => state.observer.latitude);
+  const { latitude, longitude } = useAppStore(useShallow((state) => state.observer));
   const { isPlaying, timeSpeed, displayTime } = useAppStore(
     useShallow((state) => ({
       isPlaying: state.clock.isPlaying,
@@ -200,6 +189,8 @@ export default function ControlPanel() {
 
   const { height: viewportHeight, isDesktop } = useViewportLayout();
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const [isEditingDateTime, setIsEditingDateTime] = useState(false);
+  const [dateTimeDraft, setDateTimeDraft] = useState(() => formatUtcDateTimeInput(displayTime));
 
   const isCelestialFrame = viewMode === 'space' && referenceFrame === 'celestial';
   const lunarDate = formatLunarDate(displayTime);
@@ -214,13 +205,58 @@ export default function ControlPanel() {
     }
   }, [isDesktop, prefersCompactMobile]);
 
+  useEffect(() => {
+    if (!isEditingDateTime) {
+      setDateTimeDraft(formatUtcDateTimeInput(displayTime));
+    }
+  }, [displayTime, isEditingDateTime]);
+
   const handleLatitudeInput = (value: string) => {
     setLatitude(parseFloat(value));
+  };
+
+  const handleLongitudeInput = (value: string) => {
+    setLongitude(parseFloat(value));
+  };
+
+  const handleDateTimeInput = (value: string) => {
+    setDateTimeDraft(value);
+    const parsed = parseUtcDateTimeInput(value);
+    if (parsed) {
+      setCurrentTime(parsed);
+    }
+  };
+
+  const handleDateTimeBlur = () => {
+    setIsEditingDateTime(false);
+    setDateTimeDraft(formatUtcDateTimeInput(useAppStore.getState().clock.displayTime));
+  };
+
+  const handleNow = () => {
+    const now = new Date();
+    setCurrentTime(now);
+    setDateTimeDraft(formatUtcDateTimeInput(now));
+  };
+
+  const selectedCityId = CITY_PRESETS.find((city) => (
+    Math.abs(city.latitude - latitude) < 0.0001
+    && Math.abs(city.longitude - longitude) < 0.0001
+  ))?.id ?? 'custom';
+
+  const handleCityPreset = (cityId: string) => {
+    const city = CITY_PRESETS.find((candidate) => candidate.id === cityId);
+    if (city) {
+      setObserverLocation(city.latitude, city.longitude);
+    }
   };
 
   const latitudeLabel = latitude >= 0
     ? `${Math.abs(latitude).toFixed(1)}°${copy.latitudeDirection.north}`
     : `${Math.abs(latitude).toFixed(1)}°${copy.latitudeDirection.south}`;
+  const longitudeLabel = longitude >= 0
+    ? `${Math.abs(longitude).toFixed(1)}°${copy.longitudeDirection.east}`
+    : `${Math.abs(longitude).toFixed(1)}°${copy.longitudeDirection.west}`;
+  const locationLabel = `${latitudeLabel} · ${longitudeLabel}`;
   const frameStatusLabel = viewMode === 'space'
     ? (referenceFrame === 'observer' ? copy.app.frameObserver : copy.app.frameCelestial)
     : copy.app.earthView;
@@ -363,7 +399,7 @@ export default function ControlPanel() {
   const controlsPanel = (
     <div className="rounded-[24px] border border-white/12 bg-[linear-gradient(180deg,rgba(11,20,33,0.8),rgba(7,13,24,0.94))] p-3 text-white shadow-[0_18px_44px_rgba(0,0,0,0.24)] backdrop-blur-xl">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">{copy.panel.timeControls}</div>
+        <div className="text-[10px] uppercase tracking-[0.32em] text-slate-400">{copy.panel.observationSettings}</div>
         <div className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-slate-400">
           {copy.panel.utcBadge}
         </div>
@@ -382,7 +418,7 @@ export default function ControlPanel() {
           <div className="h-6 w-px bg-white/12" />
 
           <div className="grid flex-1 grid-cols-4 gap-1">
-            {[1, 3600, 86400, 604800].map((speed) => (
+            {TIME_SPEEDS.map((speed) => (
               <button
                 key={speed}
                 onClick={() => setTimeSpeed(speed)}
@@ -399,34 +435,82 @@ export default function ControlPanel() {
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(138,196,255,0.12),_transparent_58%),rgba(255,255,255,0.05)] px-3 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
-          <div className="grid gap-2 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-center">
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.24em] text-slate-500">{copy.panel.timeUtc}</div>
-              <div className="mt-1 text-[1.2rem] font-light tracking-[0.1em] font-mono text-sky-50">
-                {formatUtcDate(displayTime)}
-              </div>
-              <div className="text-[12px] font-mono text-sky-200/75">
-                {formatUtcTime(displayTime)} {copy.panel.utcBadge}
-              </div>
-              {lunarDate ? (
-                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px]">
-                  <span className="uppercase tracking-[0.22em] text-slate-500">{copy.panel.lunar}</span>
-                  <span className="text-slate-100/90">{lunarDate}</span>
-                </div>
-              ) : null}
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="observer-datetime" className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+              {copy.panel.dateTimeUtc}
+            </label>
+            {lunarDate ? (
+              <span className="truncate text-[10px] text-slate-300/80">
+                {copy.panel.lunar} · {lunarDate}
+              </span>
+            ) : null}
+          </div>
 
-            <div className="border-t border-white/10 pt-2 sm:border-l sm:border-t-0 sm:pl-3 sm:pt-0">
-              <div className="mb-1.5 flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.18em] text-slate-400">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="rounded-full bg-sky-300/10 p-1 text-sky-200">
-                    <MapPin size={12} />
-                  </span>
-                  {copy.panel.latitude}
-                </span>
-                <span className="font-mono text-[11px] normal-case tracking-[0.08em] text-slate-100">
-                  {latitudeLabel}
-                </span>
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              id="observer-datetime"
+              type="datetime-local"
+              step="1"
+              value={dateTimeDraft}
+              aria-label={copy.panel.dateTimeUtc}
+              onFocus={() => setIsEditingDateTime(true)}
+              onBlur={handleDateTimeBlur}
+              onChange={(event) => handleDateTimeInput(event.target.value)}
+              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-2.5 py-2 font-mono text-[11px] tracking-[0.04em] text-sky-50 outline-none transition-colors focus:border-sky-300/40"
+              style={{ colorScheme: 'dark' }}
+            />
+            <button
+              type="button"
+              onClick={handleNow}
+              className="shrink-0 rounded-xl border border-sky-300/20 bg-sky-400/10 px-3 py-2 text-[11px] text-sky-100 transition-colors hover:bg-sky-400/18"
+            >
+              {copy.panel.now}
+            </button>
+          </div>
+
+          <div className="mt-2 grid grid-cols-4 gap-1">
+            {TIME_STEPS.map((step) => (
+              <button
+                key={step.delta}
+                type="button"
+                aria-label={copy.panel[step.copyKey]}
+                onClick={() => stepCurrentTime(step.delta)}
+                className="rounded-lg border border-white/8 bg-white/[0.04] px-2 py-1.5 font-mono text-[10px] text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                {step.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2.5 shadow-[0_8px_20px_rgba(0,0,0,0.12)]">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-sky-300/10 p-1 text-sky-200">
+              <MapPin size={12} />
+            </span>
+            <label htmlFor="observer-city" className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+              {copy.panel.city}
+            </label>
+            <select
+              id="observer-city"
+              value={selectedCityId}
+              aria-label={copy.panel.city}
+              onChange={(event) => handleCityPreset(event.target.value)}
+              className="ml-auto min-w-0 max-w-[11rem] rounded-lg border border-white/10 bg-[#0c1725] px-2 py-1.5 text-[11px] text-slate-100 outline-none focus:border-sky-300/40"
+              style={{ colorScheme: 'dark' }}
+            >
+              <option value="custom">{copy.panel.customLocation}</option>
+              {CITY_PRESETS.map((city) => (
+                <option key={city.id} value={city.id}>{city.names[language]}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mt-2.5 grid grid-cols-2 gap-3">
+            <div className="min-w-0">
+              <div className="mb-1 flex items-center justify-between gap-1 text-[10px] text-slate-400">
+                <span>{copy.panel.latitude}</span>
+                <span className="truncate font-mono text-slate-100">{latitudeLabel}</span>
               </div>
               <input
                 type="range"
@@ -440,6 +524,24 @@ export default function ControlPanel() {
                 className="w-full accent-sky-400"
               />
             </div>
+
+            <div className="min-w-0">
+              <div className="mb-1 flex items-center justify-between gap-1 text-[10px] text-slate-400">
+                <span>{copy.panel.longitude}</span>
+                <span className="truncate font-mono text-slate-100">{longitudeLabel}</span>
+              </div>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="0.1"
+                value={longitude}
+                aria-label={copy.panel.longitude}
+                onInput={(event) => handleLongitudeInput((event.target as HTMLInputElement).value)}
+                onChange={(event) => handleLongitudeInput(event.target.value)}
+                className="w-full accent-sky-400"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -447,7 +549,7 @@ export default function ControlPanel() {
   );
 
   const desktopLanguageSwitch = (
-    <div className="absolute bottom-16 left-4 z-30 hidden lg:block lg:bottom-4 lg:left-6">
+    <div className="absolute bottom-4 left-6 z-30">
       <LanguageSwitch
         isEnglish={isEnglish}
         onToggle={() => setLanguage(isEnglish ? 'zh-CN' : 'en')}
@@ -458,7 +560,7 @@ export default function ControlPanel() {
   );
 
   const mobileStatusBar = (
-    <div className="absolute inset-x-3 top-0 z-30 mx-auto max-w-xl pt-[max(0.75rem,env(safe-area-inset-top))] lg:hidden">
+    <div className="absolute inset-x-3 top-0 z-30 mx-auto max-w-xl pt-[max(0.75rem,env(safe-area-inset-top))]">
       <div className="rounded-[28px] border border-white/12 bg-[linear-gradient(180deg,rgba(10,18,31,0.86),rgba(7,13,24,0.72))] p-3 text-white shadow-[0_18px_48px_rgba(0,0,0,0.28)] backdrop-blur-xl">
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
@@ -475,7 +577,7 @@ export default function ControlPanel() {
                 {formatUtcTime(displayTime)} {copy.panel.utcBadge}
               </span>
               <span className="text-slate-500">•</span>
-              <span>{latitudeLabel}</span>
+              <span>{locationLabel}</span>
             </div>
             <div className="mt-1 text-[10px] uppercase tracking-[0.22em] text-slate-500">
               {formatUtcDate(displayTime)}
@@ -504,7 +606,7 @@ export default function ControlPanel() {
         </button>
 
         <div className="grid min-w-0 flex-1 grid-cols-4 gap-1">
-          {[1, 3600, 86400, 604800].map((speed) => (
+          {TIME_SPEEDS.map((speed) => (
             <button
               key={speed}
               onClick={() => setTimeSpeed(speed)}
@@ -536,8 +638,8 @@ export default function ControlPanel() {
             {formatUtcDate(displayTime)} {formatUtcTime(displayTime)}
           </div>
         </div>
-        <div className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] text-slate-100">
-          {latitudeLabel}
+        <div className="max-w-[48%] shrink-0 truncate rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[10px] text-slate-100">
+          {locationLabel}
         </div>
       </div>
     </div>
@@ -575,22 +677,27 @@ export default function ControlPanel() {
     </div>
   );
 
+  if (isDesktop) {
+    return (
+      <>
+        {desktopLanguageSwitch}
+        <div className="absolute right-6 top-6 z-20 max-h-[calc(100svh-3rem)] w-[min(26rem,calc(100vw-4rem))] overflow-y-auto pr-1">
+          <div className="space-y-3 pb-2">
+            {displayPanel}
+            {controlsPanel}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      {desktopLanguageSwitch}
-
-      <div className="absolute right-6 top-6 z-20 hidden max-h-[calc(100svh-3rem)] w-[min(26rem,calc(100vw-4rem))] overflow-y-auto pr-1 lg:block">
-        <div className="space-y-3 pb-2">
-          {displayPanel}
-          {controlsPanel}
-        </div>
-      </div>
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 lg:hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30">
         <div className="pointer-events-auto">{mobileStatusBar}</div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-3 bottom-0 z-30 mx-auto max-w-xl pb-[max(0.75rem,calc(env(safe-area-inset-bottom)+0.35rem))] lg:hidden">
+      <div className="pointer-events-none absolute inset-x-3 bottom-0 z-30 mx-auto max-w-xl pb-[max(0.75rem,calc(env(safe-area-inset-bottom)+0.35rem))]">
         <div className="pointer-events-auto" style={{ touchAction: showExpandedMobile ? 'pan-y' : 'manipulation' }}>
           {showExpandedMobile ? mobileExpandedBar : mobileCompactBar}
         </div>

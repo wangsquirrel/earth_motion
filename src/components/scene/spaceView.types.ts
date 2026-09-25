@@ -49,7 +49,7 @@ export interface VisiblePlanetRenderData {
 
 export interface ProjectedSceneBodies {
   sun: ProjectedFramePosition;
-  moon: ProjectedFramePosition;
+  moon: ProjectedFramePosition | null;
   planets: ProjectedPlanetPosition[];
 }
 

@@ -76,6 +76,7 @@ export function splitPointSegments(
 export function buildSunDiurnalArcSamples(
   currentTime: Date,
   latitude: number,
+  longitude: number,
   radius: number,
   sampleCount: number
 ): VisibilitySample[] {
@@ -83,7 +84,13 @@ export function buildSunDiurnalArcSamples(
     const normalizedOffset = (index / (sampleCount - 1)) * 2 - 1;
     const sampleDate = getDiurnalSampleDate(currentTime, normalizedOffset);
     const { ra, dec } = getSunPosition(sampleDate);
-    const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, sampleDate);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      dec,
+      latitude,
+      longitude,
+      sampleDate
+    );
 
     return {
       point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
@@ -96,13 +103,20 @@ export function buildSunDiurnalArcSamples(
 export function buildEclipticSamples(
   baseDate: Date,
   latitude: number,
+  longitude: number,
   radius: number,
   sampleCount: number
 ): VisibilitySample[] {
   return Array.from({ length: sampleCount + 1 }).map((_, index) => {
     const eclipticLongitude = (index / sampleCount) * Math.PI * 2;
     const { ra, dec } = eclipticToEquatorial(eclipticLongitude, 0, baseDate);
-    const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, baseDate);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      dec,
+      latitude,
+      longitude,
+      baseDate
+    );
 
     return {
       point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),

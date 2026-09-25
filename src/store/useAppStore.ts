@@ -10,6 +10,7 @@ interface SceneState {
 
 interface ObserverState {
   latitude: number;
+  longitude: number;
 }
 
 interface ClockState {
@@ -47,7 +48,10 @@ interface AppState {
   setSkyCulture: (culture: 'western' | 'chinese') => void;
   setLanguage: (language: AppLanguage) => void;
   setLatitude: (lat: number) => void;
+  setLongitude: (longitude: number) => void;
+  setObserverLocation: (latitude: number, longitude: number) => void;
   setCurrentTime: (date: Date) => void;
+  stepCurrentTime: (deltaMs: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setTimeSpeed: (speed: number) => void;
   setShowDiurnalArc: (show: boolean) => void;
@@ -98,6 +102,7 @@ export const useAppStore = create<AppState>((set) => {
     },
     observer: {
       latitude: 40,
+      longitude: 0,
     },
     clock: {
       currentTime: initialCurrentTime,
@@ -123,6 +128,8 @@ export const useAppStore = create<AppState>((set) => {
     setSkyCulture: (culture) => set((state) => ({ scene: { ...state.scene, skyCulture: culture } })),
     setLanguage: (language) => set((state) => ({ scene: { ...state.scene, language } })),
     setLatitude: (lat) => set((state) => ({ observer: { ...state.observer, latitude: lat } })),
+    setLongitude: (longitude) => set((state) => ({ observer: { ...state.observer, longitude } })),
+    setObserverLocation: (latitude, longitude) => set({ observer: { latitude, longitude } }),
     setCurrentTime: (date) =>
       set((state) => {
         const wallNow = getWallNow();
@@ -134,6 +141,22 @@ export const useAppStore = create<AppState>((set) => {
             displayTime: date,
             playbackStartWallTime: state.clock.isPlaying ? wallNow : null,
             playbackStartSimTimeMs: state.clock.isPlaying ? date.getTime() : null,
+          },
+        };
+      }),
+    stepCurrentTime: (deltaMs) =>
+      set((state) => {
+        const wallNow = getWallNow();
+        const steppedTimeMs = getSyncedSimTimeMs(state.clock, wallNow) + deltaMs;
+        const steppedDate = new Date(steppedTimeMs);
+
+        return {
+          clock: {
+            ...state.clock,
+            currentTime: steppedDate,
+            displayTime: steppedDate,
+            playbackStartWallTime: state.clock.isPlaying ? wallNow : null,
+            playbackStartSimTimeMs: state.clock.isPlaying ? steppedTimeMs : null,
           },
         };
       }),
@@ -178,7 +201,7 @@ export const useAppStore = create<AppState>((set) => {
     setShowCelestialObserverOverlay: (show) => set((state) => ({ display: { ...state.display, showCelestialObserverOverlay: show } })),
     setShowMoon: (show) => set((state) => ({ display: { ...state.display, showMoon: show } })),
     setShowPlanets: (show) => set((state) => ({ display: { ...state.display, showPlanets: show } })),
-  updateDisplayTime: (date) =>
+    updateDisplayTime: (date) =>
       set((state) => ({
         clock: {
           ...state.clock,

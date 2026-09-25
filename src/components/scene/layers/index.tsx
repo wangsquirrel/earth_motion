@@ -1,8 +1,9 @@
+import { useLayoutEffect, useRef } from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useViewportLayout } from '../../../hooks/useViewportLayout';
 import { SCENE_LABEL_FONT_URL } from '../sceneLabel.constants';
-import { CONSTELLATION_LINE_COLOR, SPHERE_RADIUS } from '../SpaceView.constants';
+import { SPHERE_RADIUS } from '../SpaceView.constants';
 import { scalePoint } from '../builders/geometry';
 import type {
   GridSegmentGroup,
@@ -10,6 +11,9 @@ import type {
 } from '../spaceView.types';
 import type { RenderableConstellationLine, RenderableStar } from '../../../utils/starField';
 import EquatorialGridLayer from './EquatorialGridLayer';
+import HorizonBillboard from './HorizonBillboard';
+import HorizonConstellationLine from './HorizonConstellationLine';
+import { ABOVE_HORIZON_PLANES, BELOW_HORIZON_PLANES } from './horizon.constants';
 
 export function ObserverReferenceLayer({
   prefix,
@@ -22,6 +26,7 @@ export function ObserverReferenceLayer({
   horizonLabels,
   observerAxisPoints,
   showLabels = true,
+  showGrid = true,
 }: {
   prefix: string;
   quaternion?: THREE.Quaternion;
@@ -33,6 +38,7 @@ export function ObserverReferenceLayer({
   horizonLabels: Array<{ label: string; position: [number, number, number] }>;
   observerAxisPoints: [number, number, number][];
   showLabels?: boolean;
+  showGrid?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
@@ -83,7 +89,7 @@ export function ObserverReferenceLayer({
         />
       </mesh>
 
-      <EquatorialGridLayer
+      {showGrid && <EquatorialGridLayer
         prefix={prefix}
         declinationGrid={declinationGrid}
         hourGrid={hourGrid}
@@ -95,7 +101,7 @@ export function ObserverReferenceLayer({
         equatorOpacity={0.18}
         equatorLineWidth={1.8}
         showLabels={showLabels}
-      />
+      />}
 
       {showLabels && horizonLabels.map((item) => (
         <Billboard key={`${prefix}-horizon-${item.label}`} position={item.position}>
@@ -159,6 +165,7 @@ export function CelestialReferenceLayer({
   equatorLabelPosition,
   equatorLabel,
   showLabels = true,
+  showGrid = true,
 }: {
   declinationGrid: GridSegmentGroup[];
   hourGrid: GridSegmentGroup[];
@@ -166,6 +173,7 @@ export function CelestialReferenceLayer({
   equatorLabelPosition: [number, number, number];
   equatorLabel: string;
   showLabels?: boolean;
+  showGrid?: boolean;
 }) {
   return (
     <group>
@@ -195,7 +203,7 @@ export function CelestialReferenceLayer({
 
 
       {/* 赤道网格 - 统一配色和透明度 */}
-      <EquatorialGridLayer
+      {showGrid && <EquatorialGridLayer
         prefix="celestial-grid"
         declinationGrid={declinationGrid}
         hourGrid={hourGrid}
@@ -208,7 +216,7 @@ export function CelestialReferenceLayer({
         equatorColor="#c5e4ff"
         equatorLineWidth={1.8}
         showLabels={showLabels}
-      />
+      />}
 
       {/* 垂直轴线 */}
       <Line
@@ -315,56 +323,154 @@ export function CelestialObserverOverlay({
   );
 }
 
+function InstancedStarMeshes({
+  prefix,
+  stars,
+  embedded,
+  clipToHorizon,
+}: {
+  prefix: string;
+  stars: RenderableStar[];
+  embedded: boolean;
+  clipToHorizon: boolean;
+}) {
+  const socketRef = useRef<THREE.InstancedMesh>(null);
+  const coreRef = useRef<THREE.InstancedMesh>(null);
+  const glowRef = useRef<THREE.InstancedMesh>(null);
+
+  useLayoutEffect(() => {
+    const object = new THREE.Object3D();
+    const basePosition = new THREE.Vector3();
+    const normal = new THREE.Vector3();
+    const socketPosition = new THREE.Vector3();
+    const corePosition = new THREE.Vector3();
+    const color = new THREE.Color();
+
+    const setInstance = (
+      mesh: THREE.InstancedMesh | null,
+      index: number,
+      position: THREE.Vector3,
+      scale: number,
+      instanceColor: THREE.Color | null
+    ) => {
+      if (!mesh) {
+        return;
+      }
+
+      object.position.copy(position);
+      object.rotation.set(0, 0, 0);
+      object.scale.setScalar(scale);
+      object.updateMatrix();
+      mesh.setMatrixAt(index, object.matrix);
+      if (instanceColor) {
+        mesh.setColorAt(index, instanceColor);
+      }
+    };
+
+    stars.forEach((star, index) => {
+      basePosition.set(...star.position);
+      normal.copy(basePosition).normalize();
+      socketPosition.copy(normal).multiplyScalar(SPHERE_RADIUS * 0.988);
+      corePosition.copy(normal).multiplyScalar(SPHERE_RADIUS * 0.997);
+      color.set(star.color);
+
+      if (embedded) {
+        setInstance(socketRef.current, index, socketPosition, star.size * 1.75, null);
+      }
+      setInstance(
+        coreRef.current,
+        index,
+        embedded ? corePosition : basePosition,
+        embedded ? star.size * 0.82 : star.size,
+        color
+      );
+      setInstance(
+        glowRef.current,
+        index,
+        embedded ? corePosition : basePosition,
+        star.size * (embedded ? 1.35 : 1.8),
+        color
+      );
+    });
+
+    [socketRef.current, coreRef.current, glowRef.current].forEach((mesh) => {
+      if (!mesh) {
+        return;
+      }
+      mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) {
+        mesh.instanceColor.needsUpdate = true;
+      }
+      mesh.computeBoundingSphere();
+    });
+  }, [embedded, stars]);
+
+  if (stars.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {embedded && (
+        <instancedMesh
+          key={`${prefix}-star-sockets-${stars.length}`}
+          ref={socketRef}
+          args={[undefined, undefined, stars.length]}
+        >
+          <sphereGeometry args={[1, 12, 12]} />
+          <meshBasicMaterial clippingPlanes={clipToHorizon ? ABOVE_HORIZON_PLANES : null} color="#091521" transparent opacity={0.24} />
+        </instancedMesh>
+      )}
+
+      <instancedMesh
+        key={`${prefix}-star-cores-${stars.length}`}
+        ref={coreRef}
+        args={[undefined, undefined, stars.length]}
+      >
+        <sphereGeometry args={[1, 12, 12]} />
+        <meshBasicMaterial clippingPlanes={clipToHorizon ? ABOVE_HORIZON_PLANES : null} />
+      </instancedMesh>
+
+      <instancedMesh
+        key={`${prefix}-star-glows-${stars.length}`}
+        ref={glowRef}
+        args={[undefined, undefined, stars.length]}
+      >
+        <sphereGeometry args={[1, 12, 12]} />
+        <meshBasicMaterial clippingPlanes={clipToHorizon ? ABOVE_HORIZON_PLANES : null} transparent opacity={embedded ? 0.06 : 0.1} />
+      </instancedMesh>
+    </>
+  );
+}
+
 export function StarFieldLayer({
   prefix,
   stars,
   constellationLines,
   embedded = false,
   showLabels = true,
+  clipToHorizon = false,
+  initialHorizonNormal,
 }: {
   prefix: string;
   stars: RenderableStar[];
   constellationLines: RenderableConstellationLine[];
   embedded?: boolean;
   showLabels?: boolean;
+  clipToHorizon?: boolean;
+  initialHorizonNormal?: THREE.Vector3;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
 
   return (
     <>
-      {stars.map((star) => {
-        const normal = new THREE.Vector3(...star.position).normalize();
-        const socketPosition = normal.clone().multiplyScalar(SPHERE_RADIUS * 0.988);
-        const corePosition = normal.clone().multiplyScalar(SPHERE_RADIUS * 0.997);
-
-        return (
-          <group key={`${prefix}-star-${star.renderKey}`}>
-            {embedded && (
-              <mesh position={socketPosition.toArray()}>
-                <sphereGeometry args={[star.size * 1.75, 12, 12]} />
-                <meshBasicMaterial color="#091521" transparent opacity={0.24} />
-              </mesh>
-            )}
-
-            <mesh position={(embedded ? corePosition : new THREE.Vector3(...star.position)).toArray()}>
-              <sphereGeometry args={[embedded ? star.size * 0.82 : star.size, 12, 12]} />
-              <meshBasicMaterial color={star.color} />
-            </mesh>
-
-            <mesh
-              position={(embedded ? corePosition : new THREE.Vector3(...star.position)).toArray()}
-              scale={embedded ? 1.35 : 1.8}
-            >
-              <sphereGeometry args={[star.size, 12, 12]} />
-              <meshBasicMaterial color={star.color} transparent opacity={embedded ? 0.06 : 0.1} />
-            </mesh>
-          </group>
-        );
-      })}
+      <InstancedStarMeshes prefix={prefix} stars={stars} embedded={embedded} clipToHorizon={clipToHorizon} />
 
       {showLabels && stars.filter((star) => star.label).map((star) => (
-        <Billboard key={`${prefix}-star-label-${star.renderKey}`} position={star.labelPosition}>
+        <HorizonBillboard key={`${prefix}-star-label-${star.renderKey}`} position={star.labelPosition} clipToHorizon={clipToHorizon}
+          initialVisible={!initialHorizonNormal || star.position[0] * initialHorizonNormal.x + star.position[1] * initialHorizonNormal.y + star.position[2] * initialHorizonNormal.z >= 0}>
           <Text
             color={star.color}
             fontSize={0.16 * labelScale}
@@ -374,21 +480,12 @@ export function StarFieldLayer({
           >
             {star.label}
           </Text>
-        </Billboard>
+        </HorizonBillboard>
       ))}
 
       {constellationLines.map((line, index) => (
-        <Line
-          key={`${prefix}-constellation-${line.constellationId}-${index}`}
-          points={line.points}
-          color={CONSTELLATION_LINE_COLOR}
-          lineWidth={0.7}
-          transparent
-          opacity={0.45}
-          dashed
-          dashSize={0.2}
-          gapSize={0.15}
-        />
+        <HorizonConstellationLine key={`${prefix}-constellation-${line.constellationId}-${index}`}
+          points={line.points} clipToHorizon={clipToHorizon} />
       ))}
     </>
   );
@@ -421,7 +518,7 @@ export function MilkyWayLayer({
         opacity={1}
         side={side}
         depthWrite={false}
-        clippingPlanes={clipToHorizon ? [new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)] : undefined}
+        clippingPlanes={clipToHorizon ? ABOVE_HORIZON_PLANES : null}
         toneMapped={false}
       />
     </mesh>
@@ -436,6 +533,8 @@ export function AnnualLayer({
   visibleSegments,
   months,
   showLabels = true,
+  clipToHorizon = false,
+  initialHorizonNormal,
 }: {
   prefix: string;
   fullPath?: THREE.Vector3[];
@@ -444,13 +543,22 @@ export function AnnualLayer({
   visibleSegments: THREE.Vector3[][];
   months: MonthLabelData[];
   showLabels?: boolean;
+  clipToHorizon?: boolean;
+  initialHorizonNormal?: THREE.Vector3;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
 
   return (
     <>
-      {fullPath ? (
+      {fullPath && clipToHorizon ? (
+        <>
+          <Line points={fullPath} color="#8d7442" lineWidth={1.1} transparent opacity={0.24}
+            dashed dashScale={10} dashSize={0.55} gapSize={0.4} clippingPlanes={BELOW_HORIZON_PLANES} />
+          <Line points={fullPath} color="#ffe066" lineWidth={1.9} transparent opacity={0.82}
+            dashed dashScale={10} dashSize={1.1} gapSize={0.5} clippingPlanes={ABOVE_HORIZON_PLANES} />
+        </>
+      ) : fullPath ? (
         <Line
           key={`${prefix}-ecliptic-full`}
           points={fullPath}
@@ -498,7 +606,8 @@ export function AnnualLayer({
       )}
 
       {showLabels && months.filter((month) => month.isVisible ?? true).map((month) => (
-        <Billboard key={`${prefix}-month-${month.label}`} position={month.position}>
+        <HorizonBillboard key={`${prefix}-month-${month.label}`} position={month.position} clipToHorizon={clipToHorizon}
+          initialVisible={!initialHorizonNormal || month.position[0] * initialHorizonNormal.x + month.position[1] * initialHorizonNormal.y + month.position[2] * initialHorizonNormal.z >= 0}>
           <Text
             color="#fff1a8"
             fontSize={0.22 * labelScale}
@@ -508,7 +617,7 @@ export function AnnualLayer({
           >
             {month.label}
           </Text>
-        </Billboard>
+        </HorizonBillboard>
       ))}
     </>
   );

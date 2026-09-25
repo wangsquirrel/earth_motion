@@ -28,7 +28,7 @@ src/
 ├── components/scene/
 │   ├── SpaceView.tsx                    # 空间视角主场景；observer/celestial 切换、相机控制、图层挂载
 │   ├── EarthView.tsx                    # 地面视角主场景；天空半球、动态天体和 pointer 拖拽
-│   ├── MoonPhaseDisc.tsx                # 月相圆盘渲染组件
+│   ├── MoonPhaseDisc.tsx                # 月相圆盘 shader；亮面变化只更新 uniform
 │   ├── sceneLabel.constants.ts          # 场景标签字体、字号、锚点和天体标签常量
 │   ├── builders/                        # 场景数据构建层；生成几何、快照、投影和采样结果
 │   └── layers/                          # 渲染图层组件；把 builder 数据映射为 Three/R3F 节点
@@ -51,7 +51,7 @@ src/
 ## 状态
 
 - `scene`: `viewMode`, `referenceFrame`, `skyCulture`, `language`
-- `observer`: `latitude`（默认 `40`）
+- `observer`: `latitude`（默认 `40`）、`longitude`（默认 `0`）
 - `clock`: `currentTime`, `isPlaying`, `timeSpeed`, `playbackStartWallTime`, `playbackStartSimTimeMs`, `displayTime`
 - `display`: `showDiurnalArc`, `showAnnualTrail`, `showMilkyWay`, `showStars`, `showCelestialObserverOverlay`, `showMoon`, `showPlanets`
 
@@ -76,8 +76,15 @@ src/
 - 移动端场景标签统一按桌面端的 `1.8x` 放大；新增或调整场景文字时优先复用 `useViewportLayout.ts`
 - `SpaceView` 使用 `OrbitControls`，并通过 `builders/` + `layers/` 组织图层
 - `EarthView` 使用 pointer 拖拽控制视角；移动端触摸拖拽需避免与底部控制区手势冲突
-- `SpaceView(observer)` 在低速播放（`<= 1时/秒`）时提高动态天层快照频率，优先保证连续旋转感；更重的年度轨迹仍保持节流
-- `SpaceView(observer)` 的恒星/星座线/参考网格优先复用天球采样并通过四元数投影到地平系，避免在热路径里重复做整批三角换算
+- 观测设置中的日期时间统一按 UTC 读写；“现在”和时间步进必须重置播放基准，不能被低频 UI 时间同步回写覆盖
+- 经度参与本地恒星时和全部地平投影；城市预设必须原子更新纬度与经度，避免场景出现一次中间位置快照
+- 所有天体、星表和天球几何统一采用地心 J2000 赤道坐标；地平投影统一通过 `astronomy.ts` 的 `getObserverRotation`，包含岁差、章动和视恒星时，不混用 of-date 赤经赤纬
+- 极点与天顶投影使用向量旋转和 `atan2`，不要除以 `cos(latitude)`；`Observer(0, 0, 0)` 是地表位置，不是地心
+- `SpaceView(observer)` 的恒星/星座线/参考网格/年度轨迹保留稳定几何，通过 group 四元数连续旋转及世界坐标地平裁剪更新；不要恢复每帧 React snapshot 重建这些图层
+- 动态天体和周日路径单独放在 `layers/SpaceDynamicLayers.tsx`；路径形状按仿真时间缓存，时间标记与太阳射线保持连续更新，用户输入绕过节流
+- 地平裁剪从开启切换为关闭时，材质 `clippingPlanes` 必须设为 `null`，不要设成 `undefined`
+- `MoonPhaseDisc` 使用稳定 shader 材质并更新光照 uniform，不在播放热路径创建 CanvasTexture
+- 暂停时 Canvas 使用 `frameloop="demand"`；时间/地点/图层输入、视图切换与 Earth pointer 拖动必须触发 invalidate。`useSimulationTime` 在场景图层之前同步时间，子层的立即订阅回调不能依赖父层订阅的执行顺序
 - observer 侧重快照按图层开关按需更新：隐藏的周年轨迹 / 周日轨迹不参与热路径重建；隐藏行星时不计算行星位置
 - `language` 只控制界面文案和通用场景辅助标签；`skyCulture` 只控制中国传统星官 / 西方星座及恒星命名，不要混用
 - `utils/stars.ts` 的名称字段要区分来源可信度：没有明确依据时，不要把 `westernSystemName` 的中文翻法回填为 `chineseAsterism`，也不要把中文占位名写进 `westernDesignation`
@@ -99,7 +106,7 @@ src/
 
 ## 验证
 
-- 至少检查 `slider/toggle -> store -> scene`
+- 至少检查 `slider/toggle -> store -> scene`，并覆盖日期时间输入 / “现在” / 时间步进与经度 / 城市预设
 - 检查拖动中、切换瞬间、播放中三个时序
 - 检查移动端竖屏下顶部状态条、底部控制区和中央天球的占位关系；确认 compact / expanded 两档切换合理，expanded 面板为固定高度 + 内部滚动，且顶部状态条始终可见
 - 检查 `language=zh-CN/en` 与 `skyCulture=chinese/western` 的交叉组合，确认界面语言与星空文化各自独立
@@ -108,6 +115,10 @@ src/
 - 提交前运行：
 
 ```bash
+npm run test
 npm run check
+npm run lint
 npm run build
 ```
+
+- `npm run test` 复用 Vite 的 TypeScript 转换与 Node 内置测试；覆盖极点/天顶、参考系一致性、地心 J2000 天体、隐藏天体、时钟输入与城市原子更新。

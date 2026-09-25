@@ -107,9 +107,8 @@ export function getSeoCopy(language: AppLanguage): SeoCopy {
   };
 }
 
-export function getLanguageCopy(language: AppLanguage) {
-  return language === 'zh-CN'
-    ? {
+const LANGUAGE_COPY_BY_LANGUAGE = {
+  'zh-CN': {
       app: {
         frameObserver: '地平参考系',
         frameCelestial: '天球参考系',
@@ -131,9 +130,19 @@ export function getLanguageCopy(language: AppLanguage) {
         pause: '暂停',
         layers: '图层',
         timeControls: '时间控制',
+        observationSettings: '观测设置',
         timeUtc: '时间（UTC）',
+        dateTimeUtc: '日期时间（UTC）',
+        now: '现在',
+        previousDay: '前一天',
+        previousHour: '前一小时',
+        nextHour: '后一小时',
+        nextDay: '后一天',
+        city: '城市预设',
+        customLocation: '自定义',
         lunar: '农历',
         latitude: '纬度',
+        longitude: '经度',
         utcBadge: 'UTC',
         mobileControls: '控制面板',
         mobileMinimize: '收起',
@@ -171,8 +180,12 @@ export function getLanguageCopy(language: AppLanguage) {
         north: '北纬',
         south: '南纬',
       },
-    }
-    : {
+      longitudeDirection: {
+        east: '东经',
+        west: '西经',
+      },
+    },
+  en: {
       app: {
         frameObserver: 'Horizon Frame',
         frameCelestial: 'Celestial Frame',
@@ -194,9 +207,19 @@ export function getLanguageCopy(language: AppLanguage) {
         pause: 'Pause',
         layers: 'Layers',
         timeControls: 'Time Controls',
+        observationSettings: 'Observer Settings',
         timeUtc: 'Time (UTC)',
+        dateTimeUtc: 'Date & Time (UTC)',
+        now: 'Now',
+        previousDay: 'Previous day',
+        previousHour: 'Previous hour',
+        nextHour: 'Next hour',
+        nextDay: 'Next day',
+        city: 'City Preset',
+        customLocation: 'Custom',
         lunar: 'Lunar',
         latitude: 'Latitude',
+        longitude: 'Longitude',
         utcBadge: 'UTC',
         mobileControls: 'Controls',
         mobileMinimize: 'Minimize',
@@ -234,5 +257,13 @@ export function getLanguageCopy(language: AppLanguage) {
         north: 'N',
         south: 'S',
       },
-    };
+      longitudeDirection: {
+        east: 'E',
+        west: 'W',
+      },
+    },
+} as const;
+
+export function getLanguageCopy(language: AppLanguage) {
+  return LANGUAGE_COPY_BY_LANGUAGE[language];
 }

@@ -5,18 +5,17 @@
 
 import {
   Body,
-  Equator,
   EquatorFromVector,
   GeoMoon,
+  GeoVector,
   HOUR2RAD,
   Illumination,
   MakeTime,
   MoonPhase,
-  Observer,
 } from 'astronomy-engine';
 
-// Geocentric observer (at Earth's center) for celestial sphere calculations
-const GEO_CENTER = new Observer(0, 0, 0);
+// All bodies share the star catalog's geocentric J2000 frame.
+// GeoVector provides the actual Earth-center origin; Observer(0, 0, 0) does not.
 
 /**
  * Get high-precision Sun equatorial coordinates
@@ -24,8 +23,7 @@ const GEO_CENTER = new Observer(0, 0, 0);
  */
 export function getSunPosition(date: Date): { ra: number; dec: number } {
   const time = MakeTime(date);
-  // Use ofdate=true for true equator/refraction
-  const result = Equator(Body.Sun, time, GEO_CENTER, true, true);
+  const result = EquatorFromVector(GeoVector(Body.Sun, time, true));
   return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
 }
 
@@ -68,7 +66,7 @@ export function getPlanetPosition(
   if (!body) return null;
 
   const time = MakeTime(date);
-  const result = Equator(body, time, GEO_CENTER, true, true);
+  const result = EquatorFromVector(GeoVector(body, time, true));
   return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
 }
 

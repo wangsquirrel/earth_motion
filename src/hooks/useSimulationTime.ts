@@ -1,50 +1,46 @@
-import { useRef, useCallback } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useCallback, useLayoutEffect, useState } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { getSyncedSimTimeMs, getWallNow, useAppStore } from '../store/useAppStore';
-
-/**
- * A hook that computes the current simulation time imperatively inside useFrame,
- * WITHOUT triggering React state updates. This avoids the costly
- * "advanceTime -> store update -> React re-render -> useMemo recalculation" chain
- * that was previously running at 60fps.
- *
- * Returns a ref whose `.current` always holds the latest simulation Date.
- * Also returns a `getSimDate()` helper for use inside callbacks.
- *
- * The store's `displayTime` is updated at a lower frequency (every ~100ms)
- * for UI elements like the ControlPanel clock.
- */
 
 const DISPLAY_UPDATE_INTERVAL_MS = 100;
 
+/** One simulation clock per mounted scene. Input synchronizes immediately, even in demand mode. */
 export function useSimulationTime() {
-  const simDateRef = useRef(useAppStore.getState().clock.currentTime);
+  const [initialDate] = useState(() => new Date(getSyncedSimTimeMs(useAppStore.getState().clock, getWallNow())));
+  const simDateRef = useRef(initialDate);
   const lastDisplayUpdateRef = useRef(0);
+  const invalidate = useThree((state) => state.invalidate);
 
+  useLayoutEffect(() => {
+    const sync = () => simDateRef.current.setTime(getSyncedSimTimeMs(useAppStore.getState().clock, getWallNow()));
+    sync();
+    const unsubscribe = useAppStore.subscribe((state, previous) => {
+      const clockInputChanged = state.clock.currentTime !== previous.clock.currentTime
+        || state.clock.playbackStartWallTime !== previous.clock.playbackStartWallTime
+        || state.clock.isPlaying !== previous.clock.isPlaying
+        || state.clock.timeSpeed !== previous.clock.timeSpeed;
+      if (clockInputChanged) sync();
+      if (clockInputChanged || state.observer !== previous.observer
+        || state.scene !== previous.scene || state.display !== previous.display) {
+        invalidate();
+      }
+    });
+    invalidate();
+    return unsubscribe;
+  }, [invalidate]);
+
+  // Run before any rotating groups, body projections or billboards.
   useFrame(() => {
     const { clock, updateDisplayTime } = useAppStore.getState();
-
-    if (
-      !clock.isPlaying ||
-      clock.playbackStartWallTime === null ||
-      clock.playbackStartSimTimeMs === null
-    ) {
-      simDateRef.current = clock.currentTime;
-      return;
-    }
-
     const wallNow = getWallNow();
     const simTimeMs = getSyncedSimTimeMs(clock, wallNow);
-    simDateRef.current = new Date(simTimeMs);
-
-    // Throttled update for the UI display
-    if (wallNow - lastDisplayUpdateRef.current > DISPLAY_UPDATE_INTERVAL_MS) {
+    simDateRef.current.setTime(simTimeMs);
+    if (clock.isPlaying && wallNow - lastDisplayUpdateRef.current > DISPLAY_UPDATE_INTERVAL_MS) {
       lastDisplayUpdateRef.current = wallNow;
-      updateDisplayTime(simDateRef.current);
+      updateDisplayTime(new Date(simTimeMs));
     }
-  });
+  }, -2);
 
   const getSimDate = useCallback(() => simDateRef.current, []);
-
   return { simDateRef, getSimDate };
 }

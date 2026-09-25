@@ -107,11 +107,18 @@ function projectCelestialSamplesToObserverFrame(
 function projectEquatorialSamplesToObserverFrame(
   samples: EquatorialCoordinateSample[],
   latitude: number,
+  longitude: number,
   observerDate: Date,
   radius: number
 ) {
   return samples.map(({ ra, dec }) => {
-    const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, observerDate);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      dec,
+      latitude,
+      longitude,
+      observerDate
+    );
     return {
       point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
       isVisible: altitude >= 0,
@@ -131,11 +138,19 @@ export function projectEquatorialCoordinateToFrame(
   ra: number,
   dec: number,
   latitude: number,
+  longitude: number,
   observerDate: Date,
   radius: number,
   isCelestialFrame: boolean
 ): ProjectedFramePosition {
-  const projection = projectEquatorialCoordinate(ra, dec, latitude, observerDate, radius);
+  const projection = projectEquatorialCoordinate(
+    ra,
+    dec,
+    latitude,
+    longitude,
+    observerDate,
+    radius
+  );
 
   return {
     celestialPosition: projection.celestialPosition,
@@ -148,10 +163,17 @@ export function projectEquatorialCoordinateToFrame(
 function projectMonthLabelsToObserverFrame(
   samples: MonthlyEquatorialLabelSample[],
   latitude: number,
+  longitude: number,
   observerDate: Date
 ): MonthLabelData[] {
   return samples.map(({ label, ra, dec }) => {
-    const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, observerDate);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      dec,
+      latitude,
+      longitude,
+      observerDate
+    );
     const point = new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, SPHERE_RADIUS));
 
     return {
@@ -166,12 +188,14 @@ export function buildAnnualProjectionLayerData({
   samples,
   monthLabels,
   latitude,
+  longitude,
   observerDate,
   isCelestialFrame,
 }: {
   samples: EquatorialCoordinateSample[];
   monthLabels: MonthlyEquatorialLabelSample[];
   latitude: number;
+  longitude: number;
   observerDate: Date;
   isCelestialFrame: boolean;
 }): AnnualProjectionLayerData {
@@ -196,6 +220,7 @@ export function buildAnnualProjectionLayerData({
   const observerPoints = projectEquatorialSamplesToObserverFrame(
     samples,
     latitude,
+    longitude,
     observerDate,
     SPHERE_RADIUS
   );
@@ -205,15 +230,20 @@ export function buildAnnualProjectionLayerData({
     fullPathDashed: false,
     hiddenSegments: splitPointSegments(observerPoints, false),
     visibleSegments: splitPointSegments(observerPoints, true),
-    months: projectMonthLabelsToObserverFrame(monthLabels, latitude, observerDate),
+    months: projectMonthLabelsToObserverFrame(monthLabels, latitude, longitude, observerDate),
   };
 }
 
 export function buildObserverReferenceLayerData(
   latitude: number,
+  longitude: number,
   date: Date
 ): ReferenceLayerData {
-  const celestialToObserverQuaternion = buildCelestialToObserverQuaternion(latitude, date);
+  const celestialToObserverQuaternion = buildCelestialToObserverQuaternion(
+    latitude,
+    longitude,
+    date
+  );
   const declinationGrid = [-60, -30, 30, 60].map((declination) => ({
     key: `dec-${declination}`,
     segments: splitPointSegments(
@@ -315,32 +345,38 @@ export function buildCelestialObserverOverlayEmphasis(isPlaying: boolean, timeSp
 export function buildProjectedSceneBodies({
   currentTime,
   latitude,
+  longitude,
   isCelestialFrame,
   showPlanets = true,
+  showMoon = true,
 }: {
   currentTime: Date;
   latitude: number;
+  longitude: number;
   isCelestialFrame: boolean;
   showPlanets?: boolean;
+  showMoon?: boolean;
 }): ProjectedSceneBodies {
   const sun = getSunPosition(currentTime);
-  const moon = getMoonPosition(currentTime);
+  const moon = showMoon ? getMoonPosition(currentTime) : null;
   const projectedSun = projectEquatorialCoordinateToFrame(
     sun.ra,
     sun.dec,
     latitude,
+    longitude,
     currentTime,
     SPHERE_RADIUS,
     isCelestialFrame
   );
-  const projectedMoon = projectEquatorialCoordinateToFrame(
+  const projectedMoon = moon ? projectEquatorialCoordinateToFrame(
     moon.ra,
     moon.dec,
     latitude,
+    longitude,
     currentTime,
     SPHERE_RADIUS,
     isCelestialFrame
-  );
+  ) : null;
   const planets = showPlanets
     ? PLANET_BODIES.flatMap((planet) => {
       const position = getPlanetPosition(planet.name, currentTime);
@@ -355,6 +391,7 @@ export function buildProjectedSceneBodies({
           position.ra,
           position.dec,
           latitude,
+          longitude,
           currentTime,
           SPHERE_RADIUS,
           isCelestialFrame
@@ -397,17 +434,22 @@ export function buildBodyRenderData({
       isAboveHorizon: projectedBodies.sun.isVisible,
     },
     moon: {
-      position: projectedBodies.moon.activePosition,
-      isVisible: showMoon && (isCelestialFrame || projectedBodies.moon.isVisible),
+      position: projectedBodies.moon?.activePosition ?? [0, 0, 0],
+      isVisible: showMoon && Boolean(projectedBodies.moon) && (isCelestialFrame || projectedBodies.moon.isVisible),
     },
     planets: showPlanets ? visiblePlanets : [],
   };
 }
 
-export function buildDiurnalLayerData(currentTime: Date, latitude: number): ObserverSceneData['diurnalLayer'] {
+export function buildDiurnalLayerData(
+  currentTime: Date,
+  latitude: number,
+  longitude: number
+): ObserverSceneData['diurnalLayer'] {
   const diurnalArcSamples = buildSunDiurnalArcSamples(
     currentTime,
     latitude,
+    longitude,
     SPHERE_RADIUS,
     DIURNAL_SAMPLE_COUNT
   );

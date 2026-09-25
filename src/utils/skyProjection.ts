@@ -16,11 +16,18 @@ export function projectEquatorialCoordinate(
   ra: number,
   dec: number,
   latitude: number,
+  longitude: number,
   observerDate: Date,
   radius: number
 ): ProjectedCoordinate {
   const celestialPosition = equatorialToCartesian(ra, dec, radius);
-  const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, observerDate);
+  const { azimuth, altitude } = equatorialToHorizontal(
+    ra,
+    dec,
+    latitude,
+    longitude,
+    observerDate
+  );
   const observerPosition = horizontalToCartesian(azimuth, altitude, radius);
 
   return {

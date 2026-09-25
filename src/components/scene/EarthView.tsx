@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useLayoutEffect } from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useViewportLayout } from '../../hooks/useViewportLayout';
-import { useAppStore } from '../../store/useAppStore';
+import { getSyncedSimTimeMs, getWallNow, useAppStore } from '../../store/useAppStore';
 import { buildMilkyWayTexture } from '../../utils/milkyWay';
 import {
   getMoonPhaseData,
@@ -34,7 +34,7 @@ import {
 import { warmupSceneText } from '../../utils/sceneTextPreload';
 import MoonPhaseDisc from './MoonPhaseDisc';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
-import { buildCelestialToObserverQuaternion } from './builders/geometry';
+import { setCelestialToObserverQuaternion } from './builders/geometry';
 import {
   buildAnnualSunEquatorialSamples,
   buildCelestialReferenceLayerData,
@@ -91,8 +91,8 @@ const BODY_REBUILD_INTERVAL_MS = 16;
 // ---------------------------------------------------------------------------
 interface EarthBodySnapshot {
   sunProjection: ReturnType<typeof projectEquatorialCoordinate>;
-  moonProjection: ReturnType<typeof projectEquatorialCoordinate>;
-  moonPhase: ReturnType<typeof getMoonPhaseData>;
+  moonProjection: ReturnType<typeof projectEquatorialCoordinate> | null;
+  moonPhase: ReturnType<typeof getMoonPhaseData> | null;
   planetProjections: Array<{
     name: string;
     color: string;
@@ -102,7 +102,7 @@ interface EarthBodySnapshot {
 }
 
 function useRadialSpriteTexture() {
-  return useMemo(() => {
+  const texture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
     canvas.height = 128;
@@ -126,6 +126,12 @@ function useRadialSpriteTexture() {
     texture.needsUpdate = true;
     return texture;
   }, []);
+
+  useEffect(() => () => {
+    texture?.dispose();
+  }, [texture]);
+
+  return texture;
 }
 
 function SkySprite({
@@ -373,12 +379,14 @@ function EarthDynamicBodiesLayer({
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
   const lastBodyUpdateRef = useRef(0);
-  const lastMoonPhaseUpdateRef = useRef(0);
+  const lastMoonPhaseTimeRef = useRef(simDateRef.current.getTime());
+  const lastBodySimTimeRef = useRef(simDateRef.current.getTime());
   const latitudeRef = useRef(useAppStore.getState().observer.latitude);
+  const longitudeRef = useRef(useAppStore.getState().observer.longitude);
   const sunGroupRef = useRef<THREE.Group>(null);
   const moonGroupRef = useRef<THREE.Group>(null);
   const planetGroupRefs = useRef<Record<string, THREE.Group | null>>({});
-  const [moonPhase, setMoonPhase] = useState(() => getMoonPhaseData(simDateRef.current));
+  const [moonPhase, setMoonPhase] = useState(() => showMoon ? getMoonPhaseData(simDateRef.current) : { illuminatedFraction: 0, waxing: true });
 
   const applySnapshot = useCallback((snapshot: EarthBodySnapshot) => {
     if (sunGroupRef.current) {
@@ -387,8 +395,10 @@ function EarthDynamicBodiesLayer({
     }
 
     if (moonGroupRef.current) {
-      moonGroupRef.current.visible = showMoon && snapshot.moonProjection.isVisible;
-      moonGroupRef.current.position.set(...snapshot.moonProjection.observerPosition);
+      moonGroupRef.current.visible = showMoon && Boolean(snapshot.moonProjection?.isVisible);
+      if (snapshot.moonProjection) {
+        moonGroupRef.current.position.set(...snapshot.moonProjection.observerPosition);
+      }
     }
 
     PLANET_BODIES.forEach((planetBody) => {
@@ -406,43 +416,71 @@ function EarthDynamicBodiesLayer({
     });
   }, [showMoon, showPlanets]);
 
-  useEffect(() => {
-    const syncBodiesForLatitude = (latitude: number) => {
+  useLayoutEffect(() => {
+    const syncBodiesForLocation = (latitude: number, longitude: number) => {
       latitudeRef.current = latitude;
-      const snapshot = buildEarthBodySnapshot(simDateRef.current, latitude);
+      longitudeRef.current = longitude;
+      // A child subscription can fire before the scene clock subscription.
+      const date = new Date(getSyncedSimTimeMs(useAppStore.getState().clock, getWallNow()));
+      const snapshot = buildEarthBodySnapshot(
+        date,
+        latitude,
+        longitude,
+        showMoon,
+        showPlanets
+      );
       lastBodyUpdateRef.current = performance.now();
+      lastBodySimTimeRef.current = date.getTime();
       applySnapshot(snapshot);
-      setMoonPhase(snapshot.moonPhase);
+      if (snapshot.moonPhase) {
+        lastMoonPhaseTimeRef.current = date.getTime();
+        setMoonPhase(snapshot.moonPhase);
+      }
     };
 
-    syncBodiesForLatitude(latitudeRef.current);
+    syncBodiesForLocation(latitudeRef.current, longitudeRef.current);
 
     const unsubscribe = useAppStore.subscribe((state, previousState) => {
-      if (state.observer.latitude !== previousState.observer.latitude) {
-        syncBodiesForLatitude(state.observer.latitude);
+      if (
+        state.clock.currentTime !== previousState.clock.currentTime
+        || state.observer.latitude !== previousState.observer.latitude
+        || state.observer.longitude !== previousState.observer.longitude
+      ) {
+        syncBodiesForLocation(
+          state.observer.latitude,
+          state.observer.longitude
+        );
       }
     });
 
     return unsubscribe;
-  }, [applySnapshot, simDateRef]);
-
-  useEffect(() => {
-    const snapshot = buildEarthBodySnapshot(simDateRef.current, latitudeRef.current);
-    applySnapshot(snapshot);
-  }, [applySnapshot, simDateRef]);
+  }, [applySnapshot, showMoon, showPlanets, simDateRef]);
 
   useFrame(() => {
     const wallNow = performance.now();
+    const currentSimTimeMs = simDateRef.current.getTime();
+    if (currentSimTimeMs === lastBodySimTimeRef.current) {
+      return;
+    }
     if (wallNow - lastBodyUpdateRef.current < BODY_REBUILD_INTERVAL_MS) {
       return;
     }
     lastBodyUpdateRef.current = wallNow;
+    lastBodySimTimeRef.current = currentSimTimeMs;
 
-    const snapshot = buildEarthBodySnapshot(simDateRef.current, latitudeRef.current);
+    const refreshPhase = Math.abs(currentSimTimeMs - lastMoonPhaseTimeRef.current) >= 60000;
+    const snapshot = buildEarthBodySnapshot(
+      simDateRef.current,
+      latitudeRef.current,
+      longitudeRef.current,
+      showMoon,
+      showPlanets,
+      refreshPhase
+    );
     applySnapshot(snapshot);
 
-    if (wallNow - lastMoonPhaseUpdateRef.current >= 1000) {
-      lastMoonPhaseUpdateRef.current = wallNow;
+    if (snapshot.moonPhase) {
+      lastMoonPhaseTimeRef.current = currentSimTimeMs;
       setMoonPhase(snapshot.moonPhase);
     }
   });
@@ -483,7 +521,7 @@ function EarthDynamicBodiesLayer({
         )}
       </group>
 
-      <group ref={moonGroupRef} visible={false}>
+      {showMoon && <group ref={moonGroupRef} visible={false}>
         <MoonPhaseDisc
           position={[0, 0, 0]}
           illuminatedFraction={moonPhase.illuminatedFraction}
@@ -515,9 +553,9 @@ function EarthDynamicBodiesLayer({
             </Text>
           </Billboard>
         )}
-      </group>
+      </group>}
 
-      {PLANET_BODIES.map((planet) => (
+      {showPlanets && PLANET_BODIES.map((planet) => (
         <group
           key={`earth-planet-${planet.name}`}
           ref={(node) => {
@@ -563,13 +601,14 @@ function EarthDynamicBodiesLayer({
 }
 
 export default function EarthView() {
-  const { camera, gl, size } = useThree();
+  const { camera, gl, size, invalidate } = useThree();
   const { isDesktop } = useViewportLayout();
   const isDraggingRef = useRef(false);
   const activePointerIdRef = useRef<number | null>(null);
   const hasInitializedViewRef = useRef(false);
   const lastPointerPositionRef = useRef<{ x: number; y: number } | null>(null);
   const latitudeRef = useRef(useAppStore.getState().observer.latitude);
+  const longitudeRef = useRef(useAppStore.getState().observer.longitude);
   const yawRef = useRef(0);
   const pitchRef = useRef(0.24);
   const initialPerspectiveRef = useRef<{
@@ -586,8 +625,7 @@ export default function EarthView() {
   } | null>(null);
 
   // -----------------------------------------------------------------------
-  // Performance fix: use imperative simulation time instead of store currentTime.
-  // Scene data is rebuilt at ~7fps via useFrame throttle, NOT every React frame.
+  // Rigid sky rotation stays imperative; only body positions and phase change separately.
   // -----------------------------------------------------------------------
   const { simDateRef } = useSimulationTime();
   const rotatingSkyRef = useRef<THREE.Group>(null);
@@ -595,7 +633,9 @@ export default function EarthView() {
   const { skyCulture, language } = useAppStore((state) => state.scene);
   const copy = getLanguageCopy(language);
   const labelScale = isDesktop ? 1 : 1.8;
-  const displayYear = useAppStore((state) => state.clock.displayTime.getUTCFullYear());
+  // Wake up on year rollover; mounting during playback must use the current scene date.
+  useAppStore((state) => state.clock.displayTime.getUTCFullYear());
+  const displayYear = simDateRef.current.getUTCFullYear();
   const {
     showAnnualTrail,
     showMilkyWay,
@@ -679,27 +719,38 @@ export default function EarthView() {
   // -----------------------------------------------------------------------
   useFrame(() => {
     if (rotatingSkyRef.current) {
-      rotatingSkyRef.current.quaternion.copy(
-        buildCelestialToObserverQuaternion(latitudeRef.current, simDateRef.current)
+      setCelestialToObserverQuaternion(
+        rotatingSkyRef.current.quaternion,
+        latitudeRef.current,
+        longitudeRef.current,
+        simDateRef.current
       );
+      rotatingSkyRef.current.updateWorldMatrix(true, false);
     }
-  });
+  }, -1);
 
   useEffect(() => {
-    const syncSkyRotation = (latitude: number) => {
+    const syncSkyRotation = (latitude: number, longitude: number) => {
       latitudeRef.current = latitude;
+      longitudeRef.current = longitude;
       if (rotatingSkyRef.current) {
-        rotatingSkyRef.current.quaternion.copy(
-          buildCelestialToObserverQuaternion(latitude, simDateRef.current)
+        setCelestialToObserverQuaternion(
+          rotatingSkyRef.current.quaternion,
+          latitude,
+          longitude,
+          simDateRef.current
         );
       }
     };
 
-    syncSkyRotation(latitudeRef.current);
+    syncSkyRotation(latitudeRef.current, longitudeRef.current);
 
     const unsubscribe = useAppStore.subscribe((state, previousState) => {
-      if (state.observer.latitude !== previousState.observer.latitude) {
-        syncSkyRotation(state.observer.latitude);
+      if (
+        state.observer.latitude !== previousState.observer.latitude
+        || state.observer.longitude !== previousState.observer.longitude
+      ) {
+        syncSkyRotation(state.observer.latitude, state.observer.longitude);
       }
     });
 
@@ -826,6 +877,7 @@ export default function EarthView() {
         MAX_PITCH,
       );
       updateCameraOrientation();
+      invalidate();
     };
 
     const resetDragging = () => {
@@ -863,7 +915,7 @@ export default function EarthView() {
       window.removeEventListener('pointercancel', stopDragging);
       window.removeEventListener('blur', resetDragging);
     };
-  }, [camera, gl]);
+  }, [camera, gl, invalidate]);
 
   useEffect(() => {
     if (camera instanceof THREE.PerspectiveCamera) {
@@ -997,30 +1049,46 @@ export default function EarthView() {
 function buildEarthBodySnapshot(
   date: Date,
   latitude: number,
+  longitude: number,
+  showMoon: boolean,
+  showPlanets: boolean,
+  includeMoonPhase = true,
 ): EarthBodySnapshot {
   const sun = getSunPosition(date);
   const sunProjection = projectEquatorialCoordinate(
-    sun.ra, sun.dec, latitude, date, SKY_OBJECT_RADIUS
+    sun.ra, sun.dec, latitude, longitude, date, SKY_OBJECT_RADIUS
   );
 
-  const moon = getMoonPosition(date);
-  const moonProjection = projectEquatorialCoordinate(
-    moon.ra, moon.dec, latitude, date, SKY_OBJECT_RADIUS
-  );
+  const moon = showMoon ? getMoonPosition(date) : null;
+  const moonProjection = moon
+    ? projectEquatorialCoordinate(
+      moon.ra,
+      moon.dec,
+      latitude,
+      longitude,
+      date,
+      SKY_OBJECT_RADIUS
+    )
+    : null;
 
-  const moonPhase = getMoonPhaseData(date);
+  const moonPhase = showMoon && includeMoonPhase ? getMoonPhaseData(date) : null;
 
-  const planetProjections = PLANET_BODIES.flatMap((planet) => {
+  const planetProjections = showPlanets ? PLANET_BODIES.flatMap((planet) => {
     const position = getPlanetPosition(planet.name, date);
     if (!position) return [];
     return [{
       name: planet.name,
       color: planet.color,
       ...projectEquatorialCoordinate(
-        position.ra, position.dec, latitude, date, SKY_OBJECT_RADIUS
+        position.ra,
+        position.dec,
+        latitude,
+        longitude,
+        date,
+        SKY_OBJECT_RADIUS
       ),
     }];
-  });
+  }) : [];
 
   return {
     sunProjection,

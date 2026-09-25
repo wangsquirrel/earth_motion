@@ -10,6 +10,7 @@ export function buildObserverDeclinationGridSamples(
   radius: number,
   declinationDegrees: number,
   latitude: number,
+  longitude: number,
   date: Date,
   sampleCount: number
 ): ObserverGridSample[] {
@@ -17,7 +18,13 @@ export function buildObserverDeclinationGridSamples(
 
   return Array.from({ length: sampleCount }).map((_, index) => {
     const ra = (index / (sampleCount - 1)) * Math.PI * 2;
-    const { azimuth, altitude } = equatorialToHorizontal(ra, declination, latitude, 0, date);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      declination,
+      latitude,
+      longitude,
+      date
+    );
 
     return {
       point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
@@ -30,6 +37,7 @@ export function buildObserverHourGridSamples(
   radius: number,
   raHours: number,
   latitude: number,
+  longitude: number,
   date: Date,
   sampleCount: number
 ): ObserverGridSample[] {
@@ -37,7 +45,13 @@ export function buildObserverHourGridSamples(
 
   return Array.from({ length: sampleCount }).map((_, index) => {
     const dec = (((index / (sampleCount - 1)) * 180) - 90) * (Math.PI / 180);
-    const { azimuth, altitude } = equatorialToHorizontal(ra, dec, latitude, 0, date);
+    const { azimuth, altitude } = equatorialToHorizontal(
+      ra,
+      dec,
+      latitude,
+      longitude,
+      date
+    );
 
     return {
       point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
