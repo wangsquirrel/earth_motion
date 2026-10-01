@@ -35,6 +35,7 @@ import { warmupSceneText } from '../../utils/sceneTextPreload';
 import MoonPhaseDisc from './MoonPhaseDisc';
 import { useSimulationTime } from '../../hooks/useSimulationTime';
 import { setCelestialToObserverQuaternion } from './builders/geometry';
+import CultureHighlightLayer from './layers/CultureHighlightLayer';
 import {
   buildAnnualSunEquatorialSamples,
   buildCelestialReferenceLayerData,
@@ -772,6 +773,7 @@ export default function EarthView() {
   );
   const rotatingSkyLayer = useMemo(() => (
     <group ref={rotatingSkyRef}>
+      {enableStarPointsLayer && <CultureHighlightLayer stars={celestialStarField.stars} radius={SKY_OBJECT_RADIUS} clipToHorizon />}
       <group scale={[CELESTIAL_GRID_SCALE, CELESTIAL_GRID_SCALE, CELESTIAL_GRID_SCALE]}>
         <EquatorialGridLayer
           prefix="earth-celestial-grid"

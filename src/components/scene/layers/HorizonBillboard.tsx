@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Billboard } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { updateWorldMatrixForFrame } from '../builders/frameWorldMatrix';
 
 /** Keep label geometry mounted; only visibility changes when its anchor crosses the horizon. */
 export default function HorizonBillboard({ position, clipToHorizon = false, initialVisible = true, children }: {
@@ -12,11 +13,10 @@ export default function HorizonBillboard({ position, clipToHorizon = false, init
 }) {
   const [revealed, setRevealed] = useState(initialVisible);
   const group = useRef<THREE.Group>(null);
-  const [worldPosition] = useState(() => new THREE.Vector3());
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (group.current && clipToHorizon) {
-      group.current.getWorldPosition(worldPosition);
-      group.current.visible = worldPosition.y >= 0;
+      updateWorldMatrixForFrame(group.current, clock.elapsedTime);
+      group.current.visible = group.current.matrixWorld.elements[13] >= 0;
       if (group.current.visible && !revealed) setRevealed(true);
     }
   });

@@ -41,6 +41,9 @@ interface AppState {
   observer: ObserverState;
   clock: ClockState;
   display: DisplayState;
+  /** Cultural exploration is independent of UI language and sky-chart system. */
+  selectedCultureEntryId: string | null;
+  setSelectedCultureEntryId: (id: string | null) => void;
   
   // Actions
   setViewMode: (mode: 'earth' | 'space') => void;
@@ -122,6 +125,8 @@ export const useAppStore = create<AppState>((set) => {
       showMoon: true,
       showPlanets: true,
     },
+    selectedCultureEntryId: null,
+    setSelectedCultureEntryId: (id) => set({ selectedCultureEntryId: id }),
 
     setViewMode: (mode) => set((state) => ({ scene: { ...state.scene, viewMode: mode } })),
     setReferenceFrame: (frame) => set((state) => ({ scene: { ...state.scene, referenceFrame: frame } })),

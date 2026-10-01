@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { BoundedCache } from '../../../utils/boundedCache';
 import {
   equatorialToCartesian,
   equatorialToHorizontal,
@@ -8,6 +9,7 @@ import {
   getMoonPosition,
   getPlanetPosition,
   getSunPosition,
+  getSunPositions,
   PLANET_BODIES,
 } from '../../../utils/ephemeris';
 import { projectEquatorialCoordinate } from '../../../utils/skyProjection';
@@ -40,13 +42,19 @@ import type {
   VisiblePlanetRenderData,
 } from '../spaceView.types';
 
+const annualSunSamplesCache = new BoundedCache<number, EquatorialCoordinateSample[]>(4);
+
+/** Shared across view remounts/toggles; callers must treat these samples as immutable. */
 export function buildAnnualSunEquatorialSamples(year: number) {
+  const cached = annualSunSamplesCache.get(year);
+  if (cached) return cached;
   const startDate = new Date(Date.UTC(year, 2, 20, 0, 0, 0));
 
-  return Array.from({ length: 361 }).map((_, index) => {
-    const sampleDate = new Date(startDate.getTime() + (index / 360) * YEAR_MS);
-    return getSunPosition(sampleDate);
-  });
+  const samples = getSunPositions(Array.from({ length: 361 }, (_, index) => (
+    new Date(startDate.getTime() + (index / 360) * YEAR_MS)
+  )));
+  annualSunSamplesCache.set(year, samples);
+  return samples;
 }
 
 const OBSERVER_REFERENCE_SAMPLE_COUNT = 181;

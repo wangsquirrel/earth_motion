@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import {
   equatorialToCartesian,
-  equatorialToHorizontal,
-  horizontalToCartesian,
+  getObserverRotation,
+  rotateCelestialToObserver,
 } from './astronomy';
 import { getStarDisplayName, type Constellation, type SkyCulture, type StarData } from './stars';
 import type { AppLanguage } from './i18n';
 import { measurePerf } from './perf';
+import { BoundedCache } from './boundedCache';
 
 export interface RenderableStar {
   renderKey: string;
@@ -23,8 +24,21 @@ export interface RenderableConstellationLine {
   points: [THREE.Vector3, THREE.Vector3];
 }
 
-const celestialStarRenderDataCache = new Map<string, RenderableStar[]>();
-const celestialConstellationLinesCache = new Map<string, RenderableConstellationLine[]>();
+// Catalog/constellation arrays are immutable inputs. Identity avoids collisions between
+// equal-sized catalogs and same-ID constellations, while WeakMaps allow old data to collect.
+const celestialStarRenderDataCache = new WeakMap<StarData[], BoundedCache<string, RenderableStar[]>>();
+const celestialConstellationLinesCache = new WeakMap<StarData[], WeakMap<Constellation[], BoundedCache<number, RenderableConstellationLine[]>>>();
+const canonicalStarIndexCache = new WeakMap<StarData[], Map<string, StarData>>();
+const starCoordinateCache = new WeakMap<StarData, [number, number]>();
+
+function starCoordinates(star: StarData): [number, number] {
+  let coordinate = starCoordinateCache.get(star);
+  if (!coordinate) {
+    coordinate = [starRaToRadians(star), starDecToRadians(star)];
+    starCoordinateCache.set(star, coordinate);
+  }
+  return coordinate;
+}
 
 function scalePoint(point: THREE.Vector3, sphereRadius: number, radiusScale: number) {
   return point.clone().normalize().multiplyScalar(sphereRadius * radiusScale);
@@ -93,6 +107,8 @@ function mergeStarNames(catalog: StarData[], id: string) {
 }
 
 function buildCanonicalStarIndex(catalog: StarData[]) {
+  const cached = canonicalStarIndexCache.get(catalog);
+  if (cached) return cached;
   const groupedStars = new Map<string, StarData[]>();
 
   catalog.forEach((star) => {
@@ -113,6 +129,7 @@ function buildCanonicalStarIndex(catalog: StarData[]) {
     });
   });
 
+  canonicalStarIndexCache.set(catalog, canonicalStarIndex);
   return canonicalStarIndex;
 }
 
@@ -128,9 +145,13 @@ export function buildCelestialStarRenderData(
     labelRadiusScale,
     culture,
     language,
-    catalog.length,
   ].join('|');
-  const cached = celestialStarRenderDataCache.get(cacheKey);
+  let cache = celestialStarRenderDataCache.get(catalog);
+  if (!cache) {
+    cache = new BoundedCache<string, RenderableStar[]>(16);
+    celestialStarRenderDataCache.set(catalog, cache);
+  }
+  const cached = cache.get(cacheKey);
   if (cached) {
     return cached;
   }
@@ -138,7 +159,7 @@ export function buildCelestialStarRenderData(
   const renderData = measurePerf('buildCelestialStarRenderData', () => catalog.map((star) => {
     const label = getStarDisplayName(star, culture, language);
     const position = new THREE.Vector3(
-      ...equatorialToCartesian(starRaToRadians(star), starDecToRadians(star), sphereRadius)
+      ...equatorialToCartesian(...starCoordinates(star), sphereRadius)
     );
     const labelPosition = label
       ? scalePoint(position, sphereRadius, labelRadiusScale)
@@ -155,7 +176,7 @@ export function buildCelestialStarRenderData(
     };
   }), { thresholdMs: 3 });
 
-  celestialStarRenderDataCache.set(cacheKey, renderData);
+  cache.set(cacheKey, renderData);
   return renderData;
 }
 
@@ -169,35 +190,19 @@ export function buildObserverStarRenderData(
   culture: SkyCulture,
   language: AppLanguage
 ): RenderableStar[] {
-  return catalog.flatMap((star) => {
-    const { azimuth, altitude } = equatorialToHorizontal(
-      starRaToRadians(star),
-      starDecToRadians(star),
-      latitude,
-      longitude,
-      date
-    );
-
-    if (altitude < 0) {
-      return [];
-    }
-
-    const position = new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, sphereRadius));
-    const label = getStarDisplayName(star, culture, language);
-    const labelPosition = label
-      ? scalePoint(position, sphereRadius, labelRadiusScale)
-      : position;
-
-    return [{
-      renderKey: buildRenderableStarKey(star),
-      id: star.id,
-      label,
-      color: star.color,
-      position: position.toArray() as [number, number, number],
-      labelPosition: labelPosition.toArray() as [number, number, number],
-      size: starSize(star),
-    }];
-  });
+  const rotation = getObserverRotation(latitude, longitude, date);
+  const stars = buildCelestialStarRenderData(catalog, sphereRadius, labelRadiusScale, culture, language);
+  const visibleStars: RenderableStar[] = [];
+  for (const star of stars) {
+    const position = rotateCelestialToObserver(star.position, rotation);
+    if (position[1] < 0) continue;
+    visibleStars.push({
+      ...star,
+      position,
+      labelPosition: rotateCelestialToObserver(star.labelPosition, rotation),
+    });
+  }
+  return visibleStars;
 }
 
 export function buildCelestialConstellationLines(
@@ -205,17 +210,29 @@ export function buildCelestialConstellationLines(
   catalog: StarData[],
   sphereRadius: number
 ): RenderableConstellationLine[] {
-  const cacheKey = [
-    sphereRadius,
-    constellations.map((constellation) => constellation.id).join(','),
-    catalog.length,
-  ].join('|');
-  const cached = celestialConstellationLinesCache.get(cacheKey);
-  if (cached) {
-    return cached;
+  let catalogs = celestialConstellationLinesCache.get(catalog);
+  if (!catalogs) {
+    catalogs = new WeakMap();
+    celestialConstellationLinesCache.set(catalog, catalogs);
   }
+  let cache = catalogs.get(constellations);
+  if (!cache) {
+    cache = new BoundedCache<number, RenderableConstellationLine[]>(4);
+    catalogs.set(constellations, cache);
+  }
+  const cached = cache.get(sphereRadius);
+  if (cached) return cached;
 
   const starIndex = buildConstellationStarIndex(catalog);
+  const positions = new Map<string, THREE.Vector3>();
+  const positionFor = (star: StarData) => {
+    let point = positions.get(star.id);
+    if (!point) {
+      point = new THREE.Vector3(...equatorialToCartesian(...starCoordinates(star), sphereRadius));
+      positions.set(star.id, point);
+    }
+    return point;
+  };
 
   const lines = measurePerf('buildCelestialConstellationLines', () => constellations.flatMap((constellation) =>
     constellation.lines.flatMap((line) => {
@@ -229,14 +246,14 @@ export function buildCelestialConstellationLines(
       return [{
         constellationId: constellation.id,
         points: [
-          new THREE.Vector3(...equatorialToCartesian(starRaToRadians(fromStar), starDecToRadians(fromStar), sphereRadius)),
-          new THREE.Vector3(...equatorialToCartesian(starRaToRadians(toStar), starDecToRadians(toStar), sphereRadius)),
+          positionFor(fromStar),
+          positionFor(toStar),
         ] as [THREE.Vector3, THREE.Vector3],
       }];
     })
   ), { thresholdMs: 3 });
 
-  celestialConstellationLinesCache.set(cacheKey, lines);
+  cache.set(sphereRadius, lines);
   return lines;
 }
 
@@ -248,43 +265,23 @@ export function buildObserverConstellationLines(
   date: Date,
   sphereRadius: number
 ): RenderableConstellationLine[] {
-  const starIndex = buildConstellationStarIndex(catalog);
-
-  return constellations.flatMap((constellation) =>
-    constellation.lines.flatMap((line) => {
-      const fromStar = starIndex.get(line.from);
-      const toStar = starIndex.get(line.to);
-
-      if (!fromStar || !toStar) {
-        return [];
-      }
-
-      const fromHorizontal = equatorialToHorizontal(
-        starRaToRadians(fromStar),
-        starDecToRadians(fromStar),
-        latitude,
-        longitude,
-        date
-      );
-      const toHorizontal = equatorialToHorizontal(
-        starRaToRadians(toStar),
-        starDecToRadians(toStar),
-        latitude,
-        longitude,
-        date
-      );
-
-      if (fromHorizontal.altitude < 0 || toHorizontal.altitude < 0) {
-        return [];
-      }
-
-      return [{
-        constellationId: constellation.id,
-        points: [
-          new THREE.Vector3(...horizontalToCartesian(fromHorizontal.azimuth, fromHorizontal.altitude, sphereRadius)),
-          new THREE.Vector3(...horizontalToCartesian(toHorizontal.azimuth, toHorizontal.altitude, sphereRadius)),
-        ] as [THREE.Vector3, THREE.Vector3],
-      }];
-    })
-  );
+  const rotation = getObserverRotation(latitude, longitude, date);
+  const lines = buildCelestialConstellationLines(constellations, catalog, sphereRadius);
+  const projectedPoints = new Map<THREE.Vector3, THREE.Vector3>();
+  const project = (point: THREE.Vector3) => {
+    let projected = projectedPoints.get(point);
+    if (!projected) {
+      projected = new THREE.Vector3(...rotateCelestialToObserver([point.x, point.y, point.z], rotation));
+      projectedPoints.set(point, projected);
+    }
+    return projected;
+  };
+  const visibleLines: RenderableConstellationLine[] = [];
+  for (const line of lines) {
+    const from = project(line.points[0]);
+    const to = project(line.points[1]);
+    if (from.y < 0 || to.y < 0) continue;
+    visibleLines.push({ constellationId: line.constellationId, points: [from, to] });
+  }
+  return visibleLines;
 }

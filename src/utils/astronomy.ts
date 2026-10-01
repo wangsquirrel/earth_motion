@@ -4,6 +4,11 @@ import { EquatorFromVector, MakeTime, Observer, RotateVector, Rotation_ECT_EQJ, 
 // Projection includes precession, nutation and apparent sidereal time.
 
 const J2000 = new Date('2000-01-01T12:00:00Z').getTime();
+let cachedEclipticFrame: {
+  timestamp: number;
+  time: ReturnType<typeof MakeTime>;
+  rotation: ReturnType<typeof Rotation_ECT_EQJ>;
+} | null = null;
 
 // Calculate Julian Day
 export function getJulianDay(date: Date): number {
@@ -26,14 +31,19 @@ export function eclipticToEquatorial(
   eclipticLatitude = 0,
   date: Date = new Date()
 ) {
-  const time = MakeTime(date);
+  const timestamp = date.getTime();
+  if (cachedEclipticFrame?.timestamp !== timestamp) {
+    const time = MakeTime(date);
+    cachedEclipticFrame = { timestamp, time, rotation: Rotation_ECT_EQJ(time) };
+  }
+  const { time, rotation } = cachedEclipticFrame;
   const vector = new Vector(
     Math.cos(eclipticLatitude) * Math.cos(eclipticLongitude),
     Math.cos(eclipticLatitude) * Math.sin(eclipticLongitude),
     Math.sin(eclipticLatitude),
     time
   );
-  const equatorial = EquatorFromVector(RotateVector(Rotation_ECT_EQJ(time), vector));
+  const equatorial = EquatorFromVector(RotateVector(rotation, vector));
   return { ra: equatorial.ra * Math.PI / 12, dec: equatorial.dec * Math.PI / 180 };
 }
 
@@ -46,7 +56,7 @@ export function getGMST(date: Date): number {
   return gmst * Math.PI / 180;
 }
 
-type ObserverRotation = readonly [number, number, number, number, number, number, number, number, number];
+export type ObserverRotation = readonly [number, number, number, number, number, number, number, number, number];
 let cachedObserverRotation: { time: number; latitude: number; longitude: number; matrix: ObserverRotation } | null = null;
 
 /** Row-major rotation from scene J2000 (x, z, -y) to local (east, up, south). */
@@ -75,8 +85,9 @@ export function equatorialToHorizontal(ra: number, dec: number, lat: number, lon
   const east = r[0] * x + r[1] * y + r[2] * z;
   const up = r[3] * x + r[4] * y + r[5] * z;
   const south = r[6] * x + r[7] * y + r[8] * z;
-  const altitude = Math.atan2(up, Math.hypot(east, south));
-  const azimuth = Math.hypot(east, south) < 1e-14
+  const horizontalLength = Math.hypot(east, south);
+  const altitude = Math.atan2(up, horizontalLength);
+  const azimuth = horizontalLength < 1e-14
     ? 0 // Azimuth at zenith/nadir is undefined; choose a deterministic value.
     : (Math.atan2(east, -south) + 2 * Math.PI) % (2 * Math.PI);
   return { azimuth, altitude };
@@ -118,4 +129,27 @@ export function equatorialToCartesian(ra: number, dec: number, radius: number) {
   const z = -rProjected * Math.sin(ra);
 
   return [x, y, z] as [number, number, number];
+}
+
+/** Rotate a scene-space point directly; avoid spherical round trips in geometry builders. */
+export function rotateCelestialToObserver(
+  point: readonly [number, number, number],
+  rotation: ObserverRotation
+): [number, number, number] {
+  const [x, y, z] = point;
+  const r = rotation;
+  return [
+    r[0] * x + r[1] * y + r[2] * z,
+    r[3] * x + r[4] * y + r[5] * z,
+    r[6] * x + r[7] * y + r[8] * z,
+  ];
+}
+
+export function equatorialToObserverCartesian(
+  ra: number, dec: number, latitude: number, longitude: number, date: Date, radius: number
+): [number, number, number] {
+  return rotateCelestialToObserver(
+    equatorialToCartesian(ra, dec, radius),
+    getObserverRotation(latitude, longitude, date)
+  );
 }

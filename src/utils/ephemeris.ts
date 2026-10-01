@@ -14,6 +14,20 @@ import {
   MoonPhase,
 } from 'astronomy-engine';
 
+import { BoundedCache } from './boundedCache';
+
+type EquatorialPosition = { ra: number; dec: number };
+// Exact millisecond keys share computations between bodies, markers and observer edits.
+// Bounds prevent playback or long date scrubbing from growing memory indefinitely.
+const sunCache = new BoundedCache<number, EquatorialPosition>(32);
+const moonCache = new BoundedCache<number, EquatorialPosition>(8);
+const phaseCache = new BoundedCache<number, MoonPhaseData>(8);
+const planetCaches = new Map<Body, BoundedCache<number, EquatorialPosition>>();
+const BODY_BY_NAME: Readonly<Record<string, Body>> = {
+  Mercury: Body.Mercury, Venus: Body.Venus, Mars: Body.Mars, Jupiter: Body.Jupiter,
+  Saturn: Body.Saturn, Uranus: Body.Uranus, Neptune: Body.Neptune, Pluto: Body.Pluto,
+};
+
 // All bodies share the star catalog's geocentric J2000 frame.
 // GeoVector provides the actual Earth-center origin; Observer(0, 0, 0) does not.
 
@@ -22,9 +36,24 @@ import {
  * Returns { ra, dec } in radians
  */
 export function getSunPosition(date: Date): { ra: number; dec: number } {
-  const time = MakeTime(date);
-  const result = EquatorFromVector(GeoVector(Body.Sun, time, true));
+  const timestamp = date.getTime();
+  let position = sunCache.get(timestamp);
+  if (!position) {
+    position = getSunPositionUncached(date);
+    sunCache.set(timestamp, position);
+  }
+  return { ...position };
+}
+
+/** Exact single sample for one-off paths; do not pollute the live-body cache. */
+export function getSunPositionUncached(date: Date): EquatorialPosition {
+  const result = EquatorFromVector(GeoVector(Body.Sun, MakeTime(date), true));
   return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+}
+
+/** One-off path samples bypass the live-body cache rather than evicting its entries. */
+export function getSunPositions(dates: readonly Date[]): EquatorialPosition[] {
+  return dates.map(getSunPositionUncached);
 }
 
 /**
@@ -32,10 +61,14 @@ export function getSunPosition(date: Date): { ra: number; dec: number } {
  * Returns { ra, dec } in radians
  */
 export function getMoonPosition(date: Date): { ra: number; dec: number } {
-  const time = MakeTime(date);
-  const vec = GeoMoon(time);
-  const result = EquatorFromVector(vec);
-  return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+  const timestamp = date.getTime();
+  let position = moonCache.get(timestamp);
+  if (!position) {
+    const result = EquatorFromVector(GeoMoon(MakeTime(date)));
+    position = { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+    moonCache.set(timestamp, position);
+  }
+  return { ...position };
 }
 
 export interface MoonPhaseData {
@@ -44,13 +77,18 @@ export interface MoonPhaseData {
 }
 
 export function getMoonPhaseData(date: Date): MoonPhaseData {
-  const illumination = Illumination(Body.Moon, date);
-  const phase = MoonPhase(date);
-
-  return {
-    illuminatedFraction: Math.max(0, Math.min(1, illumination.phase_fraction)),
-    waxing: phase < 180,
-  };
+  const timestamp = date.getTime();
+  let data = phaseCache.get(timestamp);
+  if (!data) {
+    const illumination = Illumination(Body.Moon, date);
+    const phase = MoonPhase(date);
+    data = {
+      illuminatedFraction: Math.max(0, Math.min(1, illumination.phase_fraction)),
+      waxing: phase < 180,
+    };
+    phaseCache.set(timestamp, data);
+  }
+  return { ...data };
 }
 
 /**
@@ -65,23 +103,23 @@ export function getPlanetPosition(
   const body = stringToBody(bodyName);
   if (!body) return null;
 
-  const time = MakeTime(date);
-  const result = EquatorFromVector(GeoVector(body, time, true));
-  return { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+  let cache = planetCaches.get(body);
+  if (!cache) {
+    cache = new BoundedCache<number, EquatorialPosition>(8);
+    planetCaches.set(body, cache);
+  }
+  const timestamp = date.getTime();
+  let position = cache.get(timestamp);
+  if (!position) {
+    const result = EquatorFromVector(GeoVector(body, MakeTime(date), true));
+    position = { ra: result.ra * HOUR2RAD, dec: result.dec * Math.PI / 180 };
+    cache.set(timestamp, position);
+  }
+  return { ...position };
 }
 
 function stringToBody(name: string): Body | null {
-  const map: Record<string, Body> = {
-    Mercury: Body.Mercury,
-    Venus: Body.Venus,
-    Mars: Body.Mars,
-    Jupiter: Body.Jupiter,
-    Saturn: Body.Saturn,
-    Uranus: Body.Uranus,
-    Neptune: Body.Neptune,
-    Pluto: Body.Pluto,
-  };
-  return map[name] ?? null;
+  return Object.prototype.hasOwnProperty.call(BODY_BY_NAME, name) ? BODY_BY_NAME[name] : null;
 }
 
 /**

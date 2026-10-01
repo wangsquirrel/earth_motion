@@ -12,6 +12,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageCopy } from '../../utils/i18n';
+import ChineseSkyExplorer from './ChineseSkyExplorer';
 import {
   formatLunarDate,
   formatUtcDate,
@@ -353,6 +354,7 @@ export default function ControlPanel() {
               {copy.controls.western}
             </button>
           </div>
+          <ChineseSkyExplorer />
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2.5 shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur-md">

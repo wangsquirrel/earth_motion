@@ -1,0 +1,209 @@
+{
+  "note": "Three consecutive independent processes after removing intermediate diurnal Date and coordinate arrays. Each process uses the same unchanged 7-round benchmark. No benchmark parameters were tuned.",
+  "runs": [
+    {
+      "node": "v24.19.0",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "baseline": "ed5b07398ba73302335cd0bee094367bbbb90d28",
+      "rounds": 7,
+      "horizonReaderCount": 330,
+      "statistic": "median milliseconds per workload invocation",
+      "equivalence": "passed (relative tolerance 1e-10)",
+      "unchanged": "All sample counts, stars, colors, labels, line segments and precision retained.",
+      "limitation": "CPU microbenchmark only; no FPS, startup or GPU claim.",
+      "rows": [
+        {
+          "workload": "Space horizon / shared world matrices",
+          "baselineMs": 0.06442228,
+          "currentMs": 0.01923780000000079,
+          "speedup": 3.3487342627534
+        },
+        {
+          "workload": "projection / 10,000 points",
+          "baselineMs": 2.1785371999999823,
+          "currentMs": 1.4330649999999878,
+          "speedup": 1.5201942689270904
+        },
+        {
+          "workload": "annual trail / repeated year (361 samples)",
+          "baselineMs": 1.3950267750000023,
+          "currentMs": 0.0007235750000006647,
+          "speedup": 1927.9643091576143
+        },
+        {
+          "workload": "annual trail / cold year (361 samples)",
+          "baselineMs": 1.551748874999987,
+          "currentMs": 1.6617812500000184,
+          "speedup": 0.9337864866389423
+        },
+        {
+          "workload": "diurnal path / advancing time (145 samples)",
+          "baselineMs": 0.6905728750000151,
+          "currentMs": 0.7990017500000022,
+          "speedup": 0.8642945713197915
+        },
+        {
+          "workload": "ecliptic / advancing time (181 samples)",
+          "baselineMs": 0.15104890000000068,
+          "currentMs": 0.05522883333333084,
+          "speedup": 2.7349645263797746
+        },
+        {
+          "workload": "body positions / 5 observer changes",
+          "baselineMs": 0.3938147000000072,
+          "currentMs": 0.12250074999999469,
+          "speedup": 3.2147941951377788
+        },
+        {
+          "workload": "Space playback / bodies + 7 markers",
+          "baselineMs": 0.1832787499999995,
+          "currentMs": 0.14304382499999518,
+          "speedup": 1.2812769093668017
+        },
+        {
+          "workload": "observer stars + lines / advancing time",
+          "baselineMs": 0.40413544999998974,
+          "currentMs": 0.03886534999999185,
+          "speedup": 10.39834840031222
+        }
+      ],
+      "checksum": -87085.84269099252
+    },
+    {
+      "node": "v24.19.0",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "baseline": "ed5b07398ba73302335cd0bee094367bbbb90d28",
+      "rounds": 7,
+      "horizonReaderCount": 330,
+      "statistic": "median milliseconds per workload invocation",
+      "equivalence": "passed (relative tolerance 1e-10)",
+      "unchanged": "All sample counts, stars, colors, labels, line segments and precision retained.",
+      "limitation": "CPU microbenchmark only; no FPS, startup or GPU claim.",
+      "rows": [
+        {
+          "workload": "Space horizon / shared world matrices",
+          "baselineMs": 0.07216019999999958,
+          "currentMs": 0.021002800000001116,
+          "speedup": 3.4357419010796533
+        },
+        {
+          "workload": "projection / 10,000 points",
+          "baselineMs": 2.6176150000000233,
+          "currentMs": 1.497868600000038,
+          "speedup": 1.7475598326848942
+        },
+        {
+          "workload": "annual trail / repeated year (361 samples)",
+          "baselineMs": 1.529296925,
+          "currentMs": 0.0007581250000043838,
+          "speedup": 2017.2094641268352
+        },
+        {
+          "workload": "annual trail / cold year (361 samples)",
+          "baselineMs": 1.5913197499999967,
+          "currentMs": 1.5543013749999943,
+          "speedup": 1.023816729236312
+        },
+        {
+          "workload": "diurnal path / advancing time (145 samples)",
+          "baselineMs": 0.8275900000000149,
+          "currentMs": 0.7647661249999942,
+          "speedup": 1.0821478265659599
+        },
+        {
+          "workload": "ecliptic / advancing time (181 samples)",
+          "baselineMs": 0.1405293666666618,
+          "currentMs": 0.052986533333334286,
+          "speedup": 2.6521713693289226
+        },
+        {
+          "workload": "body positions / 5 observer changes",
+          "baselineMs": 0.3739238000000114,
+          "currentMs": 0.11222510000000056,
+          "speedup": 3.3319088154076897
+        },
+        {
+          "workload": "Space playback / bodies + 7 markers",
+          "baselineMs": 0.10624030000000176,
+          "currentMs": 0.10757075000000213,
+          "speedup": 0.9876318608915495
+        },
+        {
+          "workload": "observer stars + lines / advancing time",
+          "baselineMs": 0.43590880000001564,
+          "currentMs": 0.04000904999998056,
+          "speedup": 10.895254948573571
+        }
+      ],
+      "checksum": -87085.84269099252
+    },
+    {
+      "node": "v24.19.0",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "baseline": "ed5b07398ba73302335cd0bee094367bbbb90d28",
+      "rounds": 7,
+      "horizonReaderCount": 330,
+      "statistic": "median milliseconds per workload invocation",
+      "equivalence": "passed (relative tolerance 1e-10)",
+      "unchanged": "All sample counts, stars, colors, labels, line segments and precision retained.",
+      "limitation": "CPU microbenchmark only; no FPS, startup or GPU claim.",
+      "rows": [
+        {
+          "workload": "Space horizon / shared world matrices",
+          "baselineMs": 0.07839819999999918,
+          "currentMs": 0.022468160000000806,
+          "speedup": 3.489302194750098
+        },
+        {
+          "workload": "projection / 10,000 points",
+          "baselineMs": 2.354769000000033,
+          "currentMs": 1.636046400000032,
+          "speedup": 1.4393045331721561
+        },
+        {
+          "workload": "annual trail / repeated year (361 samples)",
+          "baselineMs": 1.452931725000002,
+          "currentMs": 0.0008134499999982836,
+          "speedup": 1786.1352572414626
+        },
+        {
+          "workload": "annual trail / cold year (361 samples)",
+          "baselineMs": 1.4740128749999997,
+          "currentMs": 1.4836095,
+          "speedup": 0.9935315694594835
+        },
+        {
+          "workload": "diurnal path / advancing time (145 samples)",
+          "baselineMs": 0.7385987499999942,
+          "currentMs": 0.6920526250000023,
+          "speedup": 1.0672580715953381
+        },
+        {
+          "workload": "ecliptic / advancing time (181 samples)",
+          "baselineMs": 0.13616530000000088,
+          "currentMs": 0.061210333333330404,
+          "speedup": 2.224547598172543
+        },
+        {
+          "workload": "body positions / 5 observer changes",
+          "baselineMs": 0.4117040999999972,
+          "currentMs": 0.10157340000000659,
+          "speedup": 4.053266898616867
+        },
+        {
+          "workload": "Space playback / bodies + 7 markers",
+          "baselineMs": 0.10580589999999575,
+          "currentMs": 0.10841950000000225,
+          "speedup": 0.9758936353699617
+        },
+        {
+          "workload": "observer stars + lines / advancing time",
+          "baselineMs": 0.36626450000001115,
+          "currentMs": 0.03919735000001765,
+          "speedup": 9.344113824017343
+        }
+      ],
+      "checksum": -87085.84269099252
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import {
 import { AnnualLayer, CelestialObserverOverlay, CelestialReferenceLayer, MilkyWayLayer, ObserverReferenceLayer, StarFieldLayer } from './layers';
 import EquatorialGridLayer from './layers/EquatorialGridLayer';
 import SpaceDynamicLayers from './layers/SpaceDynamicLayers';
+import CultureHighlightLayer from './layers/CultureHighlightLayer';
 
 const IDENTITY_QUATERNION = new THREE.Quaternion();
 const MILKY_WAY_RADIUS = SPHERE_RADIUS * 1.002;
@@ -247,6 +248,7 @@ export default function SpaceView() {
             horizonLabels={horizonLabels} observerAxisPoints={observerAxisPoints} showGrid={false} />
         )}
         <group ref={rotatingSkyRef} quaternion={isCelestialFrame ? IDENTITY_QUATERNION : initialSkyQuaternion}>
+          {showStars && <CultureHighlightLayer stars={celestialStars} radius={SPHERE_RADIUS} clipToHorizon={!isCelestialFrame} />}
           <EquatorialGridLayer prefix="space-grid" {...celestialReferenceData} equatorLabel={copy.scene.celestialEquator}
             declinationOpacity={0.11} hourOpacity={0.09} equatorOpacity={0.18} equatorLineWidth={1.8}
             showLabels={isCelestialFrame} clipToHorizon={!isCelestialFrame} />

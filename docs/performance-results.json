@@ -1,0 +1,78 @@
+{
+  "node": "v24.19.0",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "baseline": "ed5b07398ba73302335cd0bee094367bbbb90d28",
+  "rounds": 7,
+  "horizonReaderCount": 330,
+  "statistic": "median milliseconds per workload invocation",
+  "equivalence": "passed (relative tolerance 1e-10)",
+  "unchanged": "All sample counts, stars, colors, sizes, coordinates, line segments and precision retained.",
+  "intentionalDataCorrections": {
+    "star:bayer:epsilon-ori": {
+      "before": "参宿三",
+      "after": "参宿二"
+    },
+    "star:bayer:delta-ori": {
+      "before": "参宿二",
+      "after": "参宿三"
+    }
+  },
+  "limitation": "CPU microbenchmark only; no FPS, startup or GPU claim.",
+  "rows": [
+    {
+      "workload": "Space horizon / shared world matrices",
+      "baselineMs": 0.07327904999999987,
+      "currentMs": 0.02222960999999941,
+      "speedup": 3.296461341427124
+    },
+    {
+      "workload": "projection / 10,000 points",
+      "baselineMs": 2.3103078000000097,
+      "currentMs": 1.629270600000018,
+      "speedup": 1.4180012822915875
+    },
+    {
+      "workload": "annual trail / repeated year (361 samples)",
+      "baselineMs": 1.5994496499999968,
+      "currentMs": 0.0008041750000018055,
+      "speedup": 1988.932321940381
+    },
+    {
+      "workload": "annual trail / cold year (361 samples)",
+      "baselineMs": 1.467642249999983,
+      "currentMs": 1.4526665000000207,
+      "speedup": 1.0103091452855573
+    },
+    {
+      "workload": "diurnal path / advancing time (145 samples)",
+      "baselineMs": 0.7401936250000176,
+      "currentMs": 0.7412253749999991,
+      "speedup": 0.9986080481931944
+    },
+    {
+      "workload": "ecliptic / advancing time (181 samples)",
+      "baselineMs": 0.15734956666666827,
+      "currentMs": 0.08990700000000136,
+      "speedup": 1.750136993411702
+    },
+    {
+      "workload": "body positions / 5 observer changes",
+      "baselineMs": 0.4212592499999914,
+      "currentMs": 0.11073845000000801,
+      "speedup": 3.8040919843104266
+    },
+    {
+      "workload": "Space playback / bodies + 7 markers",
+      "baselineMs": 0.12250682499999925,
+      "currentMs": 0.12226545000000329,
+      "speedup": 1.0019741881291564
+    },
+    {
+      "workload": "observer stars + lines / advancing time",
+      "baselineMs": 0.42258520000000316,
+      "currentMs": 0.04174010000001545,
+      "speedup": 10.124201906556207
+    }
+  ],
+  "checksum": -87085.84269099252
+}

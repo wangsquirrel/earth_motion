@@ -1,7 +1,7 @@
 import {
   equatorialToCartesian,
-  equatorialToHorizontal,
-  horizontalToCartesian,
+  getObserverRotation,
+  rotateCelestialToObserver,
 } from './astronomy';
 
 export interface ProjectedCoordinate {
@@ -20,15 +20,15 @@ export function projectEquatorialCoordinate(
   observerDate: Date,
   radius: number
 ): ProjectedCoordinate {
-  const celestialPosition = equatorialToCartesian(ra, dec, radius);
-  const { azimuth, altitude } = equatorialToHorizontal(
-    ra,
-    dec,
-    latitude,
-    longitude,
-    observerDate
-  );
-  const observerPosition = horizontalToCartesian(azimuth, altitude, radius);
+  const unitPosition = equatorialToCartesian(ra, dec, 1);
+  const observerUnit = rotateCelestialToObserver(unitPosition, getObserverRotation(latitude, longitude, observerDate));
+  const celestialPosition = [unitPosition[0] * radius, unitPosition[1] * radius, unitPosition[2] * radius] as [number, number, number];
+  const observerPosition = [observerUnit[0] * radius, observerUnit[1] * radius, observerUnit[2] * radius] as [number, number, number];
+  const horizontalLength = Math.hypot(observerUnit[0], observerUnit[2]);
+  const altitude = Math.atan2(observerUnit[1], horizontalLength);
+  const azimuth = horizontalLength < 1e-14
+    ? 0
+    : (Math.atan2(observerUnit[0], -observerUnit[2]) + 2 * Math.PI) % (2 * Math.PI);
 
   return {
     celestialPosition,

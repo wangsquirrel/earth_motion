@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { eclipticToEquatorial, equatorialToHorizontal, horizontalToCartesian } from './astronomy';
-import { getSunPosition } from './ephemeris';
+import { eclipticToEquatorial, equatorialToObserverCartesian } from './astronomy';
+import { getSunPositionUncached } from './ephemeris';
 
 const HALF_DAY_MS = 12 * 60 * 60 * 1000;
 
@@ -80,21 +80,23 @@ export function buildSunDiurnalArcSamples(
   radius: number,
   sampleCount: number
 ): VisibilitySample[] {
-  return Array.from({ length: sampleCount }).map((_, index) => {
-    const normalizedOffset = (index / (sampleCount - 1)) * 2 - 1;
-    const sampleDate = getDiurnalSampleDate(currentTime, normalizedOffset);
-    const { ra, dec } = getSunPosition(sampleDate);
-    const { azimuth, altitude } = equatorialToHorizontal(
+  // Keep one output array: intermediate Date/coordinate arrays add allocation work
+  // to the advancing path without providing any cache reuse.
+  return Array.from({ length: sampleCount }, (_, index) => {
+    const sampleDate = getDiurnalSampleDate(currentTime, (index / (sampleCount - 1)) * 2 - 1);
+    const { ra, dec } = getSunPositionUncached(sampleDate);
+    const position = equatorialToObserverCartesian(
       ra,
       dec,
       latitude,
       longitude,
-      sampleDate
+      sampleDate,
+      radius
     );
 
     return {
-      point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
-      isVisible: altitude >= 0,
+      point: new THREE.Vector3(...position),
+      isVisible: position[1] >= 0,
     };
   });
 }
@@ -107,20 +109,21 @@ export function buildEclipticSamples(
   radius: number,
   sampleCount: number
 ): VisibilitySample[] {
-  return Array.from({ length: sampleCount + 1 }).map((_, index) => {
+  return Array.from({ length: sampleCount + 1 }, (_, index) => {
     const eclipticLongitude = (index / sampleCount) * Math.PI * 2;
     const { ra, dec } = eclipticToEquatorial(eclipticLongitude, 0, baseDate);
-    const { azimuth, altitude } = equatorialToHorizontal(
+    const position = equatorialToObserverCartesian(
       ra,
       dec,
       latitude,
       longitude,
-      baseDate
+      baseDate,
+      radius
     );
 
     return {
-      point: new THREE.Vector3(...horizontalToCartesian(azimuth, altitude, radius)),
-      isVisible: altitude >= 0,
+      point: new THREE.Vector3(...position),
+      isVisible: position[1] >= 0,
     };
   });
 }

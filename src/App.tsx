@@ -2,6 +2,8 @@ import { Suspense, lazy, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useAppStore } from './store/useAppStore';
 import ControlPanel from './components/ui/ControlPanel';
+import CanvasErrorBoundary from './components/ui/CanvasErrorBoundary';
+import SceneUnavailable from './components/ui/SceneUnavailable';
 import { useViewportLayout } from './hooks/useViewportLayout';
 import { getLanguageCopy, getSeoCopy } from './utils/i18n';
 import SpaceView from './components/scene/SpaceView';
@@ -96,25 +98,27 @@ function App() {
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,_rgba(255,255,255,0.04)_0%,_transparent_18%,_transparent_82%,_rgba(0,0,0,0.28)_100%)]" />
 
       {/* 3D Scene */}
-      <Canvas 
-        camera={{ position: [0, 5, 20], fov: 60 }}
-        dpr={canvasDpr}
-        frameloop={isPlaying ? 'always' : 'demand'}
-        className="w-full h-full relative z-10"
-        onCreated={({ gl }) => {
-          gl.localClippingEnabled = true;
-        }}
-      >
-        <color attach="background" args={[sceneBackground]} />
+      <CanvasErrorBoundary fallback={(retry) => <SceneUnavailable language={language} onRetry={retry} />}>
+        <Canvas
+          camera={{ position: [0, 5, 20], fov: 60 }}
+          dpr={canvasDpr}
+          frameloop={isPlaying ? 'always' : 'demand'}
+          className="w-full h-full relative z-10"
+          onCreated={({ gl }) => {
+            gl.localClippingEnabled = true;
+          }}
+        >
+          <color attach="background" args={[sceneBackground]} />
 
-        {viewMode === 'space' ? (
-          <SpaceView />
-        ) : (
-          <Suspense fallback={null}>
-            <EarthView />
-          </Suspense>
-        )}
-      </Canvas>
+          {viewMode === 'space' ? (
+            <SpaceView />
+          ) : (
+            <Suspense fallback={null}>
+              <EarthView />
+            </Suspense>
+          )}
+        </Canvas>
+      </CanvasErrorBoundary>
 
       <div className="absolute inset-x-0 top-0 z-20 h-40 pointer-events-none bg-[linear-gradient(180deg,_rgba(7,16,28,0.8)_0%,_rgba(7,16,28,0.2)_60%,_transparent_100%)]" />
 
