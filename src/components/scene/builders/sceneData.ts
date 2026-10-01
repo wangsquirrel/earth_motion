@@ -19,7 +19,6 @@ import {
   DIURNAL_SAMPLE_COUNT,
   HORIZON_LABEL_RADIUS,
   HORIZON_SAMPLE_COUNT,
-  LOW_SPEED_TIME_THRESHOLD,
   MONTH_LABEL_RADIUS_SCALE,
   SPHERE_RADIUS,
   YEAR_MS,
@@ -341,13 +340,6 @@ export function buildHorizonLabels(labels: [string, string, string, string]) {
     { label: labels[2], position: [0, 0.2, HORIZON_LABEL_RADIUS] as [number, number, number] },
     { label: labels[3], position: [-HORIZON_LABEL_RADIUS, 0.2, 0] as [number, number, number] },
   ];
-}
-
-export function buildCelestialObserverOverlayEmphasis(isPlaying: boolean, timeSpeed: number) {
-  if (!isPlaying || timeSpeed <= LOW_SPEED_TIME_THRESHOLD) {
-    return 1;
-  }
-  return 0.35;
 }
 
 export function buildProjectedSceneBodies({

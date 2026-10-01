@@ -3,7 +3,7 @@ export function getPublicBuildInfo(env: Record<string, string | undefined>, gitS
   const candidate = env.VERCEL_GIT_COMMIT_SHA || env.VITE_VERCEL_GIT_COMMIT_SHA || gitSha;
   return {
     sourceCommit: candidate && /^[a-f0-9]{40}$/i.test(candidate) ? candidate : null,
-    featureSet: 'chinese-sky-culture-v1',
+    featureSet: 'chinese-sky-culture-v2-continuous-frames',
     environment: ['production', 'preview', 'development'].includes(env.VERCEL_ENV ?? '')
       ? env.VERCEL_ENV : 'local',
   };

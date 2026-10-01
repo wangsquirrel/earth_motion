@@ -20,7 +20,7 @@ import { SCENE_LABEL_FONT_URL } from './sceneLabel.constants';
 import { buildCelestialToObserverQuaternion, buildObserverFrameQuaternion, setCelestialToObserverQuaternion } from './builders/geometry';
 import {
   buildAnnualProjectionLayerData, buildAnnualSunEquatorialSamples,
-  buildCelestialObserverOverlayData, buildCelestialObserverOverlayEmphasis,
+  buildCelestialObserverOverlayData,
   buildCelestialReferenceLayerData, buildHorizonLabels,
   buildMonthlySunEquatorialLabelSamples, buildObserverAxisPoints,
 } from './builders/sceneData';
@@ -65,7 +65,6 @@ export default function SpaceView() {
   const savedObserverViewRef = useRef<{ position: THREE.Vector3; up: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const { referenceFrame, skyCulture, language } = useAppStore(useShallow((state) => state.scene));
   const { latitude, longitude } = useAppStore(useShallow((state) => state.observer));
-  const { isPlaying, timeSpeed } = useAppStore(useShallow((state) => ({ isPlaying: state.clock.isPlaying, timeSpeed: state.clock.timeSpeed })));
   const { showDiurnalArc, showAnnualTrail, showMilkyWay, showStars, showCelestialObserverOverlay } = useAppStore(useShallow((state) => state.display));
   const { simDateRef } = useSimulationTime();
   // Subscribe to year rollover, but initialize from the exact synchronized scene time.
@@ -83,7 +82,6 @@ export default function SpaceView() {
   const [observerOverlayData] = useState(() => buildCelestialObserverOverlayData(IDENTITY_QUATERNION));
   const horizonLabels = useMemo(() => buildHorizonLabels(getDirectionLabels(language)), [language]);
   const observerAxisPoints = useMemo(() => buildObserverAxisPoints(latitude), [latitude]);
-  const overlayEmphasis = buildCelestialObserverOverlayEmphasis(isPlaying, timeSpeed);
   const celestialStars = useMemo(() => showStars
     ? buildCelestialStarRenderData(CATALOG, SPHERE_RADIUS, 1.04, skyCulture, language) : [], [showStars, skyCulture, language]);
   const celestialConstellationLines = useMemo(() => showStars
@@ -236,7 +234,7 @@ export default function SpaceView() {
   return (
     <group>
       <fog attach="fog" args={['#17314f', 24, 52]} />
-      <Stars radius={80} depth={30} count={3200} factor={3.2} saturation={0.2} fade speed={0.15} />
+      {showStars && <Stars radius={80} depth={30} count={3200} factor={3.2} saturation={0.2} fade speed={0.15} />}
       <OrbitControls ref={controlsRef} makeDefault enableZoom enablePan={false} minDistance={8} maxDistance={34}
         minPolarAngle={0.35} maxPolarAngle={Math.PI / 2 - 0.04} />
       <group scale={isCelestialFrame ? 1 : OBSERVER_FRAME_SCALE}>
@@ -261,7 +259,7 @@ export default function SpaceView() {
         {!isCelestialFrame && <ObserverEquatorLabel skyRef={rotatingSkyRef} label={copy.scene.celestialEquator} />}
         {isCelestialFrame && showCelestialObserverOverlay && (
           <group ref={observerOverlayRef} quaternion={initialOverlayQuaternion}>
-            <CelestialObserverOverlay {...observerOverlayData} emphasis={overlayEmphasis} zenithLabel={copy.scene.zenith} />
+            <CelestialObserverOverlay {...observerOverlayData} emphasis={1} zenithLabel={copy.scene.zenith} />
           </group>
         )}
         <SpaceDynamicLayers simDateRef={simDateRef}

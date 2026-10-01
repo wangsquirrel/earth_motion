@@ -1,5 +1,7 @@
 # Performance changes and verification
 
+This document records the initial culture/performance release (`2ae0966`, measured on September 30–October 1, 2026). The later correction to body/path update cadence and hidden-layer work is documented separately in [continuous-body-rendering.md](continuous-body-rendering.md). Its uniform per-frame updates replace the earlier rendering cadence; the numerical cache/projection benchmarks below remain scoped to their original workloads.
+
 ## Scope and visual invariants
 
 These changes remove redundant CPU work. They do not reduce the star catalog, line segments, sphere tessellation, texture resolution, DPR, annual/diurnal sample counts, update cadence, or celestial precision. The performance refactor itself preserves label content. Separately, the cultural-data work corrects ε Ori from 参宿三 to 参宿二 and δ Ori from 参宿二 to 参宿三; these two reviewed text corrections are not described as visual equivalence. The existing `Line2`/Billboard components, materials, draw order, dash phase, transparency and horizon clipping remain in place. No draw-call batching was introduced because browser pixel/transparent-sort verification was unavailable.

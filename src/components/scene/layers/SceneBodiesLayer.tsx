@@ -1,4 +1,11 @@
+import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
+import * as THREE from 'three';
+import { useShallow } from 'zustand/react/shallow';
+import { useAppStore } from '../../../store/useAppStore';
+import { projectEquatorialCoordinate } from '../../../utils/skyProjection';
+import { SPHERE_RADIUS } from '../SpaceView.constants';
 import { useViewportLayout } from '../../../hooks/useViewportLayout';
 import {
   BODY_LABEL_ANCHOR_X,
@@ -8,72 +15,56 @@ import {
   SCENE_LABEL_FONT_URL,
   getLocalizedBodyLabel,
 } from '../sceneLabel.constants';
-import type { MoonPhaseData } from '../../../utils/ephemeris';
+import { getMoonPhaseData, getMoonPosition, getPlanetPosition, PLANET_BODIES, type MoonPhaseData } from '../../../utils/ephemeris';
 import type { AppLanguage } from '../../../utils/i18n';
 import MoonPhaseDisc from '../MoonPhaseDisc';
-import type { BodyRenderData } from '../spaceView.types';
 
-export default function SceneBodiesLayer({
-  bodyRenderData,
-  language,
-  moonPhase,
-  showLabels = true,
-}: {
-  bodyRenderData: BodyRenderData;
+/** Moon and planet meshes stay mounted while their layer is enabled. All positions
+ * use the same frame clock as the Sun, without speed-dependent update gates. */
+export default function SceneBodiesLayer({ simDateRef, language, showLabels = true }: {
+  simDateRef: { current: Date };
   language: AppLanguage;
-  moonPhase: MoonPhaseData;
   showLabels?: boolean;
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
+  const { showMoon, showPlanets } = useAppStore(useShallow((state) => state.display));
+  const moonGroup = useRef<THREE.Group>(null);
+  const planets = useRef<Record<string, THREE.Group | null>>({});
+  const phaseRef = useRef<MoonPhaseData>({ illuminatedFraction: 0, waxing: true });
+  const sync = useCallback(() => {
+    const { observer, scene } = useAppStore.getState();
+    const date = simDateRef.current;
+    const celestial = scene.referenceFrame === 'celestial';
+    const project = (position: { ra: number; dec: number }) => projectEquatorialCoordinate(
+      position.ra, position.dec, observer.latitude, observer.longitude, date, SPHERE_RADIUS,
+    );
+    if (showMoon && moonGroup.current) {
+      const moon = project(getMoonPosition(date));
+      moonGroup.current.position.set(...(celestial ? moon.celestialPosition : moon.observerPosition));
+      moonGroup.current.visible = celestial || moon.isVisible;
+      phaseRef.current = getMoonPhaseData(date);
+    }
+    if (showPlanets) for (const planet of PLANET_BODIES) {
+      const group = planets.current[planet.name];
+      if (!group) continue;
+      const position = getPlanetPosition(planet.name, date);
+      if (!position) { group.visible = false; continue; }
+      const projected = project(position);
+      group.position.set(...(celestial ? projected.celestialPosition : projected.observerPosition));
+      group.visible = celestial || projected.isVisible;
+    }
+  }, [simDateRef, showMoon, showPlanets]);
+  useLayoutEffect(sync, [sync]);
+  useFrame(sync, -0.5);
 
   return (
     <>
-      {bodyRenderData.sun.isVisible && (
-        <group position={bodyRenderData.sun.position}>
-          <mesh>
-            <sphereGeometry args={[0.18, 14, 14]} />
-            <meshBasicMaterial
-              color="#ffd166"
-              transparent
-              opacity={0.98}
-            />
-            <pointLight intensity={1.6} distance={40} decay={2} />
-          </mesh>
-          <mesh scale={1.9}>
-            <sphereGeometry args={[0.18, 14, 14]} />
-            <meshBasicMaterial
-              color="#ffe9a8"
-              transparent
-              opacity={0.12}
-            />
-          </mesh>
-
-          {showLabels && (
-            <Billboard position={BODY_LABEL_SPECS.sun.offset}>
-              <Text
-                color="#fff1b8"
-                font={SCENE_LABEL_FONT_URL}
-                fontSize={BODY_LABEL_SPECS.sun.fontSize * labelScale}
-                anchorX={BODY_LABEL_ANCHOR_X}
-                anchorY={BODY_LABEL_ANCHOR_Y}
-                fillOpacity={BODY_LABEL_SPECS.sun.fillOpacity}
-                outlineWidth={BODY_LABEL_SPECS.sun.outlineWidth}
-                outlineColor={BODY_LABEL_OUTLINE_COLOR}
-              >
-                {getLocalizedBodyLabel('Sun', language)}
-              </Text>
-            </Billboard>
-          )}
-        </group>
-      )}
-
-      {bodyRenderData.moon.isVisible && (
-        <group position={bodyRenderData.moon.position}>
+      {showMoon && (
+        <group ref={moonGroup} name="continuous-moon" visible={false}>
           <MoonPhaseDisc
             position={[0, 0, 0]}
-            illuminatedFraction={moonPhase.illuminatedFraction}
-            waxing={moonPhase.waxing}
+            phaseRef={phaseRef}
             size={0.24}
           />
 
@@ -96,8 +87,9 @@ export default function SceneBodiesLayer({
         </group>
       )}
 
-      {bodyRenderData.planets.map((planet) => (
-        <group key={planet.name} position={planet.position}>
+      {showPlanets && PLANET_BODIES.map((planet) => (
+        <group key={planet.name} name={`continuous-planet-${planet.name}`} visible={false}
+          ref={(group) => { planets.current[planet.name] = group; }}>
           <mesh>
             <sphereGeometry args={[0.08, 10, 10]} />
             <meshBasicMaterial color={planet.color} transparent opacity={0.9} />

@@ -8,7 +8,6 @@ export const MONTH_LABEL_RADIUS_SCALE = 1.08;
 export const HORIZON_LABEL_RADIUS = SPHERE_RADIUS + 0.9;
 export const STAR_LABEL_RADIUS_SCALE = 1.04;
 export const CONSTELLATION_LINE_COLOR = '#6eb5ff';
-export const LOW_SPEED_TIME_THRESHOLD = 3600;
 export const VIEWPORT_LEFT_SHIFT_RATIO = 0.1;
 export const INITIAL_CAMERA_TARGET_X = 0;
 export const INITIAL_CAMERA_Y = 8.2;

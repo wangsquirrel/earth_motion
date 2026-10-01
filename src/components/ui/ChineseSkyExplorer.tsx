@@ -55,7 +55,7 @@ function ChineseSkyExplorer() {
         {CULTURE_GROUPS.map((item) => <button type="button" key={item.id} onClick={() => setGroup(item.id)} aria-pressed={group === item.id}
           className={`rounded-md px-2 py-1 ${group === item.id ? 'bg-white/20' : 'bg-white/5'}`} style={{ color: item.color }}>{item.name}</button>)}
       </div>
-      <div className="grid grid-cols-7 gap-1" aria-label={copy.select}>
+      <div className="grid grid-cols-5 gap-1 sm:grid-cols-7" aria-label={copy.select}>
         {filtered.map((entry) => <button type="button" key={entry.id} aria-pressed={selectedId === entry.id}
           title={entry.name} onClick={() => select(entry.id)}
           className={`min-h-[44px] rounded-md border px-0.5 py-1 text-[11px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-200 ${selectedId === entry.id ? 'border-amber-200/70 bg-amber-200/15 text-amber-100' : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'}`}>

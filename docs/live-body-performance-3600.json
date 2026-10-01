@@ -1,0 +1,1457 @@
+{
+  "measuredAt": "2026-10-01T17:41:16.584Z",
+  "node": "v24.19.0",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "baseline": "2ae0966",
+  "baselineCommit": "2ae0966ed728c3fc8ed28da7714103b59a336c64",
+  "sourceHashes": {
+    "src/components/scene/layers/SpaceDynamicLayers.tsx": "db53cc061a872a3d72ae5ab7c3881929b86bf97561bcb5bfc54d0ecef1208b99",
+    "src/components/scene/layers/SpaceSunLayer.tsx": "fd44e74cedb5946c0c37b79a83aa649f729b17df34419916ebd4b63a050c7c78",
+    "src/components/scene/layers/SceneBodiesLayer.tsx": "27bc8e12a1a19d87abf4fa94cd586b117333892b961d62968b4f9608a73b8c78",
+    "src/components/scene/MoonPhaseDisc.tsx": "fb2e83546c05b3d7850591312d30f94d446578b9882c0c2b540dd54a5aa6aac8",
+    "src/components/scene/EarthView.tsx": "75b7e01a833222749f7c1d5176810d4f3862cfcc6453c922359e6f43c5a55559",
+    "src/utils/ephemeris.ts": "363db04d73a245b6093a80297663eabdd08aada394ad1eec6f2c6c91414de751"
+  },
+  "frameCount": 120,
+  "rounds": 7,
+  "method": "Real React 18 / R3F reconciliation and Three objects; no-op WebGL renderer; V8 precise function coverage and React Profiler",
+  "countMethod": "V8 Profiler.startPreciseCoverage(callCount=true) on actual loaded ephemeris module; mount counted separately from animation frames; oracle verification excluded",
+  "timingMethod": "Median process CPU and elapsed milliseconds for N frames; 30 warm-up frames per run; alternating revision order; coverage disabled while timing",
+  "fairness": "40 ms controlled wall-time per measured frame permits every legacy 16/33 ms gate; exactly N Sun calls and N distinct exact-time positions asserted for both revisions. No improvement may come from skipping old frames.",
+  "sceneConfiguration": "Sun-only vs Sun+Moon+7 planets. Stars, Milky Way, annual and diurnal trails disabled. Both revisions omit body labels for browser-free execution. Latitude 80°, June daytime fixtures.",
+  "limitations": "CPU-only component benchmark, with React development/profiling overhead. Excludes WebGL draw calls, GPU, browser frame pacing, Troika text construction, complete-scene/static-layer cost, and UI/clock scheduling. Does not establish browser FPS or end-to-end latency.",
+  "countResults": [
+    {
+      "source": "baseline",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 120,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "baseline",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 120,
+      "mountedThreeObjects": 15,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "baseline",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 120,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "baseline",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 120,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "baseline",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "baseline",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 2
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 120,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 120,
+      "controlledWallStepMs": 40,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 120,
+        "getMoonPosition": 120,
+        "getPlanetPosition": 840,
+        "getMoonPhaseData": 120
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 120,
+      "changingFrameTransitions": 119,
+      "maxPositionError": 0
+    }
+  ],
+  "timingResults": [
+    {
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 11.747,
+        "medianElapsedMs": 7.254781999999977,
+        "runs": [
+          {
+            "cpuMs": 27.362,
+            "elapsedMs": 12.82513199999994,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 14.319,
+            "elapsedMs": 8.634771,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 11.29,
+            "elapsedMs": 5.790801000000101,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 5.91,
+            "elapsedMs": 5.705283999999892,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 20.866,
+            "elapsedMs": 7.254781999999977,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 11.747,
+            "elapsedMs": 9.093395999999984,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 10.455,
+            "elapsedMs": 7.077044999999998,
+            "animationReactCommits": 120
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 2.477,
+        "medianElapsedMs": 1.9729959999999664,
+        "runs": [
+          {
+            "cpuMs": 4.445,
+            "elapsedMs": 2.0524330000000646,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 3.479,
+            "elapsedMs": 1.9729959999999664,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.839,
+            "elapsedMs": 1.6542669999998907,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.477,
+            "elapsedMs": 2.1888850000000275,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 4.983,
+            "elapsedMs": 2.11506600000007,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.695,
+            "elapsedMs": 1.685602999999901,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.431,
+            "elapsedMs": 1.7308700000000954,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 4.742430359305612
+    },
+    {
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 56.306,
+        "medianElapsedMs": 37.656011000000035,
+        "runs": [
+          {
+            "cpuMs": 74.531,
+            "elapsedMs": 56.05155999999988,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 62.103,
+            "elapsedMs": 42.15477400000009,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 48.337,
+            "elapsedMs": 37.656011000000035,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 56.306,
+            "elapsedMs": 36.9524449999999,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 42.834,
+            "elapsedMs": 35.73187800000005,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 58.753,
+            "elapsedMs": 41.57040400000005,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 37.752,
+            "elapsedMs": 34.87455499999987,
+            "animationReactCommits": 120
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 16.093,
+        "medianElapsedMs": 14.481261999999788,
+        "runs": [
+          {
+            "cpuMs": 32.198,
+            "elapsedMs": 20.986445000000003,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 25.978,
+            "elapsedMs": 18.561502999999902,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 14.717,
+            "elapsedMs": 14.345503000000008,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 14.774,
+            "elapsedMs": 14.481261999999788,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 16.093,
+            "elapsedMs": 14.670787000000018,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 22.272,
+            "elapsedMs": 14.180328999999801,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 13.579,
+            "elapsedMs": 13.56486300000006,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 3.4987882930466663
+    },
+    {
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 11.74,
+        "medianElapsedMs": 10.061951999999565,
+        "runs": [
+          {
+            "cpuMs": 28.186,
+            "elapsedMs": 12.29689499999995,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 10.168,
+            "elapsedMs": 10.032900000000154,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 11.74,
+            "elapsedMs": 10.178885000000264,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 9.777,
+            "elapsedMs": 9.39264699999967,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 14.069,
+            "elapsedMs": 10.061951999999565,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 10.287,
+            "elapsedMs": 9.339598000000024,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 13.005,
+            "elapsedMs": 11.682589999999891,
+            "animationReactCommits": 120
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 1.809,
+        "medianElapsedMs": 1.767153000000235,
+        "runs": [
+          {
+            "cpuMs": 3.379,
+            "elapsedMs": 1.922121000000061,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.227,
+            "elapsedMs": 1.767153000000235,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.809,
+            "elapsedMs": 1.8020540000002256,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.757,
+            "elapsedMs": 1.751800000000003,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 5.47,
+            "elapsedMs": 1.8702149999999165,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.754,
+            "elapsedMs": 1.6461049999998068,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.657,
+            "elapsedMs": 1.650691999999708,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 6.4897733554449974
+    },
+    {
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 61.075,
+        "medianElapsedMs": 47.58370500000001,
+        "runs": [
+          {
+            "cpuMs": 62.677,
+            "elapsedMs": 54.85732199999984,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 81.327,
+            "elapsedMs": 58.30433499999981,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 77.178,
+            "elapsedMs": 62.99652100000003,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 43.628,
+            "elapsedMs": 41.03276499999993,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 61.075,
+            "elapsedMs": 40.23724299999958,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 52.945,
+            "elapsedMs": 46.03121800000008,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 57.417,
+            "elapsedMs": 47.58370500000001,
+            "animationReactCommits": 120
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 21.948,
+        "medianElapsedMs": 17.69529600000078,
+        "runs": [
+          {
+            "cpuMs": 23.362,
+            "elapsedMs": 21.22070000000076,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 26.733,
+            "elapsedMs": 21.548423000000184,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 21.948,
+            "elapsedMs": 20.200557999999546,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 17.999,
+            "elapsedMs": 16.86606599999959,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 17.848,
+            "elapsedMs": 17.10609900000054,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 23.449,
+            "elapsedMs": 17.083615999999893,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 21.711,
+            "elapsedMs": 17.69529600000078,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 2.7827136868963005
+    },
+    {
+      "scene": "earth",
+      "bodies": "sun-only",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 2.275,
+        "medianElapsedMs": 1.5195990000001984,
+        "runs": [
+          {
+            "cpuMs": 10.501,
+            "elapsedMs": 1.663379999999961,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.275,
+            "elapsedMs": 1.7357460000002902,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.426,
+            "elapsedMs": 1.419380999999703,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.735,
+            "elapsedMs": 1.5195990000001984,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 4.186,
+            "elapsedMs": 2.5407719999993787,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.078,
+            "elapsedMs": 1.3954549999998562,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.368,
+            "elapsedMs": 1.3630380000004152,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 1.897,
+        "medianElapsedMs": 1.465698999999404,
+        "runs": [
+          {
+            "cpuMs": 11.157,
+            "elapsedMs": 1.6116149999998015,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 3.196,
+            "elapsedMs": 1.7450300000000425,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 2.03,
+            "elapsedMs": 1.4629249999998137,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.448,
+            "elapsedMs": 1.4427660000001197,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.675,
+            "elapsedMs": 1.6700499999997191,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.897,
+            "elapsedMs": 1.3376999999991313,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 1.471,
+            "elapsedMs": 1.465698999999404,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 1.1992619926199262
+    },
+    {
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "frameCount": 120,
+      "baseline": {
+        "medianCpuMs": 66.291,
+        "medianElapsedMs": 56.334961999999905,
+        "runs": [
+          {
+            "cpuMs": 84.301,
+            "elapsedMs": 63.79884200000015,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 81.537,
+            "elapsedMs": 65.70982600000025,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 70.484,
+            "elapsedMs": 60.2603739999995,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 59.427,
+            "elapsedMs": 53.75495200000023,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 66.291,
+            "elapsedMs": 52.665931999999884,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 55.249,
+            "elapsedMs": 51.90167500000007,
+            "animationReactCommits": 120
+          },
+          {
+            "cpuMs": 60.702,
+            "elapsedMs": 56.334961999999905,
+            "animationReactCommits": 120
+          }
+        ]
+      },
+      "current": {
+        "medianCpuMs": 21.381,
+        "medianElapsedMs": 18.58309399999962,
+        "runs": [
+          {
+            "cpuMs": 21.086,
+            "elapsedMs": 20.65107100000023,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 26.605,
+            "elapsedMs": 20.734973999999966,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 19.23,
+            "elapsedMs": 18.21889800000008,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 20.903,
+            "elapsedMs": 18.58309399999962,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 21.381,
+            "elapsedMs": 18.35949999999957,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 21.596,
+            "elapsedMs": 16.27057799999966,
+            "animationReactCommits": 0
+          },
+          {
+            "cpuMs": 22.886,
+            "elapsedMs": 18.979597999999896,
+            "animationReactCommits": 0
+          }
+        ]
+      },
+      "cpuSpeedup": 3.1004630279219865
+    }
+  ],
+  "continuousFrameResults": [
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 1.1474154959500993e-12
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun-only",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 1.1474154959500993e-12
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-observer",
+      "bodies": "sun+moon+7planets",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun-only",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 5,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "space-celestial",
+      "bodies": "sun+moon+7planets",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 23,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 5.163369731775447e-12
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun-only",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 0,
+        "getPlanetPosition": 0,
+        "getMoonPhaseData": 0
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 4,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 1,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 5.163369731775447e-12
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 3600,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 86400,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    },
+    {
+      "source": "current",
+      "scene": "earth",
+      "bodies": "sun+moon+7planets",
+      "speed": 604800,
+      "frameCount": 60,
+      "controlledWallStepMs": 16.666666666666668,
+      "mountEphemerisCalls": {
+        "getSunPosition": 1,
+        "getMoonPosition": 1,
+        "getPlanetPosition": 7,
+        "getMoonPhaseData": 1
+      },
+      "ephemerisCalls": {
+        "getSunPosition": 60,
+        "getMoonPosition": 60,
+        "getPlanetPosition": 420,
+        "getMoonPhaseData": 60
+      },
+      "animationReactCommits": 0,
+      "mountedThreeObjects": 30,
+      "checkedFrames": 60,
+      "changingFrameTransitions": 59,
+      "maxPositionError": 0
+    }
+  ]
+}

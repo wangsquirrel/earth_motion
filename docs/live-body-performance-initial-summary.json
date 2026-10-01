@@ -1,0 +1,17 @@
+{
+  "description": "Retained summary of the first 3600x run, before adding separate mount-time V8 counters. The full report was superseded during development; these are the exact six CPU medians recorded in the tool output, not reconstructed raw samples. Later complete runs are retained separately, so the first observation is not silently discarded.",
+  "baseline": "2ae0966",
+  "measuredSpeed": 3600,
+  "frameCount": 120,
+  "rounds": 7,
+  "statistic": "median process CPU milliseconds per 120 frames",
+  "rawSamplesAvailable": false,
+  "timingResults": [
+    { "scene": "space-observer", "bodies": "sun-only", "baselineCpuMs": 7.638, "currentCpuMs": 1.884 },
+    { "scene": "space-observer", "bodies": "sun+moon+7planets", "baselineCpuMs": 51.892, "currentCpuMs": 20.932 },
+    { "scene": "space-celestial", "bodies": "sun-only", "baselineCpuMs": 12.407, "currentCpuMs": 2.151 },
+    { "scene": "space-celestial", "bodies": "sun+moon+7planets", "baselineCpuMs": 68.642, "currentCpuMs": 21.753 },
+    { "scene": "earth", "bodies": "sun-only", "baselineCpuMs": 2.095, "currentCpuMs": 2.296 },
+    { "scene": "earth", "bodies": "sun+moon+7planets", "baselineCpuMs": 70.026, "currentCpuMs": 22.378 }
+  ]
+}

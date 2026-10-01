@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useLayoutEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -11,6 +11,7 @@ import {
   getPlanetPosition,
   getSunPosition,
   PLANET_BODIES,
+  type MoonPhaseData,
 } from '../../utils/ephemeris';
 import { equatorialToCartesian, horizontalToCartesian } from '../../utils/astronomy';
 import { projectEquatorialCoordinate } from '../../utils/skyProjection';
@@ -85,10 +86,8 @@ const EARTH_FOG_NEAR = 16;
 const EARTH_FOG_FAR = 74;
 const CELESTIAL_GRID_SCALE = SKY_OBJECT_RADIUS / 10;
 
-const BODY_REBUILD_INTERVAL_MS = 16;
-
 // ---------------------------------------------------------------------------
-// Snapshot type - all time-dependent data computed once per rebuild cycle
+// Snapshot type - visible bodies share the exact current simulation time
 // ---------------------------------------------------------------------------
 interface EarthBodySnapshot {
   sunProjection: ReturnType<typeof projectEquatorialCoordinate>;
@@ -362,7 +361,7 @@ function EarthSkyDome() {
   );
 }
 
-function EarthDynamicBodiesLayer({
+export function EarthDynamicBodiesLayer({
   simDateRef,
   language,
   showMoon,
@@ -379,17 +378,13 @@ function EarthDynamicBodiesLayer({
 }) {
   const { isDesktop } = useViewportLayout();
   const labelScale = isDesktop ? 1 : 1.8;
-  const lastBodyUpdateRef = useRef(0);
-  const lastMoonPhaseTimeRef = useRef(simDateRef.current.getTime());
-  const lastBodySimTimeRef = useRef(simDateRef.current.getTime());
-  const latitudeRef = useRef(useAppStore.getState().observer.latitude);
-  const longitudeRef = useRef(useAppStore.getState().observer.longitude);
   const sunGroupRef = useRef<THREE.Group>(null);
   const moonGroupRef = useRef<THREE.Group>(null);
   const planetGroupRefs = useRef<Record<string, THREE.Group | null>>({});
-  const [moonPhase, setMoonPhase] = useState(() => showMoon ? getMoonPhaseData(simDateRef.current) : { illuminatedFraction: 0, waxing: true });
+  const moonPhaseRef = useRef<MoonPhaseData>({ illuminatedFraction: 0, waxing: true });
 
   const applySnapshot = useCallback((snapshot: EarthBodySnapshot) => {
+    if (snapshot.moonPhase) moonPhaseRef.current = snapshot.moonPhase;
     if (sunGroupRef.current) {
       sunGroupRef.current.visible = snapshot.sunProjection.isVisible;
       sunGroupRef.current.position.set(...snapshot.sunProjection.observerPosition);
@@ -418,73 +413,49 @@ function EarthDynamicBodiesLayer({
   }, [showMoon, showPlanets]);
 
   useLayoutEffect(() => {
-    const syncBodiesForLocation = (latitude: number, longitude: number) => {
-      latitudeRef.current = latitude;
-      longitudeRef.current = longitude;
+    const syncBodies = () => {
       // A child subscription can fire before the scene clock subscription.
-      const date = new Date(getSyncedSimTimeMs(useAppStore.getState().clock, getWallNow()));
+      const { clock, observer } = useAppStore.getState();
+      const date = new Date(getSyncedSimTimeMs(clock, getWallNow()));
       const snapshot = buildEarthBodySnapshot(
         date,
-        latitude,
-        longitude,
+        observer.latitude,
+        observer.longitude,
         showMoon,
         showPlanets
       );
-      lastBodyUpdateRef.current = performance.now();
-      lastBodySimTimeRef.current = date.getTime();
       applySnapshot(snapshot);
-      if (snapshot.moonPhase) {
-        lastMoonPhaseTimeRef.current = date.getTime();
-        setMoonPhase(snapshot.moonPhase);
-      }
     };
 
-    syncBodiesForLocation(latitudeRef.current, longitudeRef.current);
+    syncBodies();
 
     const unsubscribe = useAppStore.subscribe((state, previousState) => {
       if (
         state.clock.currentTime !== previousState.clock.currentTime
+        || state.clock.playbackStartWallTime !== previousState.clock.playbackStartWallTime
+        || state.clock.isPlaying !== previousState.clock.isPlaying
+        || state.clock.timeSpeed !== previousState.clock.timeSpeed
         || state.observer.latitude !== previousState.observer.latitude
         || state.observer.longitude !== previousState.observer.longitude
       ) {
-        syncBodiesForLocation(
-          state.observer.latitude,
-          state.observer.longitude
-        );
+        syncBodies();
       }
     });
 
     return unsubscribe;
-  }, [applySnapshot, showMoon, showPlanets, simDateRef]);
+  }, [applySnapshot, showMoon, showPlanets]);
 
   useFrame(() => {
-    const wallNow = performance.now();
-    const currentSimTimeMs = simDateRef.current.getTime();
-    if (currentSimTimeMs === lastBodySimTimeRef.current) {
-      return;
-    }
-    if (wallNow - lastBodyUpdateRef.current < BODY_REBUILD_INTERVAL_MS) {
-      return;
-    }
-    lastBodyUpdateRef.current = wallNow;
-    lastBodySimTimeRef.current = currentSimTimeMs;
-
-    const refreshPhase = Math.abs(currentSimTimeMs - lastMoonPhaseTimeRef.current) >= 60000;
+    const { latitude, longitude } = useAppStore.getState().observer;
     const snapshot = buildEarthBodySnapshot(
       simDateRef.current,
-      latitudeRef.current,
-      longitudeRef.current,
+      latitude,
+      longitude,
       showMoon,
-      showPlanets,
-      refreshPhase
+      showPlanets
     );
     applySnapshot(snapshot);
-
-    if (snapshot.moonPhase) {
-      lastMoonPhaseTimeRef.current = currentSimTimeMs;
-      setMoonPhase(snapshot.moonPhase);
-    }
-  });
+  }, -0.5);
 
   return (
     <>
@@ -525,8 +496,7 @@ function EarthDynamicBodiesLayer({
       {showMoon && <group ref={moonGroupRef} visible={false}>
         <MoonPhaseDisc
           position={[0, 0, 0]}
-          illuminatedFraction={moonPhase.illuminatedFraction}
-          waxing={moonPhase.waxing}
+          phaseRef={moonPhaseRef}
           size={MOON_SPRITE_SIZE}
         />
         <SkySprite
@@ -1054,7 +1024,6 @@ function buildEarthBodySnapshot(
   longitude: number,
   showMoon: boolean,
   showPlanets: boolean,
-  includeMoonPhase = true,
 ): EarthBodySnapshot {
   const sun = getSunPosition(date);
   const sunProjection = projectEquatorialCoordinate(
@@ -1073,7 +1042,7 @@ function buildEarthBodySnapshot(
     )
     : null;
 
-  const moonPhase = showMoon && includeMoonPhase ? getMoonPhaseData(date) : null;
+  const moonPhase = showMoon ? getMoonPhaseData(date) : null;
 
   const planetProjections = showPlanets ? PLANET_BODIES.flatMap((planet) => {
     const position = getPlanetPosition(planet.name, date);

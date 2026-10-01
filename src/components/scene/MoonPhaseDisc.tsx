@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Billboard } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import type { MoonPhaseData } from '../../utils/ephemeris';
 
 function createMoonPhaseMaterial() {
   return new THREE.ShaderMaterial({
@@ -41,22 +43,31 @@ function createMoonPhaseMaterial() {
   });
 }
 
+function updateMoonPhaseMaterial(material: THREE.ShaderMaterial, phase: MoonPhaseData) {
+  const lightZ = 2 * THREE.MathUtils.clamp(phase.illuminatedFraction, 0, 1) - 1;
+  material.uniforms.uLight.value.set(
+    Math.sqrt(Math.max(0, 1 - lightZ * lightZ)) * (phase.waxing ? 1 : -1),
+    lightZ
+  );
+}
+
 export default function MoonPhaseDisc({
-  position, illuminatedFraction, waxing, size,
+  position, illuminatedFraction = 0, waxing = true, phaseRef, size,
 }: {
   position: [number, number, number];
-  illuminatedFraction: number;
-  waxing: boolean;
+  illuminatedFraction?: number;
+  waxing?: boolean;
+  /** Live phase is applied after the scene's body update, without a React commit. */
+  phaseRef?: { current: MoonPhaseData };
   size: number;
 }) {
   const [material] = useState(createMoonPhaseMaterial);
   useLayoutEffect(() => {
-    const lightZ = 2 * THREE.MathUtils.clamp(illuminatedFraction, 0, 1) - 1;
-    material.uniforms.uLight.value.set(
-      Math.sqrt(Math.max(0, 1 - lightZ * lightZ)) * (waxing ? 1 : -1),
-      lightZ
-    );
-  }, [illuminatedFraction, waxing, material]);
+    updateMoonPhaseMaterial(material, phaseRef?.current ?? { illuminatedFraction, waxing });
+  }, [illuminatedFraction, waxing, phaseRef, material]);
+  useFrame(() => {
+    if (phaseRef) updateMoonPhaseMaterial(material, phaseRef.current);
+  });
   useEffect(() => () => material.dispose(), [material]);
 
   return (
