@@ -95,7 +95,8 @@ await test('culture highlights reconcile and settle after paused demand-mode cha
     drainFrames();
     assert.equal(rings().length, 7);
 
-    await select('kang', 0); // An explicitly unmapped mansion clears the old rings.
+    for (const id of ['kang', 'shi', 'bi-wall', 'zi', 'jing', 'xing']) await select(id, 1);
+    await select('wei-stomach', 0); // An explicitly unmapped mansion clears the old rings.
     await select('ziwei', 1);
     await select('xin', 1);
     assert.equal(rings()[0].parent!.parent!.visible, false, 'negative world-y anchor is hidden');

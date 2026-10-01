@@ -17,6 +17,7 @@ export interface CultureEntry {
   group: CultureGroupId;
   order?: number;
   summary?: LocalizedText;
+  sourceScope?: LocalizedText;
   /** Explicitly sourced examples, never a claim to outline the entire region. */
   stars: readonly CultureStarReference[];
   sourceIds: readonly (keyof typeof CULTURE_SOURCES)[];
@@ -30,6 +31,10 @@ export const CULTURE_SOURCES = {
   starNames: {
     label: '台北市立天文科学教育馆 · 2017 天文年鉴恒星表',
     url: 'https://www-ws.gov.taipei/001/Upload/439/relfile/21703/3425086/1869002a-73be-4e12-b106-0f90810cca99.pdf',
+  },
+  qingMansionAnchors: {
+    label: '台北天文馆 ·《臺北星空》97期 · 清代距星对照（第19页）',
+    url: 'https://www-ws.gov.taipei/001/Upload/439/ckfile/92363ff3-5fed-4804-a365-632641a49c8c.pdf#page=4',
   },
   seasons: {
     label: '香港太空馆 · 四季星空',
@@ -65,7 +70,23 @@ const polaris = reference('alpha-umi', '勾陈一（今北极星）', 'α UMi', 
 const vega = reference('alpha-lyr', '织女一', 'α Lyr', 'Vega');
 const altair = reference('alpha-aql', '河鼓二', 'α Aql', 'Altair');
 
+// Individually checked against the Qing-period distance-star table, not inferred from constellation names.
+const qingMansionExamples: Record<string, readonly CultureStarReference[]> = {
+  kang: [reference('kappa-vir', '亢宿一', 'κ Vir')],
+  shi: [reference('alpha-peg', '室宿一', 'α Peg', 'Markab')],
+  'bi-wall': [reference('gamma-peg', '壁宿一', 'γ Peg')],
+  zi: [reference('lambda-ori', '觜宿一', 'λ Ori', 'Meissa')],
+  jing: [reference('mu-gem', '井宿一', 'μ Gem')],
+  xing: [reference('alpha-hya', '星宿一', 'α Hya', 'Alphard')],
+};
+
+const qingMansionScope: LocalizedText = {
+  'zh-CN': '本卡星名对应依据《臺北星空》97期的清代距星对照表。“距星”是传统表示天体入宿度的参照星；这里仅用作代表星，不据此复原历代宿界、成员或连线。',
+  en: 'This star-name match follows the Qing-period determinative-star table in 臺北星空 no. 97. A determinative star served as a reference for expressing celestial positions. Here it is an example star, not a reconstruction of historical boundaries, membership or lines.',
+};
+
 const mansionExamples: Record<string, readonly CultureStarReference[]> = {
+  ...qingMansionExamples,
   jiao: [reference('alpha-vir', '角宿一', 'α Vir', 'Spica')],
   xin: [reference('alpha-sco', '心宿二', 'α Sco', 'Antares')],
   mao: [reference('eta-tau', '昴宿六', 'η Tau', 'Alcyone')],
@@ -74,6 +95,12 @@ const mansionExamples: Record<string, readonly CultureStarReference[]> = {
 };
 
 const mansionSummaries: Record<string, LocalizedText> = {
+  kang: { 'zh-CN': '亢宿属于东方青龙。以亢宿一为入口，可在现代室女座内找到这颗恒星，比较同一星光在两套命名体系中的称呼。', en: 'Part of the eastern symbol. 亢宿一 is also κ Vir in modern Virgo, a starting point for comparing names for the same star.' },
+  shi: { 'zh-CN': '室宿属于北方玄武。代表星室宿一，也就是现代飞马座的 Markab；一颗入口星并不代表整宿的范围。', en: 'Part of the northern symbol. 室宿一 is Markab in modern Pegasus, a reference point rather than the extent of the mansion.' },
+  'bi-wall': { 'zh-CN': '壁宿属于北方玄武。壁宿一位于现代飞马座，可与室宿一对照寻找；这里保留两宿各自的传统名称。', en: 'Part of the northern symbol. 壁宿一 is γ Peg in modern Pegasus. Compare it with 室宿一 while keeping the two traditional mansion names distinct.' },
+  zi: { 'zh-CN': '觜读作 zī，属于西方白虎。觜宿一是现代猎户座中的 λ Ori；它与参宿的代表星同在这片现代星座天区，却属于不同的宿。', en: 'Pronounced zī and part of the western symbol. 觜宿一 is λ Ori in modern Orion. It shares that modern constellation with the reference star of 参, while belonging to a different mansion.' },
+  jing: { 'zh-CN': '井宿属于南方朱雀。井宿一是现代双子座的 μ Gem，从这颗星可以开始对照传统井宿与现代星座的命名。', en: 'Part of the southern symbol. 井宿一 is μ Gem in modern Gemini, an entry point for comparing traditional and modern star names.' },
+  xing: { 'zh-CN': '星宿是南方朱雀七宿之一。这里的“星”是宿名；代表星星宿一，也是现代长蛇座的亮星 Alphard。', en: 'One of the southern symbol’s seven mansions. 星 is this mansion’s name; its reference star 星宿一 is Alphard in modern Hydra.' },
   jiao: { 'zh-CN': '从角宿一开始认识东方青龙。换用现代星座名称，它位于室女座；这里比较的是同一颗星的称呼，而不是两片相等的星区。', en: 'Start with 角宿一 in the eastern symbol. It is also Spica in modern Virgo: two names for a star, not two equal sky regions.' },
   xin: { 'zh-CN': '心宿属于东方青龙。心宿二的红色十分醒目，古称“大火”，也就是现代天蝎座中的 Antares。', en: 'The reddish 心宿二, historically called 大火, is Antares in modern Scorpius.' },
   mao: { 'zh-CN': '昴宿的亮星聚集在 M45 昴宿星团。肉眼能辨认的颗数，会随光害、天气和视力而变；本页用昴宿六作为入口。', en: 'These stars lie in the Pleiades cluster, M45. The number visible to the eye depends on conditions; 昴宿六 is our reference point.' },
@@ -104,7 +131,8 @@ export const CHINESE_SKY_ENTRIES: readonly CultureEntry[] = [
   ...mansionRows.flatMap(([group, ids, names]) => ids.map((id, index): CultureEntry => ({
     id, name: `${names[index]}宿`, kind: 'mansion', group, order: index + 1,
     summary: mansionSummaries[id], stars: mansionExamples[id] ?? [],
-    sourceIds: id === 'mao' ? ['glossary', 'starNames', 'pleiades'] : mansionExamples[id] ? ['glossary', 'starNames', 'seasons'] : ['glossary', 'mansions'],
+    sourceScope: qingMansionExamples[id] ? qingMansionScope : undefined,
+    sourceIds: qingMansionExamples[id] ? ['glossary', 'qingMansionAnchors'] : id === 'mao' ? ['glossary', 'starNames', 'pleiades'] : mansionExamples[id] ? ['glossary', 'starNames', 'seasons'] : ['glossary', 'mansions'],
   }))),
   {
     id: 'beidou', name: '北斗', kind: 'asterism', group: 'stories', sourceIds: ['glossary', 'starNames', 'seasons'],

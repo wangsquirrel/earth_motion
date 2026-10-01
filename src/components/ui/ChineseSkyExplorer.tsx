@@ -85,6 +85,7 @@ function ChineseSkyExplorer() {
             : <p className="mt-2 text-[10px] leading-4 text-slate-400">{viewMode === 'space' && referenceFrame === 'celestial' ? copy.celestial : copy.horizon}</p>}
           {skyCulture === 'western' && <p className="mt-2 text-[10px] leading-4 text-sky-200">{copy.western}</p>}
         </> : <p className="mt-2 text-slate-400">{copy.emptyMapping}</p>}
+        {selected.sourceScope && <p className="mt-3 text-[10px] leading-4 text-slate-400">{selected.sourceScope[language]}</p>}
         <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1">{selected.sourceIds.map((id) => <a key={id} href={CULTURE_SOURCES[id].url} target="_blank" rel="noreferrer" className="text-[10px] text-sky-300 underline underline-offset-2">{CULTURE_SOURCES[id].label}</a>)}</div>
       </article> : <p className="text-slate-400">{copy.select}</p>}
       <details className="rounded-xl bg-white/5 p-2.5 text-[10px] leading-4 text-slate-400">
