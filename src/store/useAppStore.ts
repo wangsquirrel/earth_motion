@@ -27,6 +27,8 @@ interface ClockState {
 }
 
 interface DisplayState {
+  showPrecession: boolean;
+  showPrecessionToday: boolean;
   showDiurnalArc: boolean;
   showAnnualTrail: boolean;
   showMilkyWay: boolean;
@@ -57,6 +59,8 @@ interface AppState {
   stepCurrentTime: (deltaMs: number) => void;
   setIsPlaying: (playing: boolean) => void;
   setTimeSpeed: (speed: number) => void;
+  setShowPrecession: (show: boolean) => void;
+  setShowPrecessionToday: (show: boolean) => void;
   setShowDiurnalArc: (show: boolean) => void;
   setShowAnnualTrail: (show: boolean) => void;
   setShowMilkyWay: (show: boolean) => void;
@@ -117,6 +121,8 @@ export const useAppStore = create<AppState>((set) => {
     },
     // Display flags stay shared across Earth/Space so both views can honor the same visibility contract.
     display: {
+      showPrecession: false,
+      showPrecessionToday: true,
       showDiurnalArc: true,
       showAnnualTrail: true,
       showMilkyWay: true,
@@ -199,6 +205,8 @@ export const useAppStore = create<AppState>((set) => {
           },
         };
       }),
+    setShowPrecession: (show) => set((state) => ({ display: { ...state.display, showPrecession: show } })),
+    setShowPrecessionToday: (show) => set((state) => ({ display: { ...state.display, showPrecessionToday: show } })),
     setShowDiurnalArc: (show) => set((state) => ({ display: { ...state.display, showDiurnalArc: show } })),
     setShowAnnualTrail: (show) => set((state) => ({ display: { ...state.display, showAnnualTrail: show } })),
     setShowMilkyWay: (show) => set((state) => ({ display: { ...state.display, showMilkyWay: show } })),

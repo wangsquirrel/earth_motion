@@ -14,6 +14,7 @@ function ChineseSkyExplorer() {
     selectedId: state.selectedCultureEntryId, select: state.setSelectedCultureEntryId, setShowStars: state.setShowStars,
   })));
   const [open, setOpen] = useState(() => selectedId !== null);
+  const expanded = open || selectedId !== null;
   const [query, setQuery] = useState('');
   const [group, setGroup] = useState<CultureGroupId | undefined>();
   const contentId = useId();
@@ -32,16 +33,16 @@ function ChineseSkyExplorer() {
   }
 
   return <section className="mt-3 border-t border-white/10 pt-3" aria-label={copy.title}>
-    <button type="button" aria-expanded={open} aria-controls={contentId}
-      aria-label={open ? copy.close : copy.open}
+    <button type="button" aria-expanded={expanded} aria-controls={contentId}
+      aria-label={expanded ? copy.close : copy.open}
       className="flex w-full items-center gap-2 rounded-xl p-1.5 text-left hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
-      onClick={() => { setOpen(!open); if (open) select(null); }}>
+      onClick={() => { setOpen(!expanded); if (expanded) select(null); }}>
       <BookOpen size={17} className="shrink-0 text-amber-200" />
       <span className="min-w-0 flex-1"><span className="block text-[13px] tracking-widest text-amber-100">{copy.title}</span>
         <span className="mt-0.5 block text-[10px] leading-4 text-slate-400">{copy.subtitle}</span></span>
-      <ChevronDown size={15} className={`text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      <ChevronDown size={15} className={`text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
     </button>
-    {open && <div id={contentId} className="mt-3 max-h-[25rem] space-y-3 overflow-y-auto overscroll-contain pr-1 text-xs leading-5">
+    {expanded && <div id={contentId} className="mt-3 max-h-[25rem] space-y-3 overflow-y-auto overscroll-contain pr-1 text-xs leading-5">
       <p className="text-slate-300">{copy.intro}</p>
       <p className="text-[10px] leading-4 text-amber-100/70">{copy.legend}</p>
       <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-2.5 py-1.5">

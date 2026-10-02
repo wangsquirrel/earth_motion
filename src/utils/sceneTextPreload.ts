@@ -1,3 +1,4 @@
+import { getPrecessionCopy } from './precessionCopy';
 import { SCENE_LABEL_FONT_URL } from '../components/scene/sceneLabel.constants';
 import { getDirectionLabels, getLanguageCopy, getLocalizedBodyLabel, getMonthLabels, type AppLanguage } from './i18n';
 import { warmupTroikaFont } from './troikaText';
@@ -50,6 +51,8 @@ function collectUniqueCharacters(values: string[]) {
 }
 
 export const SCENE_TEXT_PRELOAD_CHARACTERS = collectUniqueCharacters([
+  ...LANGUAGES.flatMap(language => { const c = getPrecessionCopy(language); return [c.pole, c.equator, c.equinox, c.today]; }),
+  'J2000 0123456789',
   ...COMMON_STAR_LABELS,
   ...COMMON_WESTERN_SYSTEM_LABELS,
   ...COMMON_GREEK_GLYPHS,

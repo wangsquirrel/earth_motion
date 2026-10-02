@@ -25,6 +25,7 @@ import {
   buildMonthlySunEquatorialLabelSamples, buildObserverAxisPoints,
 } from './builders/sceneData';
 import { AnnualLayer, CelestialObserverOverlay, CelestialReferenceLayer, MilkyWayLayer, ObserverReferenceLayer, StarFieldLayer } from './layers';
+import PrecessionLayer from './layers/PrecessionLayer';
 import EquatorialGridLayer from './layers/EquatorialGridLayer';
 import SpaceDynamicLayers from './layers/SpaceDynamicLayers';
 import CultureHighlightLayer from './layers/CultureHighlightLayer';
@@ -65,7 +66,7 @@ export default function SpaceView() {
   const savedObserverViewRef = useRef<{ position: THREE.Vector3; up: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const { referenceFrame, skyCulture, language } = useAppStore(useShallow((state) => state.scene));
   const { latitude, longitude } = useAppStore(useShallow((state) => state.observer));
-  const { showDiurnalArc, showAnnualTrail, showMilkyWay, showStars, showCelestialObserverOverlay } = useAppStore(useShallow((state) => state.display));
+  const { showDiurnalArc, showAnnualTrail, showMilkyWay, showStars, showCelestialObserverOverlay, showPrecession } = useAppStore(useShallow((state) => state.display));
   const { simDateRef } = useSimulationTime();
   // Subscribe to year rollover, but initialize from the exact synchronized scene time.
   useAppStore((state) => state.clock.displayTime.getUTCFullYear());
@@ -240,14 +241,15 @@ export default function SpaceView() {
       <group scale={isCelestialFrame ? 1 : OBSERVER_FRAME_SCALE}>
         <mesh><sphereGeometry args={[0.12, 24, 24]} /><meshBasicMaterial color="#b8dcff" /></mesh>
         {isCelestialFrame ? (
-          <CelestialReferenceLayer {...celestialReferenceData} equatorLabel={copy.scene.celestialEquator} showGrid={false} />
+          <CelestialReferenceLayer {...celestialReferenceData} equatorLabel={`${copy.scene.celestialEquator} (J2000)`} showGrid={false} />
         ) : (
-          <ObserverReferenceLayer prefix="observer" {...celestialReferenceData} equatorLabel={copy.scene.celestialEquator}
+          <ObserverReferenceLayer prefix="observer" {...celestialReferenceData} equatorLabel={`${copy.scene.celestialEquator} (J2000)`}
             horizonLabels={horizonLabels} observerAxisPoints={observerAxisPoints} showGrid={false} />
         )}
         <group ref={rotatingSkyRef} quaternion={isCelestialFrame ? IDENTITY_QUATERNION : initialSkyQuaternion}>
+          {showPrecession && <PrecessionLayer simDateRef={simDateRef} radius={SPHERE_RADIUS} clipToHorizon={!isCelestialFrame} />}
           {showStars && <CultureHighlightLayer stars={celestialStars} radius={SPHERE_RADIUS} clipToHorizon={!isCelestialFrame} />}
-          <EquatorialGridLayer prefix="space-grid" {...celestialReferenceData} equatorLabel={copy.scene.celestialEquator}
+          <EquatorialGridLayer prefix="space-grid" {...celestialReferenceData} equatorLabel={`${copy.scene.celestialEquator} (J2000)`}
             declinationOpacity={0.11} hourOpacity={0.09} equatorOpacity={0.18} equatorLineWidth={1.8}
             showLabels={isCelestialFrame} clipToHorizon={!isCelestialFrame} />
           {showMilkyWay && <MilkyWayLayer prefix="space" texture={milkyWayTexture} radius={MILKY_WAY_RADIUS}
@@ -256,7 +258,7 @@ export default function SpaceView() {
             embedded={isCelestialFrame} clipToHorizon={!isCelestialFrame} initialHorizonNormal={initialHorizonNormal} />}
           {annualData && <AnnualLayer prefix={referenceFrame} {...annualData} clipToHorizon={!isCelestialFrame} initialHorizonNormal={initialHorizonNormal} />}
         </group>
-        {!isCelestialFrame && <ObserverEquatorLabel skyRef={rotatingSkyRef} label={copy.scene.celestialEquator} />}
+        {!isCelestialFrame && <ObserverEquatorLabel skyRef={rotatingSkyRef} label={`${copy.scene.celestialEquator} (J2000)`} />}
         {isCelestialFrame && showCelestialObserverOverlay && (
           <group ref={observerOverlayRef} quaternion={initialOverlayQuaternion}>
             <CelestialObserverOverlay {...observerOverlayData} emphasis={1} zenithLabel={copy.scene.zenith} />

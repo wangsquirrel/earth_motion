@@ -41,6 +41,7 @@ import {
   buildAnnualSunEquatorialSamples,
   buildCelestialReferenceLayerData,
 } from './builders/sceneData';
+import PrecessionLayer from './layers/PrecessionLayer';
 import EquatorialGridLayer from './layers/EquatorialGridLayer';
 import { MilkyWayLayer } from './layers';
 
@@ -608,6 +609,7 @@ export default function EarthView() {
   useAppStore((state) => state.clock.displayTime.getUTCFullYear());
   const displayYear = simDateRef.current.getUTCFullYear();
   const {
+    showPrecession,
     showAnnualTrail,
     showMilkyWay,
     showStars,
@@ -743,6 +745,7 @@ export default function EarthView() {
   );
   const rotatingSkyLayer = useMemo(() => (
     <group ref={rotatingSkyRef}>
+      {showPrecession && <PrecessionLayer simDateRef={simDateRef} radius={SKY_OBJECT_RADIUS} clipToHorizon />}
       {enableStarPointsLayer && <CultureHighlightLayer stars={celestialStarField.stars} radius={SKY_OBJECT_RADIUS} clipToHorizon />}
       <group scale={[CELESTIAL_GRID_SCALE, CELESTIAL_GRID_SCALE, CELESTIAL_GRID_SCALE]}>
         <EquatorialGridLayer
@@ -751,7 +754,7 @@ export default function EarthView() {
           hourGrid={celestialReferenceData.hourGrid}
           equatorSegments={celestialReferenceData.equatorSegments}
           equatorLabelPosition={celestialReferenceData.equatorLabelPosition}
-          equatorLabel={copy.scene.celestialEquator}
+          equatorLabel={`${copy.scene.celestialEquator} (J2000)`}
           declinationOpacity={0.11}
           hourOpacity={0.09}
           equatorOpacity={0.18}
@@ -794,6 +797,8 @@ export default function EarthView() {
       )}
     </group>
   ), [
+    showPrecession,
+    simDateRef,
     celestialEclipticPoints,
     celestialReferenceData.declinationGrid,
     celestialReferenceData.equatorLabelPosition,

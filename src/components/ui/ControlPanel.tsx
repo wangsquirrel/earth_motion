@@ -12,6 +12,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useViewportLayout } from '../../hooks/useViewportLayout';
 import { useAppStore } from '../../store/useAppStore';
 import { getLanguageCopy } from '../../utils/i18n';
+import PrecessionControls from './PrecessionControls';
 import ChineseSkyExplorer from './ChineseSkyExplorer';
 import {
   formatLunarDate,
@@ -674,6 +675,7 @@ export default function ControlPanel() {
         <div className="space-y-3 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
           {displayPanel}
           {controlsPanel}
+          <PrecessionControls />
         </div>
       </div>
     </div>
@@ -687,6 +689,7 @@ export default function ControlPanel() {
           <div className="space-y-3 pb-2">
             {displayPanel}
             {controlsPanel}
+          <PrecessionControls />
           </div>
         </div>
       </>
